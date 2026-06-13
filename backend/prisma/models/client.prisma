@@ -1,0 +1,18 @@
+model Client {
+  uid          Int      @id @default(autoincrement())
+  name         String
+  code         String?
+  email        String?
+  phone        String?
+  address      String?
+  gstNumber    String?
+  isActive     Boolean  @default(true)
+  createdByUid Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  createdBy   User              @relation("ClientCreator", fields: [createdByUid], references: [uid])
+  engagements AuditEngagement[]
+
+  @@map("clients")
+}

@@ -1,0 +1,11 @@
+model AuditScope {
+  uid            Int     @id @default(autoincrement())
+  engagementUid  Int
+  name           String
+  description    String?
+  isActive       Boolean @default(true)
+
+  engagement AuditEngagement @relation(fields: [engagementUid], references: [uid], onDelete: Cascade)
+
+  @@map("audit_scopes")
+}

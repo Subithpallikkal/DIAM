@@ -1,0 +1,11 @@
+model EngagementDocument {
+  uid            Int     @id @default(autoincrement())
+  engagementUid  Int
+  documentName   String
+  isRequired     Boolean @default(true)
+  isReceived     Boolean @default(false)
+
+  engagement AuditEngagement @relation(fields: [engagementUid], references: [uid], onDelete: Cascade)
+
+  @@map("engagement_documents")
+}

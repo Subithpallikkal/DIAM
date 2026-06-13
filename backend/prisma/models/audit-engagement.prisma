@@ -1,0 +1,21 @@
+model AuditEngagement {
+  uid           Int       @id @default(autoincrement())
+  clientUid     Int
+  title         String
+  auditType     String
+  financialYear String?
+  startDate     DateTime?
+  endDate       DateTime?
+  status        String    @default("DRAFT")
+  description   String?
+  createdByUid  Int
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  client    Client               @relation(fields: [clientUid], references: [uid])
+  createdBy User                 @relation("EngagementCreator", fields: [createdByUid], references: [uid])
+  scopes    AuditScope[]
+  documents EngagementDocument[]
+
+  @@map("audit_engagements")
+}

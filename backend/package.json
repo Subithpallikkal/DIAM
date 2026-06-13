@@ -1,0 +1,21 @@
+{
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev --name init_day1_models",
+    "db:seed": "prisma db seed",
+    "db:push": "prisma db push"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/pg": "^8.15.5",
+    "prisma": "^7.8.0",
+    "tsx": "^4.20.5"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.2",
+    "pg": "^8.16.3"
+  }
+}

@@ -1,0 +1,16 @@
+model User {
+  uid       Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  roleUid   Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  role               Role              @relation(fields: [roleUid], references: [uid])
+  clientsCreated     Client[]          @relation("ClientCreator")
+  engagementsCreated AuditEngagement[] @relation("EngagementCreator")
+
+  @@map("users")
+}
