@@ -3,7 +3,7 @@ services:
     name: diam-api
     runtime: node
     rootDir: backend
-    buildCommand: npm install && npm run render:build
+    buildCommand: npm install --include=dev && npm run render:build
     startCommand: npm run start:prod
     envVars:
       - key: NODE_ENV
