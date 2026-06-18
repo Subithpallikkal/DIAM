@@ -1,0 +1,13 @@
+model TaskAssignment {
+  uid            Int      @id @default(autoincrement())
+  taskUid        Int
+  assignedToUid  Int
+  assignedByUid  Int
+  createdAt      DateTime @default(now())
+
+  task       Task @relation(fields: [taskUid], references: [uid], onDelete: Cascade)
+  assignedTo User @relation("TaskAssignee", fields: [assignedToUid], references: [uid])
+  assignedBy User @relation("TaskAssigner", fields: [assignedByUid], references: [uid])
+
+  @@map("task_assignments")
+}

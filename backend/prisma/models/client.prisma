@@ -13,6 +13,9 @@ model Client {
 
   createdBy   User              @relation("ClientCreator", fields: [createdByUid], references: [uid])
   engagements AuditEngagement[]
+  documents   Document[]
 
+  @@index([isActive, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
   @@map("clients")
 }

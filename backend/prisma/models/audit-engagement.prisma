@@ -16,6 +16,14 @@ model AuditEngagement {
   createdBy User                 @relation("EngagementCreator", fields: [createdByUid], references: [uid])
   scopes    AuditScope[]
   documents EngagementDocument[]
+  files     Document[]
+  risks     Risk[]
+  tasks     Task[]
+  issues    Issue[]
 
+  @@index([clientUid])
+  @@index([status])
+  @@index([clientUid, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
   @@map("audit_engagements")
 }

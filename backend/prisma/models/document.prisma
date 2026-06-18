@@ -1,0 +1,24 @@
+model Document {
+  uid            Int      @id @default(autoincrement())
+  clientUid      Int
+  engagementUid  Int?
+  categoryUid    Int?
+  originalName   String
+  storedName     String
+  mimeType       String
+  fileSize       Int
+  uploadedByUid  Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  client      Client            @relation(fields: [clientUid], references: [uid])
+  engagement  AuditEngagement?  @relation(fields: [engagementUid], references: [uid])
+  category    DocumentCategory? @relation(fields: [categoryUid], references: [uid])
+  uploadedBy  User              @relation("DocumentUploader", fields: [uploadedByUid], references: [uid])
+  logs        DocumentLog[]
+
+  @@index([clientUid, createdAt(sort: Desc)])
+  @@index([engagementUid, createdAt(sort: Desc)])
+  @@index([categoryUid])
+  @@map("documents")
+}

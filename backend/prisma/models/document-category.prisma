@@ -1,0 +1,10 @@
+model DocumentCategory {
+  uid         Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  documents Document[]
+
+  @@map("document_categories")
+}

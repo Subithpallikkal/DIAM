@@ -1,0 +1,162 @@
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
+import { PrismaService } from "../../common/prisma/prisma.service";
+import { CacheService } from "../../common/cache/cache.service";
+import {
+  buildPaginatedResponse,
+  resolvePagination,
+} from "../../common/prisma/pagination.util";
+import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
+import {
+  ClientDetailDto,
+  ClientListItemDto,
+  CreateClientDto,
+  UpdateClientDto,
+} from "../../dtos/clients/client.dto";
+
+@Injectable()
+export class ClientsService {
+  constructor(
+    private prisma: PrismaService,
+    private cache: CacheService,
+  ) {}
+
+  async create(
+    dto: CreateClientDto,
+    createdByUid: number,
+  ): Promise<ClientDetailDto> {
+    const client = await this.prisma.client.create({
+      data: {
+        ...dto,
+        createdByUid,
+      },
+    });
+
+    this.cache.invalidatePrefix("dashboard:");
+    return this.toDetail(client);
+  }
+
+  async findAll(
+    query: PaginationQueryDto,
+  ): Promise<PaginatedResponseDto<ClientListItemDto>> {
+    const { page, limit, skip, take } = resolvePagination(query);
+    const where = this.buildWhere(query.search);
+
+    const [clients, total] = await Promise.all([
+      this.prisma.client.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+      }),
+      this.prisma.client.count({ where }),
+    ]);
+
+    return buildPaginatedResponse(
+      clients.map((client) => this.toListItem(client)),
+      total,
+      page,
+      limit,
+    );
+  }
+
+  async findOne(id: number): Promise<ClientDetailDto> {
+    const client = await this.prisma.client.findUnique({
+      where: { uid: id },
+    });
+
+    if (!client) {
+      throw new NotFoundException(`Client ${id} not found`);
+    }
+
+    return this.toDetail(client);
+  }
+
+  async update(id: number, dto: UpdateClientDto): Promise<ClientDetailDto> {
+    await this.ensureExists(id);
+
+    const client = await this.prisma.client.update({
+      where: { uid: id },
+      data: dto,
+    });
+
+    this.cache.invalidatePrefix("dashboard:");
+    return this.toDetail(client);
+  }
+
+  async deactivate(id: number): Promise<ClientDetailDto> {
+    await this.ensureExists(id);
+
+    const client = await this.prisma.client.update({
+      where: { uid: id },
+      data: { isActive: false },
+    });
+
+    this.cache.invalidatePrefix("dashboard:");
+    return this.toDetail(client);
+  }
+
+  private buildWhere(search?: string): Prisma.ClientWhereInput {
+    if (!search?.trim()) return {};
+
+    const term = search.trim();
+    return {
+      OR: [
+        { name: { contains: term, mode: "insensitive" } },
+        { email: { contains: term, mode: "insensitive" } },
+        { phone: { contains: term, mode: "insensitive" } },
+        { gstNumber: { contains: term, mode: "insensitive" } },
+      ],
+    };
+  }
+
+  private async ensureExists(id: number) {
+    const client = await this.prisma.client.findUnique({
+      where: { uid: id },
+    });
+
+    if (!client) {
+      throw new NotFoundException(`Client ${id} not found`);
+    }
+  }
+
+  private toListItem(client: {
+    uid: number;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    gstNumber: string | null;
+    isActive: boolean;
+    createdAt: Date;
+  }): ClientListItemDto {
+    return {
+      id: client.uid,
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      gstNumber: client.gstNumber,
+      isActive: client.isActive,
+      createdAt: client.createdAt,
+    };
+  }
+
+  private toDetail(client: {
+    uid: number;
+    name: string;
+    code: string | null;
+    email: string | null;
+    phone: string | null;
+    address: string | null;
+    gstNumber: string | null;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }): ClientDetailDto {
+    return {
+      ...this.toListItem(client),
+      code: client.code,
+      address: client.address,
+      updatedAt: client.updatedAt,
+    };
+  }
+}

@@ -1,0 +1,15 @@
+model Finding {
+  uid           Int      @id @default(autoincrement())
+  issueUid      Int
+  title         String
+  description   String?
+  severity      String   @default("MEDIUM")
+  createdByUid  Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  issue     Issue @relation(fields: [issueUid], references: [uid], onDelete: Cascade)
+  createdBy User  @relation("FindingCreator", fields: [createdByUid], references: [uid])
+
+  @@map("findings")
+}

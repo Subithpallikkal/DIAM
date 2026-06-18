@@ -1,0 +1,14 @@
+model RiskChecklist {
+  uid          Int      @id @default(autoincrement())
+  riskUid      Int
+  title        String
+  isCompleted  Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  risk        Risk                  @relation(fields: [riskUid], references: [uid], onDelete: Cascade)
+  assignments ChecklistAssignment[]
+
+  @@map("risk_checklists")
+}

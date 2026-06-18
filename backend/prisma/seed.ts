@@ -1,7 +1,7 @@
 import "dotenv/config";
 import bcrypt from "bcrypt";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { RoleName } from "../src/dtos";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
@@ -15,21 +15,21 @@ const ROLES: { name: RoleName; description: string }[] = [
 
 const USERS = [
   {
-    email: "admin@demo.com",
+    email: "admin@gmail.com",
     password: "Admin@123",
-    name: "Demo Admin",
+    name: "Admin",
     role: RoleName.ADMIN,
   },
   {
-    email: "manager@demo.com",
+    email: "manager@gmail.com",
     password: "Manager@123",
-    name: "Demo Manager",
+    name: "Manager",
     role: RoleName.MANAGER,
   },
   {
-    email: "auditor@demo.com",
+    email: "auditor@gmail.com",
     password: "Auditor@123",
-    name: "Demo Auditor",
+    name: "Auditor",
     role: RoleName.AUDITOR,
   },
 ];
@@ -65,7 +65,26 @@ async function main() {
     });
   }
 
-  console.log("Seed completed: 3 roles and 3 users created.");
+  await seedCategories();
+
+  console.log("Seed completed: roles, users, and document categories created.");
+}
+
+async function seedCategories() {
+  const categories = [
+    { name: "Financial", description: "Financial statements and records" },
+    { name: "Tax", description: "GST and tax related documents" },
+    { name: "Legal", description: "Legal and compliance documents" },
+    { name: "Operational", description: "Operational audit documents" },
+  ];
+
+  for (const category of categories) {
+    await prisma.documentCategory.upsert({
+      where: { name: category.name },
+      update: { description: category.description },
+      create: category,
+    });
+  }
 }
 
 main()

@@ -1,0 +1,23 @@
+model Issue {
+  uid                Int      @id @default(autoincrement())
+  engagementUid      Int
+  title              String
+  description        String?
+  severity           String   @default("MEDIUM")
+  status             String   @default("OPEN")
+  responsiblePerson  String?
+  createdByUid       Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  engagement  AuditEngagement   @relation(fields: [engagementUid], references: [uid], onDelete: Cascade)
+  createdBy   User              @relation("IssueCreator", fields: [createdByUid], references: [uid])
+  findings    Finding[]
+  assignments IssueAssignment[]
+  statusLogs  IssueStatusLog[]
+
+  @@index([engagementUid, createdAt(sort: Desc)])
+  @@index([status])
+  @@index([engagementUid, status, createdAt(sort: Desc)])
+  @@map("issues")
+}

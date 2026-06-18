@@ -1,0 +1,84 @@
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import { IsInt, IsOptional, IsString, MinLength } from "class-validator";
+
+export class CreateDocumentCategoryDto {
+  @ApiProperty({ example: "Financial" })
+  @IsString()
+  @MinLength(1)
+  name!: string;
+
+  @ApiPropertyOptional({ example: "Financial statements and records" })
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+export class DocumentCategoryDto {
+  @ApiProperty({ example: 1 })
+  id!: number;
+
+  @ApiProperty({ example: "Financial" })
+  name!: string;
+
+  @ApiProperty({ example: "Financial statements", nullable: true })
+  description!: string | null;
+
+  @ApiProperty()
+  createdAt!: Date;
+}
+
+export class DocumentListItemDto {
+  @ApiProperty({ example: 1 })
+  id!: number;
+
+  @ApiProperty({ example: 1 })
+  clientId!: number;
+
+  @ApiProperty({ example: "ABC Pvt Ltd" })
+  clientName!: string;
+
+  @ApiProperty({ example: 1, nullable: true })
+  engagementId!: number | null;
+
+  @ApiProperty({ example: "Financial Audit 2026", nullable: true })
+  engagementTitle!: string | null;
+
+  @ApiProperty({ example: 1, nullable: true })
+  categoryId!: number | null;
+
+  @ApiProperty({ example: "Financial", nullable: true })
+  categoryName!: string | null;
+
+  @ApiProperty({ example: "Bank Statement.pdf" })
+  originalName!: string;
+
+  @ApiProperty({ example: "application/pdf" })
+  mimeType!: string;
+
+  @ApiProperty({ example: 102400 })
+  fileSize!: number;
+
+  @ApiProperty({ example: "Demo Auditor" })
+  uploadedByName!: string;
+
+  @ApiProperty()
+  createdAt!: Date;
+}
+
+export class DocumentLogDto {
+  @ApiProperty({ example: 1 })
+  id!: number;
+
+  @ApiProperty({ example: "DOWNLOAD" })
+  action!: string;
+
+  @ApiProperty({ example: "Demo Admin" })
+  performedByName!: string;
+
+  @ApiProperty({ nullable: true })
+  details!: string | null;
+
+  @ApiProperty()
+  createdAt!: Date;
+}

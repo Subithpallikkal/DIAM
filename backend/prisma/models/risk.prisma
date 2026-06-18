@@ -1,0 +1,20 @@
+model Risk {
+  uid            Int      @id @default(autoincrement())
+  engagementUid  Int
+  title          String
+  description    String?
+  priority       String   @default("MEDIUM")
+  status         String   @default("OPEN")
+  createdByUid   Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  engagement AuditEngagement @relation(fields: [engagementUid], references: [uid], onDelete: Cascade)
+  createdBy  User            @relation("RiskCreator", fields: [createdByUid], references: [uid])
+  checklists RiskChecklist[]
+
+  @@index([engagementUid, createdAt(sort: Desc)])
+  @@index([status])
+  @@index([engagementUid, status])
+  @@map("risks")
+}

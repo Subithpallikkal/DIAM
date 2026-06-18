@@ -1,0 +1,13 @@
+model IssueStatusLog {
+  uid           Int      @id @default(autoincrement())
+  issueUid      Int
+  oldStatus     String
+  newStatus     String
+  changedByUid  Int
+  createdAt     DateTime @default(now())
+
+  issue     Issue @relation(fields: [issueUid], references: [uid], onDelete: Cascade)
+  changedBy User  @relation("IssueStatusChanger", fields: [changedByUid], references: [uid])
+
+  @@map("issue_status_logs")
+}

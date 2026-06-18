@@ -1,0 +1,13 @@
+model IssueAssignment {
+  uid            Int      @id @default(autoincrement())
+  issueUid       Int
+  assignedToUid  Int
+  assignedByUid  Int
+  createdAt      DateTime @default(now())
+
+  issue      Issue @relation(fields: [issueUid], references: [uid], onDelete: Cascade)
+  assignedTo User  @relation("IssueAssignee", fields: [assignedToUid], references: [uid])
+  assignedBy User  @relation("IssueAssigner", fields: [assignedByUid], references: [uid])
+
+  @@map("issue_assignments")
+}

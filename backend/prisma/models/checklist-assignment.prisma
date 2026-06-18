@@ -1,0 +1,13 @@
+model ChecklistAssignment {
+  uid            Int      @id @default(autoincrement())
+  checklistUid   Int
+  assignedToUid  Int
+  assignedByUid  Int
+  createdAt      DateTime @default(now())
+
+  checklist  RiskChecklist @relation(fields: [checklistUid], references: [uid], onDelete: Cascade)
+  assignedTo User          @relation("ChecklistAssignee", fields: [assignedToUid], references: [uid])
+  assignedBy User          @relation("ChecklistAssigner", fields: [assignedByUid], references: [uid])
+
+  @@map("checklist_assignments")
+}

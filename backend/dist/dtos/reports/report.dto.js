@@ -1,0 +1,186 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ReportQueryDto = exports.FindingsReportDto = exports.FindingsReportItemDto = exports.RiskReportDto = exports.RiskReportItemDto = exports.AuditSummaryReportDto = exports.DashboardStatsDto = void 0;
+const openapi = require("@nestjs/swagger");
+const swagger_1 = require("@nestjs/swagger");
+const class_transformer_1 = require("class-transformer");
+const class_validator_1 = require("class-validator");
+class DashboardStatsDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { totalClients: { required: true, type: () => Number }, totalAudits: { required: true, type: () => Number }, completedAudits: { required: true, type: () => Number }, openRisks: { required: true, type: () => Number }, pendingTasks: { required: true, type: () => Number }, openIssues: { required: true, type: () => Number }, resolvedIssues: { required: true, type: () => Number } };
+    }
+}
+exports.DashboardStatsDto = DashboardStatsDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 5 }),
+    __metadata("design:type", Number)
+], DashboardStatsDto.prototype, "totalClients", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 8 }),
+    __metadata("design:type", Number)
+], DashboardStatsDto.prototype, "totalAudits", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 2 }),
+    __metadata("design:type", Number)
+], DashboardStatsDto.prototype, "completedAudits", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 12 }),
+    __metadata("design:type", Number)
+], DashboardStatsDto.prototype, "openRisks", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 4 }),
+    __metadata("design:type", Number)
+], DashboardStatsDto.prototype, "pendingTasks", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 5 }),
+    __metadata("design:type", Number)
+], DashboardStatsDto.prototype, "openIssues", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 7 }),
+    __metadata("design:type", Number)
+], DashboardStatsDto.prototype, "resolvedIssues", void 0);
+class AuditSummaryReportDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { engagementTitle: { required: true, type: () => String }, clientName: { required: true, type: () => String }, totalRisks: { required: true, type: () => Number }, openIssues: { required: true, type: () => Number }, resolvedIssues: { required: true, type: () => Number }, pendingTasks: { required: true, type: () => Number }, completedTasks: { required: true, type: () => Number }, totalDocuments: { required: true, type: () => Number } };
+    }
+}
+exports.AuditSummaryReportDto = AuditSummaryReportDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "Financial Audit 2026" }),
+    __metadata("design:type", String)
+], AuditSummaryReportDto.prototype, "engagementTitle", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "ABC Pvt Ltd" }),
+    __metadata("design:type", String)
+], AuditSummaryReportDto.prototype, "clientName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 12 }),
+    __metadata("design:type", Number)
+], AuditSummaryReportDto.prototype, "totalRisks", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 5 }),
+    __metadata("design:type", Number)
+], AuditSummaryReportDto.prototype, "openIssues", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 7 }),
+    __metadata("design:type", Number)
+], AuditSummaryReportDto.prototype, "resolvedIssues", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 3 }),
+    __metadata("design:type", Number)
+], AuditSummaryReportDto.prototype, "pendingTasks", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 2 }),
+    __metadata("design:type", Number)
+], AuditSummaryReportDto.prototype, "completedTasks", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 10 }),
+    __metadata("design:type", Number)
+], AuditSummaryReportDto.prototype, "totalDocuments", void 0);
+class RiskReportItemDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { title: { required: true, type: () => String }, priority: { required: true, type: () => String }, status: { required: true, type: () => String }, checklistProgress: { required: true, type: () => String } };
+    }
+}
+exports.RiskReportItemDto = RiskReportItemDto;
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], RiskReportItemDto.prototype, "title", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], RiskReportItemDto.prototype, "priority", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], RiskReportItemDto.prototype, "status", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], RiskReportItemDto.prototype, "checklistProgress", void 0);
+class RiskReportDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { engagementTitle: { required: true, type: () => String }, high: { required: true, type: () => Number }, medium: { required: true, type: () => Number }, low: { required: true, type: () => Number }, items: { required: true, type: () => [require("./report.dto").RiskReportItemDto] } };
+    }
+}
+exports.RiskReportDto = RiskReportDto;
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], RiskReportDto.prototype, "engagementTitle", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 4 }),
+    __metadata("design:type", Number)
+], RiskReportDto.prototype, "high", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 5 }),
+    __metadata("design:type", Number)
+], RiskReportDto.prototype, "medium", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 3 }),
+    __metadata("design:type", Number)
+], RiskReportDto.prototype, "low", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [RiskReportItemDto] }),
+    __metadata("design:type", Array)
+], RiskReportDto.prototype, "items", void 0);
+class FindingsReportItemDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { issueName: { required: true, type: () => String }, findingTitle: { required: true, type: () => String }, severity: { required: true, type: () => String }, status: { required: true, type: () => String } };
+    }
+}
+exports.FindingsReportItemDto = FindingsReportItemDto;
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], FindingsReportItemDto.prototype, "issueName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], FindingsReportItemDto.prototype, "findingTitle", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], FindingsReportItemDto.prototype, "severity", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], FindingsReportItemDto.prototype, "status", void 0);
+class FindingsReportDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { engagementTitle: { required: true, type: () => String }, items: { required: true, type: () => [require("./report.dto").FindingsReportItemDto] } };
+    }
+}
+exports.FindingsReportDto = FindingsReportDto;
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], FindingsReportDto.prototype, "engagementTitle", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [FindingsReportItemDto] }),
+    __metadata("design:type", Array)
+], FindingsReportDto.prototype, "items", void 0);
+class ReportQueryDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { engagementId: { required: false, type: () => Number } };
+    }
+}
+exports.ReportQueryDto = ReportQueryDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1 }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], ReportQueryDto.prototype, "engagementId", void 0);
+//# sourceMappingURL=report.dto.js.map

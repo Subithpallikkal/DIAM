@@ -1,0 +1,20 @@
+model Task {
+  uid            Int      @id @default(autoincrement())
+  engagementUid  Int
+  title          String
+  description    String?
+  status         String   @default("PENDING")
+  createdByUid   Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  engagement  AuditEngagement  @relation(fields: [engagementUid], references: [uid], onDelete: Cascade)
+  createdBy   User             @relation("TaskCreator", fields: [createdByUid], references: [uid])
+  assignments TaskAssignment[]
+  comments    TaskComment[]
+
+  @@index([engagementUid, createdAt(sort: Desc)])
+  @@index([status])
+  @@index([engagementUid, status, createdAt(sort: Desc)])
+  @@map("tasks")
+}

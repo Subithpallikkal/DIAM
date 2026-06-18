@@ -1,0 +1,14 @@
+model DocumentLog {
+  uid            Int      @id @default(autoincrement())
+  documentUid    Int
+  action         String
+  performedByUid Int
+  details        String?
+  createdAt      DateTime @default(now())
+
+  document    Document @relation(fields: [documentUid], references: [uid], onDelete: Cascade)
+  performedBy User     @relation("DocumentLogPerformer", fields: [performedByUid], references: [uid])
+
+  @@index([documentUid, createdAt(sort: Desc)])
+  @@map("document_logs")
+}
