@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
 } from "@nestjs/common";
@@ -23,8 +22,7 @@ import { ClientsService } from "../../services/clients/clients.service";
 import {
   ClientDetailDto,
   ClientListItemDto,
-  CreateClientDto,
-  UpdateClientDto,
+  UpsertClientDto,
 } from "../../dtos/clients/client.dto";
 import { RequireRoles } from "../../common/decorators/roles.decorator";
 import { Roles } from "../../common/constants/roles.constants";
@@ -42,22 +40,23 @@ export class ClientsController {
 
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post()
-  @ApiOperation({ summary: "Create a new client" })
+  @ApiOperation({ summary: "Create or update a client" })
   @ApiBody({
-    type: CreateClientDto,
-    description: "Client details",
+    type: UpsertClientDto,
+    description: "Include id to update; omit id to create",
     examples: {
-      default: SwaggerExamples.clients.create,
+      create: SwaggerExamples.clients.create,
+      update: SwaggerExamples.clients.update,
     },
   })
   @ApiCreatedResponse({
-    description: "Client created",
+    description: "Client saved",
     type: ClientDetailDto,
     schema: { example: SwaggerExamples.clients.detail },
   })
   @ApiStandardErrors()
-  create(@Body() dto: CreateClientDto, @CurrentUser() user: JwtPayload) {
-    return this.clientsService.create(dto, user.sub);
+  upsert(@Body() dto: UpsertClientDto, @CurrentUser() user: JwtPayload) {
+    return this.clientsService.upsert(dto, user.sub);
   }
 
   @RequireRoles(...Roles.ALL)
@@ -83,30 +82,6 @@ export class ClientsController {
   })
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.clientsService.findOne(id);
-  }
-
-  @RequireRoles(...Roles.ADMIN_MANAGER)
-  @Patch(":id")
-  @ApiOperation({ summary: "Update client details" })
-  @ApiParam({ name: "id", type: Number, example: 1 })
-  @ApiBody({
-    type: UpdateClientDto,
-    description: "Fields to update",
-    examples: {
-      default: SwaggerExamples.clients.update,
-    },
-  })
-  @ApiOkResponse({
-    description: "Client updated",
-    type: ClientDetailDto,
-    schema: { example: SwaggerExamples.clients.detail },
-  })
-  @ApiStandardErrors()
-  update(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() dto: UpdateClientDto,
-  ) {
-    return this.clientsService.update(id, dto);
   }
 
   @RequireRoles(...Roles.ADMIN_ONLY)

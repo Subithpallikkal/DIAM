@@ -13,17 +13,22 @@ export interface UserDetail extends UserListItem {
   updatedAt: string
 }
 
-export interface CreateUserPayload {
-  name: string
-  email: string
-  password: string
-  role: RoleName
-}
-
-export interface UpdateUserPayload {
+export interface UpsertUserPayload {
+  id?: number
   name?: string
   email?: string
   password?: string
   role?: RoleName
   isActive?: boolean
 }
+
+/** @deprecated Use UpsertUserPayload */
+export type CreateUserPayload = Omit<UpsertUserPayload, 'id' | 'isActive'> & {
+  name: string
+  email: string
+  password: string
+  role: RoleName
+}
+
+/** @deprecated Use UpsertUserPayload */
+export type UpdateUserPayload = Omit<UpsertUserPayload, 'id'>

@@ -36,11 +36,8 @@ let IssuesController = class IssuesController {
     findOne(id) {
         return this.issuesService.findOne(id);
     }
-    create(engagementId, dto, user) {
-        return this.issuesService.create(engagementId, dto, user.sub);
-    }
-    update(id, dto, user) {
-        return this.issuesService.update(id, dto, user.sub);
+    upsert(engagementId, dto, user) {
+        return this.issuesService.upsert(engagementId, dto, user.sub);
     }
     assign(id, dto, user) {
         return this.issuesService.assign(id, dto, user.sub);
@@ -80,28 +77,16 @@ __decorate([
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Post)("engagements/:engagementId/issues"),
-    (0, swagger_1.ApiOperation)({ summary: "Create issue for engagement" }),
+    (0, swagger_1.ApiOperation)({ summary: "Create or update issue for engagement" }),
     (0, swagger_1.ApiCreatedResponse)({ type: issue_dto_1.IssueListItemDto }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("engagementId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, issue_dto_1.CreateIssueDto, Object]),
+    __metadata("design:paramtypes", [Number, issue_dto_1.UpsertIssueDto, Object]),
     __metadata("design:returntype", void 0)
-], IssuesController.prototype, "create", null);
-__decorate([
-    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
-    (0, common_1.Patch)("issues/:id"),
-    (0, swagger_1.ApiOperation)({ summary: "Update issue" }),
-    openapi.ApiResponse({ status: 200, type: require("../../dtos/issues/issue.dto").IssueDetailDto }),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Body)()),
-    __param(2, (0, current_user_decorator_1.CurrentUser)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, issue_dto_1.UpdateIssueDto, Object]),
-    __metadata("design:returntype", void 0)
-], IssuesController.prototype, "update", null);
+], IssuesController.prototype, "upsert", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("issues/:id/assign"),

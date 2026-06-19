@@ -89,12 +89,12 @@ export function ClientForm({
       </ModalFormGrid>
 
       {!hideActions && (
-        <Form.Item className="!mb-0 !mt-2">
+        <Form.Item className="mb-0! mt-2!">
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button icon={<ArrowLeftOutlined />} onClick={onCancel} block className="sm:!w-auto">
+            <Button icon={<ArrowLeftOutlined />} onClick={onCancel} block className="sm:w-auto!">
               Cancel
             </Button>
-            <Button type="primary" htmlType="submit" loading={loading} block className="sm:!w-auto">
+            <Button type="primary" htmlType="submit" loading={loading} block className="sm:w-auto!">
               {mode === 'create' ? 'Create Client' : 'Save Changes'}
             </Button>
           </div>

@@ -33,28 +33,29 @@ export interface IssueStatusLog {
 
 export interface IssueDetail extends IssueListItem {
   description: string | null
+  assigneeName: string | null
   findings: Finding[]
   statusLogs: IssueStatusLog[]
   updatedAt: string
 }
 
-export interface CreateIssuePayload {
-  title: string
-  description?: string
-  severity?: Priority
-  responsiblePerson?: string
-}
-
-export interface CreateFindingPayload {
-  title: string
-  description?: string
-  severity?: Priority
-}
-
-export interface UpdateIssuePayload {
+export interface UpsertIssuePayload {
+  id?: number
   title?: string
   description?: string
   severity?: Priority
   status?: IssueStatus
   responsiblePerson?: string
+}
+
+/** @deprecated Use UpsertIssuePayload */
+export type CreateIssuePayload = Omit<UpsertIssuePayload, 'id' | 'status'> & { title: string }
+
+/** @deprecated Use UpsertIssuePayload */
+export type UpdateIssuePayload = Omit<UpsertIssuePayload, 'id'>
+
+export interface CreateFindingPayload {
+  title: string
+  description?: string
+  severity?: Priority
 }

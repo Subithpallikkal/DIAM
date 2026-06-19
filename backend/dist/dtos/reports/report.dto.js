@@ -9,14 +9,68 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReportQueryDto = exports.FindingsReportDto = exports.FindingsReportItemDto = exports.RiskReportDto = exports.RiskReportItemDto = exports.AuditSummaryReportDto = exports.DashboardStatsDto = void 0;
+exports.ReportQueryDto = exports.FindingsReportDto = exports.FindingsReportItemDto = exports.RiskReportDto = exports.RiskReportItemDto = exports.AuditSummaryReportDto = exports.DashboardStatsDto = exports.WorkloadStatsDto = exports.ChecklistWorkloadItemDto = exports.TaskWorkloadItemDto = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
+class TaskWorkloadItemDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { userId: { required: true, type: () => Number }, userName: { required: true, type: () => String }, pending: { required: true, type: () => Number }, inProgress: { required: true, type: () => Number } };
+    }
+}
+exports.TaskWorkloadItemDto = TaskWorkloadItemDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 3 }),
+    __metadata("design:type", Number)
+], TaskWorkloadItemDto.prototype, "userId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "Demo Auditor" }),
+    __metadata("design:type", String)
+], TaskWorkloadItemDto.prototype, "userName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 2 }),
+    __metadata("design:type", Number)
+], TaskWorkloadItemDto.prototype, "pending", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    __metadata("design:type", Number)
+], TaskWorkloadItemDto.prototype, "inProgress", void 0);
+class ChecklistWorkloadItemDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { userId: { required: true, type: () => Number }, userName: { required: true, type: () => String }, openCount: { required: true, type: () => Number } };
+    }
+}
+exports.ChecklistWorkloadItemDto = ChecklistWorkloadItemDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 3 }),
+    __metadata("design:type", Number)
+], ChecklistWorkloadItemDto.prototype, "userId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "Demo Auditor" }),
+    __metadata("design:type", String)
+], ChecklistWorkloadItemDto.prototype, "userName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 4 }),
+    __metadata("design:type", Number)
+], ChecklistWorkloadItemDto.prototype, "openCount", void 0);
+class WorkloadStatsDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { tasksByAssignee: { required: true, type: () => [require("./report.dto").TaskWorkloadItemDto] }, openChecklistsByAssignee: { required: true, type: () => [require("./report.dto").ChecklistWorkloadItemDto] } };
+    }
+}
+exports.WorkloadStatsDto = WorkloadStatsDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [TaskWorkloadItemDto] }),
+    __metadata("design:type", Array)
+], WorkloadStatsDto.prototype, "tasksByAssignee", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [ChecklistWorkloadItemDto] }),
+    __metadata("design:type", Array)
+], WorkloadStatsDto.prototype, "openChecklistsByAssignee", void 0);
 class DashboardStatsDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { totalClients: { required: true, type: () => Number }, totalAudits: { required: true, type: () => Number }, completedAudits: { required: true, type: () => Number }, openRisks: { required: true, type: () => Number }, pendingTasks: { required: true, type: () => Number }, openIssues: { required: true, type: () => Number }, resolvedIssues: { required: true, type: () => Number } };
+        return { totalClients: { required: true, type: () => Number }, totalAudits: { required: true, type: () => Number }, completedAudits: { required: true, type: () => Number }, openRisks: { required: true, type: () => Number }, pendingTasks: { required: true, type: () => Number }, openIssues: { required: true, type: () => Number }, resolvedIssues: { required: true, type: () => Number }, workload: { required: true, type: () => require("./report.dto").WorkloadStatsDto } };
     }
 }
 exports.DashboardStatsDto = DashboardStatsDto;
@@ -48,6 +102,10 @@ __decorate([
     (0, swagger_1.ApiProperty)({ example: 7 }),
     __metadata("design:type", Number)
 ], DashboardStatsDto.prototype, "resolvedIssues", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: WorkloadStatsDto }),
+    __metadata("design:type", WorkloadStatsDto)
+], DashboardStatsDto.prototype, "workload", void 0);
 class AuditSummaryReportDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { engagementTitle: { required: true, type: () => String }, clientName: { required: true, type: () => String }, totalRisks: { required: true, type: () => Number }, openIssues: { required: true, type: () => Number }, resolvedIssues: { required: true, type: () => Number }, pendingTasks: { required: true, type: () => Number }, completedTasks: { required: true, type: () => Number }, totalDocuments: { required: true, type: () => Number } };

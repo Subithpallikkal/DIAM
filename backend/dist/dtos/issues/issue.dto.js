@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IssueDetailDto = exports.IssueStatusLogDto = exports.FindingDto = exports.IssueListItemDto = exports.CreateFindingDto = exports.AssignIssueDto = exports.UpdateIssueDto = exports.CreateIssueDto = void 0;
+exports.IssueDetailDto = exports.IssueStatusLogDto = exports.FindingDto = exports.IssueListItemDto = exports.CreateFindingDto = exports.AssignIssueDto = exports.UpsertIssueDto = exports.UpdateIssueDto = exports.CreateIssueDto = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
@@ -82,6 +82,19 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateIssueDto.prototype, "responsiblePerson", void 0);
+class UpsertIssueDto extends UpdateIssueDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: false, type: () => Number } };
+    }
+}
+exports.UpsertIssueDto = UpsertIssueDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1, description: "When set, updates the existing issue" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], UpsertIssueDto.prototype, "id", void 0);
 class AssignIssueDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { assignedToId: { required: true, type: () => Number } };
@@ -218,7 +231,7 @@ __decorate([
 ], IssueStatusLogDto.prototype, "createdAt", void 0);
 class IssueDetailDto extends IssueListItemDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { description: { required: true, type: () => String, nullable: true }, findings: { required: true, type: () => [require("./issue.dto").FindingDto] }, statusLogs: { required: true, type: () => [require("./issue.dto").IssueStatusLogDto] }, updatedAt: { required: true, type: () => Date } };
+        return { description: { required: true, type: () => String, nullable: true }, assigneeName: { required: true, type: () => String, nullable: true }, findings: { required: true, type: () => [require("./issue.dto").FindingDto] }, statusLogs: { required: true, type: () => [require("./issue.dto").IssueStatusLogDto] }, updatedAt: { required: true, type: () => Date } };
     }
 }
 exports.IssueDetailDto = IssueDetailDto;
@@ -226,6 +239,10 @@ __decorate([
     (0, swagger_1.ApiProperty)({ nullable: true }),
     __metadata("design:type", Object)
 ], IssueDetailDto.prototype, "description", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "Demo Auditor", nullable: true }),
+    __metadata("design:type", Object)
+], IssueDetailDto.prototype, "assigneeName", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: [FindingDto] }),
     __metadata("design:type", Array)

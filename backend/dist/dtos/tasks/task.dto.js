@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TaskDetailDto = exports.TaskCommentDto = exports.TaskListItemDto = exports.CreateTaskCommentDto = exports.AssignTaskDto = exports.UpdateTaskDto = exports.CreateTaskDto = void 0;
+exports.TaskDetailDto = exports.TaskCommentDto = exports.TaskListItemDto = exports.CreateTaskCommentDto = exports.AssignTaskDto = exports.UpsertTaskDto = exports.UpdateTaskDto = exports.CreateTaskDto = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
@@ -64,6 +64,19 @@ __decorate([
     (0, class_validator_1.IsEnum)(enums_dto_1.TaskStatus),
     __metadata("design:type", String)
 ], UpdateTaskDto.prototype, "status", void 0);
+class UpsertTaskDto extends UpdateTaskDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: false, type: () => Number } };
+    }
+}
+exports.UpsertTaskDto = UpsertTaskDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1, description: "When set, updates the existing task" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], UpsertTaskDto.prototype, "id", void 0);
 class AssignTaskDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { assignedToId: { required: true, type: () => Number } };

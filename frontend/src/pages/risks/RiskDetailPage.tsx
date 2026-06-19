@@ -3,11 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Checkbox, Form, List, Select, Typography, message } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import {
-  createChecklistItem,
+  upsertChecklistItem,
   fetchChecklists,
   fetchRisk,
-  updateChecklistItem,
-  updateRisk,
+  upsertRisk,
 } from '../../api/risks.api'
 import {
   Button,
@@ -42,7 +41,7 @@ export function RiskDetailPage() {
   const [loading, setLoading] = useState(true)
   const [checklistOpen, setChecklistOpen] = useState(false)
   const [form] = Form.useForm()
-  const modalWidth = useResponsiveModalWidth(520)
+  const modalWidth = useResponsiveModalWidth(440)
 
   const loadData = useCallback(async () => {
     if (!riskId) return
@@ -69,7 +68,7 @@ export function RiskDetailPage() {
   const handleAddChecklist = async () => {
     try {
       const values = await form.validateFields()
-      await createChecklistItem(riskId, values)
+      await upsertChecklistItem(riskId, values)
       message.success('Checklist item added')
       setChecklistOpen(false)
       form.resetFields()
@@ -83,7 +82,7 @@ export function RiskDetailPage() {
 
   const handleToggleChecklist = async (item: ChecklistItem, checked: boolean) => {
     try {
-      await updateChecklistItem(riskId, item.id, { isCompleted: checked })
+      await upsertChecklistItem(riskId, { id: item.id, isCompleted: checked })
       setChecklists(await fetchChecklists(riskId))
       setRisk(await fetchRisk(riskId))
     } catch (err) {
@@ -92,8 +91,12 @@ export function RiskDetailPage() {
   }
 
   const handleStatusChange = async (status: string) => {
+    if (!risk) return
     try {
-      const updated = await updateRisk(riskId, { status: status as RiskListItem['status'] })
+      const updated = await upsertRisk(risk.engagementId, {
+        id: riskId,
+        status: status as RiskListItem['status'],
+      })
       setRisk(updated)
       message.success('Risk status updated')
     } catch (err) {

@@ -9,10 +9,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ClientDetailDto = exports.ClientListItemDto = exports.UpdateClientDto = exports.CreateClientDto = void 0;
+exports.ClientDetailDto = exports.ClientListItemDto = exports.UpsertClientDto = exports.UpdateClientDto = exports.CreateClientDto = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const class_transformer_1 = require("class-transformer");
 class CreateClientDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { name: { required: true, type: () => String, minLength: 1 }, code: { required: false, type: () => String }, email: { required: false, type: () => String, format: "email" }, phone: { required: false, type: () => String }, address: { required: false, type: () => String }, gstNumber: { required: false, type: () => String } };
@@ -104,6 +105,19 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateClientDto.prototype, "isActive", void 0);
+class UpsertClientDto extends UpdateClientDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: false, type: () => Number } };
+    }
+}
+exports.UpsertClientDto = UpsertClientDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1, description: "When set, updates the existing client" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], UpsertClientDto.prototype, "id", void 0);
 class ClientListItemDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { id: { required: true, type: () => Number }, name: { required: true, type: () => String }, email: { required: true, type: () => String, nullable: true }, phone: { required: true, type: () => String, nullable: true }, gstNumber: { required: true, type: () => String, nullable: true }, isActive: { required: true, type: () => Boolean }, createdAt: { required: true, type: () => Date } };

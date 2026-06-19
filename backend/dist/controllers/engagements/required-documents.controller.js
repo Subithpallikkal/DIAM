@@ -26,31 +26,29 @@ let RequiredDocumentsController = class RequiredDocumentsController {
     constructor(requiredDocumentsService) {
         this.requiredDocumentsService = requiredDocumentsService;
     }
-    create(engagementId, dto) {
-        return this.requiredDocumentsService.create(engagementId, dto);
+    upsert(engagementId, dto) {
+        return this.requiredDocumentsService.upsert(engagementId, dto);
     }
     findAll(engagementId) {
         return this.requiredDocumentsService.findAll(engagementId);
-    }
-    update(engagementId, docId, dto) {
-        return this.requiredDocumentsService.update(engagementId, docId, dto);
     }
 };
 exports.RequiredDocumentsController = RequiredDocumentsController;
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)(),
-    (0, swagger_1.ApiOperation)({ summary: "Add a required document checklist item" }),
+    (0, swagger_1.ApiOperation)({ summary: "Create or update a required document checklist item" }),
     (0, swagger_1.ApiParam)({ name: "id", type: Number, example: 1, description: "Engagement id" }),
     (0, swagger_1.ApiBody)({
-        type: engagement_dto_1.CreateRequiredDocumentDto,
-        description: "Checklist item details",
+        type: engagement_dto_1.UpsertRequiredDocumentDto,
+        description: "Include id to update; omit id to create",
         examples: {
-            default: api_examples_1.SwaggerExamples.requiredDocuments.create,
+            create: api_examples_1.SwaggerExamples.requiredDocuments.create,
+            update: api_examples_1.SwaggerExamples.requiredDocuments.updateReceived,
         },
     }),
     (0, swagger_1.ApiCreatedResponse)({
-        description: "Checklist item created",
+        description: "Checklist item saved",
         type: engagement_dto_1.RequiredDocumentListItemDto,
         schema: { example: api_examples_1.SwaggerExamples.requiredDocuments.listItem },
     }),
@@ -58,9 +56,9 @@ __decorate([
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, engagement_dto_1.CreateRequiredDocumentDto]),
+    __metadata("design:paramtypes", [Number, engagement_dto_1.UpsertRequiredDocumentDto]),
     __metadata("design:returntype", void 0)
-], RequiredDocumentsController.prototype, "create", null);
+], RequiredDocumentsController.prototype, "upsert", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)(),
@@ -81,34 +79,6 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], RequiredDocumentsController.prototype, "findAll", null);
-__decorate([
-    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
-    (0, common_1.Patch)(":docId"),
-    (0, swagger_1.ApiOperation)({ summary: "Update a checklist item (e.g. mark as received)" }),
-    (0, swagger_1.ApiParam)({ name: "id", type: Number, example: 1, description: "Engagement id" }),
-    (0, swagger_1.ApiParam)({ name: "docId", type: Number, example: 1 }),
-    (0, swagger_1.ApiBody)({
-        type: engagement_dto_1.UpdateRequiredDocumentDto,
-        description: "Fields to update",
-        examples: {
-            markReceived: api_examples_1.SwaggerExamples.requiredDocuments.updateReceived,
-        },
-    }),
-    (0, swagger_1.ApiOkResponse)({
-        description: "Checklist item updated",
-        type: engagement_dto_1.RequiredDocumentListItemDto,
-        schema: {
-            example: { ...api_examples_1.SwaggerExamples.requiredDocuments.listItem, isReceived: true },
-        },
-    }),
-    (0, api_error_decorator_1.ApiStandardErrors)(),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Param)("docId", common_1.ParseIntPipe)),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, engagement_dto_1.UpdateRequiredDocumentDto]),
-    __metadata("design:returntype", void 0)
-], RequiredDocumentsController.prototype, "update", null);
 exports.RequiredDocumentsController = RequiredDocumentsController = __decorate([
     (0, swagger_1.ApiTags)("Required Documents"),
     (0, swagger_1.ApiBearerAuth)("JWT"),

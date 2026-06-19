@@ -29,6 +29,16 @@ let ClientsService = class ClientsService {
         this.cache.invalidatePrefix("dashboard:");
         return this.toDetail(client);
     }
+    async upsert(dto, createdByUid) {
+        const { id, ...data } = dto;
+        if (id != null) {
+            return this.update(id, data);
+        }
+        if (!data.name?.trim()) {
+            throw new common_1.BadRequestException("name is required");
+        }
+        return this.create(data, createdByUid);
+    }
     async findAll(query) {
         const { page, limit, skip, take } = (0, pagination_util_1.resolvePagination)(query);
         const where = this.buildWhere(query);

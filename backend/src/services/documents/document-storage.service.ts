@@ -51,6 +51,29 @@ export class DocumentStorageService {
     });
   }
 
+  async uploadVersion(
+    baseDocumentId: number,
+    file: Express.Multer.File,
+    uploadedByUid: number,
+  ) {
+    if (!file) {
+      throw new BadRequestException("File is required");
+    }
+
+    const storedName = `${randomUUID()}-${file.originalname}`;
+
+    const { writeFileSync } = await import("fs");
+    writeFileSync(join(this.uploadDir, storedName), file.buffer);
+
+    return this.documentsService.createVersionRecord(baseDocumentId, {
+      originalName: file.originalname,
+      storedName,
+      mimeType: file.mimetype,
+      fileSize: file.size,
+      uploadedByUid,
+    });
+  }
+
   async download(documentId: number, performedByUid: number): Promise<StreamableFile> {
     const document = await this.documentsService.ensureExists(documentId);
     const filePath = join(this.uploadDir, document.storedName);

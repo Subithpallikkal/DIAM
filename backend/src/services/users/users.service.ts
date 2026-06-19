@@ -17,6 +17,7 @@ import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagi
 import {
   CreateUserDto,
   UpdateUserDto,
+  UpsertUserDto,
   UserDetailDto,
   UserListItemDto,
 } from "../../dtos/users/user.dto";
@@ -52,6 +53,17 @@ export class UsersService {
     });
 
     return this.toDetail(user);
+  }
+
+  async upsert(dto: UpsertUserDto): Promise<UserDetailDto> {
+    const { id, ...data } = dto;
+    if (id != null) {
+      return this.update(id, data);
+    }
+    if (!data.name?.trim() || !data.email || !data.password || !data.role) {
+      throw new BadRequestException("name, email, password, and role are required");
+    }
+    return this.create(data as CreateUserDto);
   }
 
   async findAll(

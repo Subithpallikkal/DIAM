@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import {
   CreateRequiredDocumentDto,
   RequiredDocumentListItemDto,
   UpdateRequiredDocumentDto,
+  UpsertRequiredDocumentDto,
 } from "../../dtos/engagements/engagement.dto";
 import { EngagementsService } from "./engagements.service";
 
@@ -29,6 +30,23 @@ export class RequiredDocumentsService {
     });
 
     return this.toListItem(document);
+  }
+
+  async upsert(
+    engagementId: number,
+    dto: UpsertRequiredDocumentDto,
+  ): Promise<RequiredDocumentListItemDto> {
+    const { id, documentName, ...data } = dto;
+    if (id != null) {
+      return this.update(engagementId, id, data);
+    }
+    if (!documentName?.trim()) {
+      throw new BadRequestException("documentName is required");
+    }
+    return this.create(engagementId, {
+      documentName,
+      isRequired: data.isRequired,
+    });
   }
 
   async findAll(

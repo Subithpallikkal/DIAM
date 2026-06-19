@@ -18,13 +18,12 @@ import {
 } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import {
-  createRequiredDocument,
+  upsertRequiredDocument,
   createScope,
   deleteScope,
   fetchEngagement,
   fetchRequiredDocuments,
   fetchScopes,
-  updateRequiredDocument,
 } from '../../api/engagements.api'
 import { Button, EngagementStatusTag, Input, Loader, ModalForm, ModalFormField, modalFormClassName, PageBody, PageContainer, PageHeader, ResponsiveCard, responsiveDescriptionsClass, stackListItemClass } from '../../components/common'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
@@ -51,7 +50,7 @@ export function EngagementDetailPage() {
   const [docModalOpen, setDocModalOpen] = useState(false)
   const [scopeForm] = Form.useForm<{ name: string; description?: string }>()
   const [docForm] = Form.useForm<{ documentName: string; isRequired?: boolean }>()
-  const modalWidth = useResponsiveModalWidth(520)
+  const modalWidth = useResponsiveModalWidth(440)
 
   const loadData = useCallback(async () => {
     if (!engagementId) return
@@ -115,7 +114,7 @@ export function EngagementDetailPage() {
   const handleAddDocument = async () => {
     try {
       const values = await docForm.validateFields()
-      await createRequiredDocument(engagementId, values)
+      await upsertRequiredDocument(engagementId, values)
       message.success('Document added to checklist')
       setDocModalOpen(false)
       docForm.resetFields()
@@ -129,7 +128,8 @@ export function EngagementDetailPage() {
 
   const handleToggleReceived = async (doc: RequiredDocument, checked: boolean) => {
     try {
-      const updated = await updateRequiredDocument(engagementId, doc.id, {
+      const updated = await upsertRequiredDocument(engagementId, {
+        id: doc.id,
         isReceived: checked,
       })
       setDocuments((prev) =>

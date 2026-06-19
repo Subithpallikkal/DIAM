@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CacheService } from "../../common/cache/cache.service";
@@ -16,6 +16,8 @@ import {
   RiskListItemDto,
   UpdateChecklistItemDto,
   UpdateRiskDto,
+  UpsertChecklistItemDto,
+  UpsertRiskDto,
 } from "../../dtos/risks/risk.dto";
 import { Priority, RiskStatus } from "../../dtos/common/enums.dto";
 
@@ -118,6 +120,22 @@ export class RisksService {
     return this.toListItem(risk);
   }
 
+  async upsert(
+    engagementId: number,
+    dto: UpsertRiskDto,
+    createdByUid: number,
+  ): Promise<RiskListItemDto> {
+    const { id, ...data } = dto;
+    if (id != null) {
+      await this.ensureBelongsToEngagement(id, engagementId);
+      return this.update(id, data);
+    }
+    if (!data.title?.trim()) {
+      throw new BadRequestException("title is required");
+    }
+    return this.create(engagementId, data as CreateRiskDto, createdByUid);
+  }
+
   async update(id: number, dto: UpdateRiskDto): Promise<RiskListItemDto> {
     await this.ensureExists(id);
 
@@ -182,6 +200,20 @@ export class RisksService {
     };
   }
 
+  async upsertChecklistItem(
+    riskId: number,
+    dto: UpsertChecklistItemDto,
+  ): Promise<ChecklistItemDto> {
+    const { id, ...data } = dto;
+    if (id != null) {
+      return this.updateChecklistItem(riskId, id, data);
+    }
+    if (!data.title?.trim()) {
+      throw new BadRequestException("title is required");
+    }
+    return this.addChecklistItem(riskId, data as CreateChecklistItemDto);
+  }
+
   async updateChecklistItem(
     riskId: number,
     checklistId: number,
@@ -234,6 +266,17 @@ export class RisksService {
     const risk = await this.prisma.risk.findUnique({ where: { uid: id } });
     if (!risk) {
       throw new NotFoundException(`Risk ${id} not found`);
+    }
+  }
+
+  private async ensureBelongsToEngagement(riskId: number, engagementId: number) {
+    const risk = await this.prisma.risk.findFirst({
+      where: { uid: riskId, engagementUid: engagementId },
+    });
+    if (!risk) {
+      throw new NotFoundException(
+        `Risk ${riskId} not found for engagement ${engagementId}`,
+      );
     }
   }
 

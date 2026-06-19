@@ -2,6 +2,39 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsInt, IsOptional } from "class-validator";
 
+export class TaskWorkloadItemDto {
+  @ApiProperty({ example: 3 })
+  userId!: number;
+
+  @ApiProperty({ example: "Demo Auditor" })
+  userName!: string;
+
+  @ApiProperty({ example: 2 })
+  pending!: number;
+
+  @ApiProperty({ example: 1 })
+  inProgress!: number;
+}
+
+export class ChecklistWorkloadItemDto {
+  @ApiProperty({ example: 3 })
+  userId!: number;
+
+  @ApiProperty({ example: "Demo Auditor" })
+  userName!: string;
+
+  @ApiProperty({ example: 4 })
+  openCount!: number;
+}
+
+export class WorkloadStatsDto {
+  @ApiProperty({ type: [TaskWorkloadItemDto] })
+  tasksByAssignee!: TaskWorkloadItemDto[];
+
+  @ApiProperty({ type: [ChecklistWorkloadItemDto] })
+  openChecklistsByAssignee!: ChecklistWorkloadItemDto[];
+}
+
 export class DashboardStatsDto {
   @ApiProperty({ example: 5 })
   totalClients!: number;
@@ -23,6 +56,9 @@ export class DashboardStatsDto {
 
   @ApiProperty({ example: 7 })
   resolvedIssues!: number;
+
+  @ApiProperty({ type: WorkloadStatsDto })
+  workload!: WorkloadStatsDto;
 }
 
 export class AuditSummaryReportDto {

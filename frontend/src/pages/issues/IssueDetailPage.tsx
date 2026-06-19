@@ -7,7 +7,7 @@ import {
   SEVERITY_OPTIONS,
   addFinding,
   fetchIssue,
-  updateIssue,
+  upsertIssue,
 } from '../../api/issues.api'
 import {
   Button,
@@ -55,8 +55,12 @@ export function IssueDetailPage() {
   }, [loadData])
 
   const handleStatusChange = async (status: string) => {
+    if (!issue) return
     try {
-      await updateIssue(issueId, { status: status as IssueDetail['status'] })
+      await upsertIssue(issue.engagementId, {
+        id: issueId,
+        status: status as IssueDetail['status'],
+      })
       message.success('Status updated')
       loadData()
     } catch (err) {
@@ -174,7 +178,7 @@ export function IssueDetailPage() {
             className={`${mobileFullSelectClass} sm:w-36`}
             options={SEVERITY_OPTIONS.map((value) => ({ label: value, value }))}
           />
-          <Button type="primary" onClick={handleAddFinding} block className="sm:!inline-flex">
+          <Button type="primary" onClick={handleAddFinding} block className="sm:inline-flex!">
             Add Finding
           </Button>
         </div>

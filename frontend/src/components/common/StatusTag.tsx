@@ -7,7 +7,7 @@ const engagementStatusConfig: Record<
   { className: string; label: string }
 > = {
   DRAFT: { className: 'bg-slate-400', label: 'Draft' },
-  IN_PROGRESS: { className: 'bg-[#1abc9c]', label: 'In Progress' },
+  IN_PROGRESS: { className: 'bg-brand', label: 'In Progress' },
   COMPLETED: { className: 'bg-[#0d9f6e]', label: 'Completed' },
 }
 
@@ -35,7 +35,7 @@ export function ClientStatusTag({ isActive }: { isActive: boolean }) {
 const priorityConfig: Record<string, string> = {
   HIGH: 'bg-[#d64545]',
   MEDIUM: 'bg-[#e8a317]',
-  LOW: 'bg-[#1abc9c]',
+  LOW: 'bg-brand',
 }
 
 export function PriorityTag({ value }: { value: string }) {
@@ -46,7 +46,7 @@ export function PriorityTag({ value }: { value: string }) {
 
 const taskStatusConfig: Record<string, string> = {
   PENDING: 'bg-[#e8a317]',
-  IN_PROGRESS: 'bg-[#1abc9c]',
+  IN_PROGRESS: 'bg-brand',
   COMPLETED: 'bg-[#0d9f6e]',
 }
 
@@ -61,7 +61,7 @@ export function TaskStatusTag({ status }: { status: string }) {
 
 const issueStatusConfig: Record<string, string> = {
   OPEN: 'bg-[#d64545]',
-  IN_PROGRESS: 'bg-[#1abc9c]',
+  IN_PROGRESS: 'bg-brand',
   RESOLVED: 'bg-[#0d9f6e]',
   CLOSED: 'bg-slate-400',
 }
@@ -77,7 +77,7 @@ export function IssueStatusTag({ status }: { status: string }) {
 
 const roleConfig: Record<string, string> = {
   ADMIN: 'bg-[#34495e]',
-  MANAGER: 'bg-[#1abc9c]',
+  MANAGER: 'bg-brand',
   AUDITOR: 'bg-[#5d6d7e]',
 }
 

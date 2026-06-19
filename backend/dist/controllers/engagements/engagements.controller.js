@@ -28,17 +28,14 @@ let EngagementsController = class EngagementsController {
     constructor(engagementsService) {
         this.engagementsService = engagementsService;
     }
-    create(dto, user) {
-        return this.engagementsService.create(dto, user.sub);
+    upsert(dto, user) {
+        return this.engagementsService.upsert(dto, user.sub);
     }
     findAll(query) {
         return this.engagementsService.findAll(query);
     }
     findOne(id) {
         return this.engagementsService.findOne(id);
-    }
-    update(id, dto) {
-        return this.engagementsService.update(id, dto);
     }
     remove(id) {
         return this.engagementsService.remove(id);
@@ -48,16 +45,17 @@ exports.EngagementsController = EngagementsController;
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)(),
-    (0, swagger_1.ApiOperation)({ summary: "Create a new audit engagement" }),
+    (0, swagger_1.ApiOperation)({ summary: "Create or update an audit engagement" }),
     (0, swagger_1.ApiBody)({
-        type: engagement_dto_1.CreateEngagementDto,
-        description: "Engagement details",
+        type: engagement_dto_1.UpsertEngagementDto,
+        description: "Include id to update; omit id to create",
         examples: {
-            default: api_examples_1.SwaggerExamples.engagements.create,
+            create: api_examples_1.SwaggerExamples.engagements.create,
+            update: api_examples_1.SwaggerExamples.engagements.update,
         },
     }),
     (0, swagger_1.ApiCreatedResponse)({
-        description: "Engagement created",
+        description: "Engagement saved",
         type: engagement_dto_1.EngagementDetailDto,
         schema: { example: api_examples_1.SwaggerExamples.engagements.detail },
     }),
@@ -65,9 +63,9 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [engagement_dto_1.CreateEngagementDto, Object]),
+    __metadata("design:paramtypes", [engagement_dto_1.UpsertEngagementDto, Object]),
     __metadata("design:returntype", void 0)
-], EngagementsController.prototype, "create", null);
+], EngagementsController.prototype, "upsert", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)(),
@@ -98,30 +96,6 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], EngagementsController.prototype, "findOne", null);
-__decorate([
-    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
-    (0, common_1.Patch)(":id"),
-    (0, swagger_1.ApiOperation)({ summary: "Update an audit engagement" }),
-    (0, swagger_1.ApiParam)({ name: "id", type: Number, example: 1 }),
-    (0, swagger_1.ApiBody)({
-        type: engagement_dto_1.UpdateEngagementDto,
-        description: "Fields to update",
-        examples: {
-            default: api_examples_1.SwaggerExamples.engagements.update,
-        },
-    }),
-    (0, swagger_1.ApiOkResponse)({
-        description: "Engagement updated",
-        type: engagement_dto_1.EngagementDetailDto,
-        schema: { example: api_examples_1.SwaggerExamples.engagements.detail },
-    }),
-    (0, api_error_decorator_1.ApiStandardErrors)(),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, engagement_dto_1.UpdateEngagementDto]),
-    __metadata("design:returntype", void 0)
-], EngagementsController.prototype, "update", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_ONLY),
     (0, common_1.Delete)(":id"),

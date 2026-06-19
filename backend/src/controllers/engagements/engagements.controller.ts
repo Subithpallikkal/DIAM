@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
 } from "@nestjs/common";
@@ -21,10 +20,9 @@ import {
 } from "@nestjs/swagger";
 import { EngagementsService } from "../../services/engagements/engagements.service";
 import {
-  CreateEngagementDto,
   EngagementDetailDto,
   EngagementListItemDto,
-  UpdateEngagementDto,
+  UpsertEngagementDto,
 } from "../../dtos/engagements/engagement.dto";
 import { RequireRoles } from "../../common/decorators/roles.decorator";
 import { Roles } from "../../common/constants/roles.constants";
@@ -42,22 +40,23 @@ export class EngagementsController {
 
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post()
-  @ApiOperation({ summary: "Create a new audit engagement" })
+  @ApiOperation({ summary: "Create or update an audit engagement" })
   @ApiBody({
-    type: CreateEngagementDto,
-    description: "Engagement details",
+    type: UpsertEngagementDto,
+    description: "Include id to update; omit id to create",
     examples: {
-      default: SwaggerExamples.engagements.create,
+      create: SwaggerExamples.engagements.create,
+      update: SwaggerExamples.engagements.update,
     },
   })
   @ApiCreatedResponse({
-    description: "Engagement created",
+    description: "Engagement saved",
     type: EngagementDetailDto,
     schema: { example: SwaggerExamples.engagements.detail },
   })
   @ApiStandardErrors()
-  create(@Body() dto: CreateEngagementDto, @CurrentUser() user: JwtPayload) {
-    return this.engagementsService.create(dto, user.sub);
+  upsert(@Body() dto: UpsertEngagementDto, @CurrentUser() user: JwtPayload) {
+    return this.engagementsService.upsert(dto, user.sub);
   }
 
   @RequireRoles(...Roles.ALL)
@@ -83,30 +82,6 @@ export class EngagementsController {
   })
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.engagementsService.findOne(id);
-  }
-
-  @RequireRoles(...Roles.ADMIN_MANAGER)
-  @Patch(":id")
-  @ApiOperation({ summary: "Update an audit engagement" })
-  @ApiParam({ name: "id", type: Number, example: 1 })
-  @ApiBody({
-    type: UpdateEngagementDto,
-    description: "Fields to update",
-    examples: {
-      default: SwaggerExamples.engagements.update,
-    },
-  })
-  @ApiOkResponse({
-    description: "Engagement updated",
-    type: EngagementDetailDto,
-    schema: { example: SwaggerExamples.engagements.detail },
-  })
-  @ApiStandardErrors()
-  update(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() dto: UpdateEngagementDto,
-  ) {
-    return this.engagementsService.update(id, dto);
   }
 
   @RequireRoles(...Roles.ADMIN_ONLY)

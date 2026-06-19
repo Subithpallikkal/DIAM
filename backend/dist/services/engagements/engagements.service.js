@@ -38,6 +38,16 @@ let EngagementsService = class EngagementsService {
         });
         return this.toDetail(engagement);
     }
+    async upsert(dto, createdByUid) {
+        const { id, ...data } = dto;
+        if (id != null) {
+            return this.update(id, data);
+        }
+        if (!data.clientId || !data.title?.trim() || !data.auditType?.trim()) {
+            throw new common_1.BadRequestException("clientId, title, and auditType are required");
+        }
+        return this.create(data, createdByUid);
+    }
     async findAll(query) {
         const { page, limit, skip, take } = (0, pagination_util_1.resolvePagination)(query);
         const where = this.buildWhere(query);

@@ -1,46 +1,56 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import { Form, Select, message } from 'antd'
-import { EyeOutlined, PlusOutlined } from '@ant-design/icons'
-import { createTask, fetchTasks, TASK_STATUS_OPTIONS } from '../../api/tasks.api'
+import { EyeOutlined, PlusOutlined, AuditOutlined, UserOutlined } from '@ant-design/icons'
+import { upsertTask, fetchTasks, TASK_STATUS_OPTIONS } from '../../api/tasks.api'
 import {
   Button,
+  DetailDrawer,
   Input,
   ModalForm,
   ModalFormField,
   ModalFormGrid,
   modalFormClassName,
+  MobileCardBadge,
+  MobileListActionButton,
+  MobileListCard,
+  MobileListRow,
   PageBody,
   PageContainer,
   PageHeader,
-  Table,
+  PageToolbar,
+  ResponsiveDataList,
+  TableActions,
   TaskStatusTag,
   applyTableQuery,
+  actionsColumnBase,
   enumFilters,
   type ColumnsType,
 } from '../../components/common'
 import { useAuth } from '../../context/AuthContext'
+import { useDetailDrawer } from '../../hooks/useDetailDrawer'
 import { useEngagementOptions } from '../../hooks/useEngagementOptions'
 import { usePaginatedList } from '../../hooks/usePaginatedList'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
+import { TaskDetailPanel } from './TaskDetailPanel'
 import type { TaskListItem } from '../../types/task'
 import { getApiErrorMessage } from '../../utils/errors'
 
 export function TasksPage() {
-  const navigate = useNavigate()
   const { user } = useAuth()
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER'
   const { engagements } = useEngagementOptions()
   const [createOpen, setCreateOpen] = useState(false)
   const [form] = Form.useForm()
-  const modalWidth = useResponsiveModalWidth(560)
+  const modalWidth = useResponsiveModalWidth(480)
+  const { viewId, openDetail, closeDetail } = useDetailDrawer('/tasks')
+  const [detailMeta, setDetailMeta] = useState<{ title: string; subtitle?: string } | null>(null)
 
   const fetcher = useCallback(
     (params: Parameters<typeof fetchTasks>[0]) => fetchTasks(params),
     [],
   )
 
-  const { data: tasks, loading, pagination, tableSort, tableFilters, onTableChange } = usePaginatedList({
+  const { data: tasks, loading, pagination, search, setSearch, tableSort, tableFilters, onTableChange } = usePaginatedList({
     fetcher,
     initialPageSize: 10,
   })
@@ -57,6 +67,15 @@ export function TasksPage() {
         width: 180,
         sorter: true,
         showSorterTooltip: true,
+        render: (title: string, record) => (
+          <button
+            type="button"
+            className="cursor-pointer border-0 bg-transparent p-0 text-left font-medium text-brand hover:underline"
+            onClick={() => openDetail(record.id)}
+          >
+            {title}
+          </button>
+        ),
       },
       {
         title: 'Engagement',
@@ -87,34 +106,37 @@ export function TasksPage() {
         render: (value: string | null) => value || 'Unassigned',
       },
       {
-        title: 'Actions',
-        key: 'actions',
-        width: 72,
-        fixed: 'right',
+        ...actionsColumnBase('one'),
         render: (_, record) => (
-          <Link to={`/tasks/${record.id}`}>
-            <Button type="text" size="small" icon={<EyeOutlined />} aria-label="View" />
-          </Link>
+          <TableActions>
+            <Button
+              type="text"
+              size="small"
+              icon={<EyeOutlined />}
+              aria-label="View"
+              onClick={() => openDetail(record.id)}
+            />
+          </TableActions>
         ),
       },
         ],
         tableSort,
         tableFilters,
       ),
-    [tableSort, tableFilters],
+    [openDetail, tableSort, tableFilters],
   )
 
   const handleCreate = async () => {
     try {
       const values = await form.validateFields()
-      const task = await createTask(values.engagementId, {
+      const task = await upsertTask(values.engagementId, {
         title: values.title,
         description: values.description,
       })
       message.success('Task created')
       setCreateOpen(false)
       form.resetFields()
-      navigate(`/tasks/${task.id}`)
+      openDetail(task.id)
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return
       message.error(getApiErrorMessage(err, 'Failed to create task'))
@@ -126,9 +148,15 @@ export function TasksPage() {
       <PageHeader
         title="Tasks"
         subtitle="Assign and track audit work across the team"
-        extra={
+      />
+
+      <PageToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search tasks by title or description..."
+        actions={
           canManage ? (
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)} block className="sm:!inline-flex">
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
               Create Task
             </Button>
           ) : undefined
@@ -136,13 +164,43 @@ export function TasksPage() {
       />
 
       <PageBody variant="fill">
-        <Table
+        <ResponsiveDataList
           rowKey="id"
           loading={loading}
           columns={columns}
           dataSource={tasks}
           pagination={pagination}
           onChange={onTableChange}
+          emptyDescription="No tasks found"
+          renderMobileCard={(task) => (
+            <MobileListCard
+              title={task.title}
+              badge={
+                <MobileCardBadge
+                  label={task.status.replace('_', ' ')}
+                  tone={
+                    task.status === 'COMPLETED'
+                      ? 'success'
+                      : task.status === 'IN_PROGRESS'
+                        ? 'info'
+                        : 'warning'
+                  }
+                />
+              }
+              actions={
+                <MobileListActionButton
+                  label="View Details"
+                  className="col-span-2"
+                  onClick={() => openDetail(task.id)}
+                />
+              }
+            >
+              <MobileListRow icon={<AuditOutlined />}>{task.engagementTitle}</MobileListRow>
+              <MobileListRow icon={<UserOutlined />}>
+                {task.assigneeName || 'Unassigned'}
+              </MobileListRow>
+            </MobileListCard>
+          )}
         />
       </PageBody>
 
@@ -179,6 +237,27 @@ export function TasksPage() {
           </ModalFormGrid>
         </Form>
       </ModalForm>
+
+      <DetailDrawer
+        open={viewId !== null}
+        onClose={() => {
+          closeDetail()
+          setDetailMeta(null)
+        }}
+        title={detailMeta?.title}
+        subtitle={detailMeta?.subtitle}
+        width={520}
+      >
+        {viewId !== null && (
+          <TaskDetailPanel
+            taskId={viewId}
+            onLoaded={(task) =>
+              setDetailMeta({ title: task.title, subtitle: `Task for ${task.engagementTitle}` })
+            }
+            onError={closeDetail}
+          />
+        )}
+      </DetailDrawer>
     </PageContainer>
   )
 }

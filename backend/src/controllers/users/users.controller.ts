@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
 } from "@nestjs/common";
@@ -21,8 +20,7 @@ import {
 } from "@nestjs/swagger";
 import { UsersService } from "../../services/users/users.service";
 import {
-  CreateUserDto,
-  UpdateUserDto,
+  UpsertUserDto,
   UserDetailDto,
   UserListItemDto,
 } from "../../dtos/users/user.dto";
@@ -41,12 +39,12 @@ export class UsersController {
 
   @RequireRoles(...Roles.ADMIN_ONLY)
   @Post()
-  @ApiOperation({ summary: "Create a new user (Admin only)" })
-  @ApiBody({ type: CreateUserDto })
-  @ApiCreatedResponse({ description: "User created", type: UserDetailDto })
+  @ApiOperation({ summary: "Create or update a user (Admin only)" })
+  @ApiBody({ type: UpsertUserDto })
+  @ApiCreatedResponse({ description: "User saved", type: UserDetailDto })
   @ApiStandardErrors()
-  create(@Body() dto: CreateUserDto) {
-    return this.usersService.create(dto);
+  upsert(@Body() dto: UpsertUserDto) {
+    return this.usersService.upsert(dto);
   }
 
   @RequireRoles(...Roles.ADMIN_MANAGER)
@@ -66,17 +64,6 @@ export class UsersController {
   @ApiStandardErrors()
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.usersService.findOne(id);
-  }
-
-  @RequireRoles(...Roles.ADMIN_ONLY)
-  @Patch(":id")
-  @ApiOperation({ summary: "Update user details (Admin only)" })
-  @ApiParam({ name: "id", type: Number, example: 1 })
-  @ApiBody({ type: UpdateUserDto })
-  @ApiOkResponse({ description: "User updated", type: UserDetailDto })
-  @ApiStandardErrors()
-  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateUserDto) {
-    return this.usersService.update(id, dto);
   }
 
   @RequireRoles(...Roles.ADMIN_ONLY)

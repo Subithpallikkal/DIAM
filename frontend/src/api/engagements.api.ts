@@ -1,14 +1,13 @@
 import { api } from './axios'
 import type { ListQueryParams, PaginatedResponse } from '../types/api'
 import type {
-  CreateEngagementPayload,
-  CreateRequiredDocumentPayload,
   CreateScopePayload,
   EngagementDetail,
   EngagementListItem,
   RequiredDocument,
   ScopeItem,
-  UpdateEngagementPayload,
+  UpsertEngagementPayload,
+  UpsertRequiredDocumentPayload,
 } from '../types/engagement'
 
 export async function fetchEngagements(
@@ -25,18 +24,10 @@ export async function fetchEngagement(id: number): Promise<EngagementDetail> {
   return data
 }
 
-export async function createEngagement(
-  payload: CreateEngagementPayload,
+export async function upsertEngagement(
+  payload: UpsertEngagementPayload,
 ): Promise<EngagementDetail> {
   const { data } = await api.post<EngagementDetail>('/engagements', payload)
-  return data
-}
-
-export async function updateEngagement(
-  id: number,
-  payload: UpdateEngagementPayload,
-): Promise<EngagementDetail> {
-  const { data } = await api.patch<EngagementDetail>(`/engagements/${id}`, payload)
   return data
 }
 
@@ -69,24 +60,12 @@ export async function fetchRequiredDocuments(
   return data
 }
 
-export async function createRequiredDocument(
+export async function upsertRequiredDocument(
   engagementId: number,
-  payload: CreateRequiredDocumentPayload,
+  payload: UpsertRequiredDocumentPayload,
 ): Promise<RequiredDocument> {
   const { data } = await api.post<RequiredDocument>(
     `/engagements/${engagementId}/required-documents`,
-    payload,
-  )
-  return data
-}
-
-export async function updateRequiredDocument(
-  engagementId: number,
-  docId: number,
-  payload: { isReceived?: boolean; isRequired?: boolean },
-): Promise<RequiredDocument> {
-  const { data } = await api.patch<RequiredDocument>(
-    `/engagements/${engagementId}/required-documents/${docId}`,
     payload,
   )
   return data

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CacheService } from "../../common/cache/cache.service";
@@ -13,6 +13,7 @@ import {
   EngagementDetailDto,
   EngagementListItemDto,
   UpdateEngagementDto,
+  UpsertEngagementDto,
 } from "../../dtos/engagements/engagement.dto";
 import { EngagementStatus } from "../../dtos/common/engagement.dto";
 
@@ -45,6 +46,20 @@ export class EngagementsService {
     });
 
     return this.toDetail(engagement);
+  }
+
+  async upsert(
+    dto: UpsertEngagementDto,
+    createdByUid: number,
+  ): Promise<EngagementDetailDto> {
+    const { id, ...data } = dto;
+    if (id != null) {
+      return this.update(id, data);
+    }
+    if (!data.clientId || !data.title?.trim() || !data.auditType?.trim()) {
+      throw new BadRequestException("clientId, title, and auditType are required");
+    }
+    return this.create(data as CreateEngagementDto, createdByUid);
   }
 
   async findAll(

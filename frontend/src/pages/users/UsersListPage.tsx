@@ -4,26 +4,34 @@ import { Link } from 'react-router-dom'
 import {
   DeleteOutlined,
   EditOutlined,
+  MailOutlined,
   PlusOutlined,
   SafetyCertificateOutlined,
+  UserOutlined,
 } from '@ant-design/icons'
 import {
-  createUser,
   deactivateUser,
   fetchUser,
   fetchUsers,
-  updateUser,
+  upsertUser,
 } from '../../api/users.api'
 import {
   Button,
   ClientStatusTag,
+  MobileCardBadge,
+  MobileListActionButton,
+  MobileListCard,
+  MobileListRow,
   ModalForm,
   PageBody,
   PageContainer,
   PageHeader,
+  PageToolbar,
+  ResponsiveDataList,
   RoleTag,
-  Table,
+  TableActions,
   applyTableQuery,
+  actionsColumnBase,
   BOOL_FILTERS,
   enumFilters,
   type ColumnsType,
@@ -33,7 +41,7 @@ import { useAuth } from '../../context/AuthContext'
 import { usePaginatedList } from '../../hooks/usePaginatedList'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
 import { canCreateUsers } from '../../lib/roles'
-import type { CreateUserPayload, UpdateUserPayload, UserDetail, UserListItem } from '../../types/user'
+import type { UpsertUserPayload, UserDetail, UserListItem } from '../../types/user'
 import { getApiErrorMessage } from '../../utils/errors'
 
 type UserModalMode = 'create' | 'edit'
@@ -49,14 +57,14 @@ export function UsersListPage() {
   const [submitting, setSubmitting] = useState(false)
   const [loadingUser, setLoadingUser] = useState(false)
   const [modalError, setModalError] = useState<string | null>(null)
-  const modalWidth = useResponsiveModalWidth(640)
+  const modalWidth = useResponsiveModalWidth(520)
 
   const fetcher = useCallback(
     (params: Parameters<typeof fetchUsers>[0]) => fetchUsers(params),
     [],
   )
 
-  const { data: users, loading, reload, pagination, tableSort, tableFilters, onTableChange } =
+  const { data: users, loading, reload, pagination, search, setSearch, tableSort, tableFilters, onTableChange } =
     usePaginatedList({
       fetcher,
       initialPageSize: 10,
@@ -113,22 +121,20 @@ export function UsersListPage() {
     setModalError(null)
 
     try {
-      if (modalMode === 'create') {
-        await createUser(values as CreateUserPayload)
-        message.success('User created')
-      } else if (editingUserId) {
-        const payload: UpdateUserPayload = {
-          name: values.name,
-          email: values.email,
-          role: values.role,
-          isActive: values.isActive,
-        }
-        if (values.password?.trim()) {
-          payload.password = values.password.trim()
-        }
-        await updateUser(editingUserId, payload)
-        message.success('User updated')
+      const payload: UpsertUserPayload = {
+        name: values.name,
+        email: values.email,
+        role: values.role,
+        isActive: values.isActive,
+        ...(editingUserId ? { id: editingUserId } : {}),
       }
+      if (!editingUserId) {
+        payload.password = values.password
+      } else if (values.password?.trim()) {
+        payload.password = values.password.trim()
+      }
+      await upsertUser(payload)
+      message.success(editingUserId ? 'User updated' : 'User created')
 
       closeModal()
       reload()
@@ -214,12 +220,9 @@ export function UsersListPage() {
           ...(canManage
             ? [
                 {
-                  title: 'Actions',
-                  key: 'actions',
-                  width: 96,
-                  fixed: 'right' as const,
+                  ...actionsColumnBase('two'),
                   render: (_: unknown, record: UserListItem) => (
-                    <div className="flex items-center gap-0.5">
+                    <TableActions>
                       <Button
                         type="text"
                         size="small"
@@ -237,7 +240,7 @@ export function UsersListPage() {
                           onClick={() => handleDeactivate(record)}
                         />
                       )}
-                    </div>
+                    </TableActions>
                   ),
                 },
               ]
@@ -256,36 +259,74 @@ export function UsersListPage() {
       <PageHeader
         title="Users"
         subtitle="Manage team accounts and access"
-        extra={
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+      />
+
+      <PageToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search users by name or email..."
+        actions={
+          <>
             <Link to="/role-permissions">
-              <Button icon={<SafetyCertificateOutlined />} block className="sm:!inline-flex">
-                Role permissions
-              </Button>
+              <Button icon={<SafetyCertificateOutlined />}>Role permissions</Button>
             </Link>
             {canManage ? (
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={openCreateModal}
-                block
-                className="sm:!inline-flex"
-              >
+              <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal}>
                 Add User
               </Button>
             ) : null}
-          </div>
+          </>
         }
       />
 
       <PageBody variant="fill">
-        <Table
-            rowKey="id"
-            loading={loading}
-            columns={columns}
-            dataSource={users}
-            pagination={pagination}
+        <ResponsiveDataList
+          rowKey="id"
+          loading={loading}
+          columns={columns}
+          dataSource={users}
+          pagination={pagination}
           onChange={onTableChange}
+          emptyDescription="No users found"
+          renderMobileCard={(user) => (
+            <MobileListCard
+              title={user.name}
+              badge={
+                <MobileCardBadge
+                  label={user.isActive ? 'Active' : 'Inactive'}
+                  tone={user.isActive ? 'success' : 'danger'}
+                />
+              }
+              actions={
+                canManage ? (
+                  user.isActive && user.id !== currentUser?.uid ? (
+                    <>
+                      <MobileListActionButton
+                        label="Edit Profile"
+                        variant="outline"
+                        onClick={() => openEditModal(user.id)}
+                      />
+                      <MobileListActionButton
+                        label="Deactivate"
+                        variant="danger"
+                        onClick={() => handleDeactivate(user)}
+                      />
+                    </>
+                  ) : (
+                    <MobileListActionButton
+                      label="Edit Profile"
+                      variant="outline"
+                      className="col-span-2"
+                      onClick={() => openEditModal(user.id)}
+                    />
+                  )
+                ) : undefined
+              }
+            >
+              <MobileListRow icon={<MailOutlined />}>{user.email}</MobileListRow>
+              <MobileListRow icon={<UserOutlined />}>{user.role}</MobileListRow>
+            </MobileListCard>
+          )}
         />
       </PageBody>
 

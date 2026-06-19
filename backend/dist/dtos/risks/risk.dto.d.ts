@@ -11,6 +11,9 @@ export declare class UpdateRiskDto {
     priority?: Priority;
     status?: RiskStatus;
 }
+export declare class UpsertRiskDto extends UpdateRiskDto {
+    id?: number;
+}
 export declare class RiskListItemDto {
     id: number;
     engagementId: number;
@@ -30,6 +33,9 @@ export declare class UpdateChecklistItemDto {
     title?: string;
     isCompleted?: boolean;
     sortOrder?: number;
+}
+export declare class UpsertChecklistItemDto extends UpdateChecklistItemDto {
+    id?: number;
 }
 export declare class ChecklistItemDto {
     id: number;

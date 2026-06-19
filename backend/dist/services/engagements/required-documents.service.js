@@ -29,6 +29,19 @@ let RequiredDocumentsService = class RequiredDocumentsService {
         });
         return this.toListItem(document);
     }
+    async upsert(engagementId, dto) {
+        const { id, documentName, ...data } = dto;
+        if (id != null) {
+            return this.update(engagementId, id, data);
+        }
+        if (!documentName?.trim()) {
+            throw new common_1.BadRequestException("documentName is required");
+        }
+        return this.create(engagementId, {
+            documentName,
+            isRequired: data.isRequired,
+        });
+    }
     async findAll(engagementId) {
         await this.engagementsService.ensureExists(engagementId);
         const documents = await this.prisma.engagementDocument.findMany({

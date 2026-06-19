@@ -74,6 +74,16 @@ let UsersService = class UsersService {
         });
         return this.toDetail(user);
     }
+    async upsert(dto) {
+        const { id, ...data } = dto;
+        if (id != null) {
+            return this.update(id, data);
+        }
+        if (!data.name?.trim() || !data.email || !data.password || !data.role) {
+            throw new common_1.BadRequestException("name, email, password, and role are required");
+        }
+        return this.create(data);
+    }
     async findAll(query) {
         const { page, limit, skip, take } = (0, pagination_util_1.resolvePagination)(query);
         const where = this.buildWhere(query);

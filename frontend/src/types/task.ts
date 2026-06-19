@@ -25,11 +25,15 @@ export interface TaskDetail extends TaskListItem {
   updatedAt: string
 }
 
-export interface CreateTaskPayload {
-  title: string
+export interface UpsertTaskPayload {
+  id?: number
+  title?: string
   description?: string
   status?: TaskStatus
 }
+
+/** @deprecated Use UpsertTaskPayload */
+export type CreateTaskPayload = Omit<UpsertTaskPayload, 'id'> & { title: string }
 
 export interface CreateTaskCommentPayload {
   content: string

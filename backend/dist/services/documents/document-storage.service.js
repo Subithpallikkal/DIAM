@@ -75,6 +75,21 @@ let DocumentStorageService = class DocumentStorageService {
             uploadedByUid: data.uploadedByUid,
         });
     }
+    async uploadVersion(baseDocumentId, file, uploadedByUid) {
+        if (!file) {
+            throw new common_1.BadRequestException("File is required");
+        }
+        const storedName = `${(0, crypto_1.randomUUID)()}-${file.originalname}`;
+        const { writeFileSync } = await Promise.resolve().then(() => __importStar(require("fs")));
+        writeFileSync((0, path_1.join)(this.uploadDir, storedName), file.buffer);
+        return this.documentsService.createVersionRecord(baseDocumentId, {
+            originalName: file.originalname,
+            storedName,
+            mimeType: file.mimetype,
+            fileSize: file.size,
+            uploadedByUid,
+        });
+    }
     async download(documentId, performedByUid) {
         const document = await this.documentsService.ensureExists(documentId);
         const filePath = (0, path_1.join)(this.uploadDir, document.storedName);

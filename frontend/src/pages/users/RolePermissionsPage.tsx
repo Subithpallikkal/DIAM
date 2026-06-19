@@ -98,7 +98,7 @@ export function RolePermissionsPage() {
         extra={
           canEdit && !isAdminRole ? (
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-              <Button onClick={handleReset} disabled={!hasChanges || saving || loading} block className="sm:!inline-flex">
+              <Button onClick={handleReset} disabled={!hasChanges || saving || loading} block className="sm:inline-flex!">
                 Reset
               </Button>
               <Button
@@ -108,7 +108,7 @@ export function RolePermissionsPage() {
                 loading={saving}
                 disabled={!hasChanges || loading}
                 block
-                className="sm:!inline-flex"
+                className="sm:inline-flex!"
               >
                 Save permissions
               </Button>
@@ -118,13 +118,13 @@ export function RolePermissionsPage() {
       />
 
       <PageBody variant="fill" className="gap-2">
-        <div className="flex shrink-0 flex-col gap-2 rounded border border-[#dfe6e9] bg-white px-3 py-2 md:flex-row md:items-center md:justify-between md:px-4">
+        <div className="flex shrink-0 flex-col gap-2 rounded border border-border bg-white px-3 py-2 md:flex-row md:items-center md:justify-between md:px-4">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 md:text-xs">Role</p>
             <div className="mt-0.5 flex flex-wrap items-center gap-2">
               <Select
                 size="small"
-                className="min-w-[160px] md:min-w-[180px]"
+                className="min-w-[160px] md:min-w-45"
                 value={selectedRole}
                 onChange={setSelectedRole}
                 options={roles.map((role) => ({
@@ -146,7 +146,7 @@ export function RolePermissionsPage() {
         </div>
 
         {loading ? (
-          <div className="flex flex-1 items-center justify-center rounded border border-[#dfe6e9] bg-white text-sm text-slate-500">
+          <div className="flex flex-1 items-center justify-center rounded border border-border bg-white text-sm text-slate-500">
             Loading permission grid...
           </div>
         ) : (

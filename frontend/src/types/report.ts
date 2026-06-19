@@ -6,6 +6,25 @@ export interface DashboardStats {
   pendingTasks: number
   openIssues: number
   resolvedIssues: number
+  workload: WorkloadStats
+}
+
+export interface TaskWorkloadItem {
+  userId: number
+  userName: string
+  pending: number
+  inProgress: number
+}
+
+export interface ChecklistWorkloadItem {
+  userId: number
+  userName: string
+  openCount: number
+}
+
+export interface WorkloadStats {
+  tasksByAssignee: TaskWorkloadItem[]
+  openChecklistsByAssignee: ChecklistWorkloadItem[]
 }
 
 export interface AuditSummaryReport {

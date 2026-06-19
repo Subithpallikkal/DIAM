@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
 } from "@nestjs/common";
@@ -22,10 +21,9 @@ import { TasksService } from "../../services/tasks/tasks.service";
 import {
   AssignTaskDto,
   CreateTaskCommentDto,
-  CreateTaskDto,
   TaskDetailDto,
   TaskListItemDto,
-  UpdateTaskDto,
+  UpsertTaskDto,
 } from "../../dtos/tasks/task.dto";
 import { RequireRoles } from "../../common/decorators/roles.decorator";
 import { Roles } from "../../common/constants/roles.constants";
@@ -70,22 +68,15 @@ export class TasksController {
 
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post("engagements/:engagementId/tasks")
-  @ApiOperation({ summary: "Create task for engagement" })
+  @ApiOperation({ summary: "Create or update task for engagement" })
   @ApiCreatedResponse({ type: TaskListItemDto })
   @ApiStandardErrors()
-  create(
+  upsert(
     @Param("engagementId", ParseIntPipe) engagementId: number,
-    @Body() dto: CreateTaskDto,
+    @Body() dto: UpsertTaskDto,
     @CurrentUser() user: JwtPayload,
   ) {
-    return this.tasksService.create(engagementId, dto, user.sub);
-  }
-
-  @RequireRoles(...Roles.ALL)
-  @Patch("tasks/:id")
-  @ApiOperation({ summary: "Update task" })
-  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateTaskDto) {
-    return this.tasksService.update(id, dto);
+    return this.tasksService.upsert(engagementId, dto, user.sub);
   }
 
   @RequireRoles(...Roles.ADMIN_MANAGER)

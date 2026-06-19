@@ -5,6 +5,7 @@ import type {
   DocumentListItem,
   DocumentLog,
   UploadDocumentPayload,
+  UploadDocumentVersionPayload,
 } from '../types/document'
 
 export async function fetchDocumentCategories(): Promise<DocumentCategory[]> {
@@ -33,6 +34,28 @@ export async function uploadDocument(payload: UploadDocumentPayload): Promise<Do
   const { data } = await api.post<DocumentListItem>('/documents/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
+  return data
+}
+
+export async function uploadDocumentVersion(
+  documentId: number,
+  payload: UploadDocumentVersionPayload,
+): Promise<DocumentListItem> {
+  const formData = new FormData()
+  formData.append('file', payload.file)
+
+  const { data } = await api.post<DocumentListItem>(
+    `/documents/${documentId}/versions/upload`,
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    },
+  )
+  return data
+}
+
+export async function fetchDocumentVersions(documentId: number): Promise<DocumentListItem[]> {
+  const { data } = await api.get<DocumentListItem[]>(`/documents/${documentId}/versions`)
   return data
 }
 

@@ -32,7 +32,7 @@ export function PermissionsGridTable({
   }
 
   return (
-    <div className="overflow-hidden rounded border border-[#dfe6e9] bg-white">
+    <div className="overflow-hidden rounded border border-border bg-white">
       <div
         className="border-b px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white md:px-4 md:py-2 md:text-sm md:normal-case md:tracking-normal"
         style={{ background: UI.tableHeader, borderColor: UI.sidebarBorder }}
@@ -41,10 +41,10 @@ export function PermissionsGridTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] border-collapse text-xs md:text-sm">
+        <table className="w-full min-w-160 border-collapse text-xs md:text-sm">
           <thead>
             <tr className="border-b" style={{ background: UI.tableHeader, borderColor: UI.sidebarBorder }}>
-              <th className="w-[180px] px-3 py-1.5 text-left font-bold text-white md:w-[200px] md:px-4 md:py-2" />
+              <th className="w-45 px-3 py-1.5 text-left font-bold text-white md:w-50 md:px-4 md:py-2" />
               {PERMISSION_ACTIONS.map((action) => (
                 <th
                   key={action.key}
@@ -60,7 +60,7 @@ export function PermissionsGridTable({
               <tr
                 key={resource.key}
                 className={cn(
-                  'border-b border-[#dfe6e9] last:border-b-0',
+                  'border-b border-border last:border-b-0',
                   index % 2 === 0 ? 'bg-white' : 'bg-[#f8fafb]',
                 )}
               >

@@ -55,6 +55,14 @@ export class UpdateRiskDto {
   status?: RiskStatus;
 }
 
+export class UpsertRiskDto extends UpdateRiskDto {
+  @ApiPropertyOptional({ example: 1, description: "When set, updates the existing risk" })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  id?: number;
+}
+
 export class RiskListItemDto {
   @ApiProperty({ example: 1 })
   id!: number;
@@ -114,6 +122,14 @@ export class UpdateChecklistItemDto {
   @IsInt()
   @Type(() => Number)
   sortOrder?: number;
+}
+
+export class UpsertChecklistItemDto extends UpdateChecklistItemDto {
+  @ApiPropertyOptional({ example: 1, description: "When set, updates the existing checklist item" })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  id?: number;
 }
 
 export class ChecklistItemDto {

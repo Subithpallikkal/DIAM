@@ -9,10 +9,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserDetailDto = exports.UserListItemDto = exports.UpdateUserDto = exports.CreateUserDto = void 0;
+exports.UserDetailDto = exports.UserListItemDto = exports.UpsertUserDto = exports.UpdateUserDto = exports.CreateUserDto = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const class_transformer_1 = require("class-transformer");
 const role_dto_1 = require("../common/role.dto");
 class CreateUserDto {
     static _OPENAPI_METADATA_FACTORY() {
@@ -80,6 +81,19 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateUserDto.prototype, "isActive", void 0);
+class UpsertUserDto extends UpdateUserDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: false, type: () => Number } };
+    }
+}
+exports.UpsertUserDto = UpsertUserDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1, description: "When set, updates the existing user" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], UpsertUserDto.prototype, "id", void 0);
 class UserListItemDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { id: { required: true, type: () => Number }, name: { required: true, type: () => String }, email: { required: true, type: () => String }, role: { required: true, enum: require("../common/role.dto").RoleName }, isActive: { required: true, type: () => Boolean }, createdAt: { required: true, type: () => Date } };

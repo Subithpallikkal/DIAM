@@ -1,3 +1,18 @@
+export declare class TaskWorkloadItemDto {
+    userId: number;
+    userName: string;
+    pending: number;
+    inProgress: number;
+}
+export declare class ChecklistWorkloadItemDto {
+    userId: number;
+    userName: string;
+    openCount: number;
+}
+export declare class WorkloadStatsDto {
+    tasksByAssignee: TaskWorkloadItemDto[];
+    openChecklistsByAssignee: ChecklistWorkloadItemDto[];
+}
 export declare class DashboardStatsDto {
     totalClients: number;
     totalAudits: number;
@@ -6,6 +21,7 @@ export declare class DashboardStatsDto {
     pendingTasks: number;
     openIssues: number;
     resolvedIssues: number;
+    workload: WorkloadStatsDto;
 }
 export declare class AuditSummaryReportDto {
     engagementTitle: string;

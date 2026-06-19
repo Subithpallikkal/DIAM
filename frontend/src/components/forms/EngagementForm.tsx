@@ -10,8 +10,10 @@ import {
   modalFormClassName,
 } from '../common'
 import { Input } from '../common/Input'
+import { datePickerFieldClass, selectFieldClass } from '../../lib/ui'
+import { cn } from '../../utils/cn'
 import type { ClientListItem } from '../../types/client'
-import type { CreateEngagementPayload, EngagementStatus } from '../../types/engagement'
+import type { EngagementStatus, UpsertEngagementPayload } from '../../types/engagement'
 
 const AUDIT_TYPES = ['Financial', 'Internal', 'Compliance', 'Tax', 'Operational']
 const STATUS_OPTIONS: { label: string; value: EngagementStatus }[] = [
@@ -21,7 +23,7 @@ const STATUS_OPTIONS: { label: string; value: EngagementStatus }[] = [
 ]
 
 export interface EngagementFormValues
-  extends Omit<CreateEngagementPayload, 'startDate' | 'endDate'> {
+  extends Omit<UpsertEngagementPayload, 'startDate' | 'endDate'> {
   startDate?: Dayjs
   endDate?: Dayjs
 }
@@ -32,6 +34,7 @@ interface EngagementFormProps {
   loading?: boolean
   hideActions?: boolean
   inModal?: boolean
+  submitLabel?: string
   onCancel: () => void
   onFinish: (values: EngagementFormValues) => void
 }
@@ -42,6 +45,7 @@ export function EngagementForm({
   loading = false,
   hideActions = false,
   inModal = false,
+  submitLabel = 'Create Engagement',
   onCancel,
   onFinish,
 }: EngagementFormProps) {
@@ -65,7 +69,7 @@ export function EngagementForm({
         >
           <Select
             showSearch
-            className="w-full"
+            className={cn('w-full', !inModal && selectFieldClass)}
             placeholder="Select client"
             optionFilterProp="label"
             options={clients.map((client) => ({
@@ -82,7 +86,7 @@ export function EngagementForm({
           rules={[{ required: true, message: 'Audit type is required' }]}
         >
           <Select
-            className="w-full"
+            className={cn('w-full', !inModal && selectFieldClass)}
             placeholder="Select audit type"
             options={AUDIT_TYPES.map((type) => ({ value: type, label: type }))}
           />
@@ -103,18 +107,18 @@ export function EngagementForm({
         </Field>
 
         <Field name="status" label="Status">
-          <Select className="w-full" options={STATUS_OPTIONS} />
+          <Select className={cn('w-full', !inModal && selectFieldClass)} options={STATUS_OPTIONS} />
         </Field>
       </ModalFormGrid>
 
-      <ModalFormSection title="Engagement Period" className="mt-1 mb-5">
-        <ModalFormGrid>
-          <Field name="startDate" label="Start Date" className="!mb-0">
-            <DatePicker className="w-full" format="YYYY-MM-DD" />
+      <ModalFormSection title="Engagement Period" className="mt-1 mb-4">
+        <ModalFormGrid className="md:items-stretch [&>*]:mb-0!">
+          <Field name="startDate" label="Start Date">
+            <DatePicker className={cn('w-full', !inModal && datePickerFieldClass)} format="YYYY-MM-DD" />
           </Field>
-          <Field name="endDate" label="End Date" className="!mb-0">
+          <Field name="endDate" label="End Date">
             <DatePicker
-              className="w-full"
+              className={cn('w-full', !inModal && datePickerFieldClass)}
               format="YYYY-MM-DD"
               disabledDate={(current) => {
                 const start = form.getFieldValue('startDate') as Dayjs | undefined
@@ -130,13 +134,13 @@ export function EngagementForm({
       </Field>
 
       {!hideActions && (
-        <Form.Item className="!mb-0 !mt-2">
+        <Form.Item className="mb-0! mt-2!">
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button icon={<ArrowLeftOutlined />} onClick={onCancel} block className="sm:!w-auto">
+            <Button htmlType="button" icon={<ArrowLeftOutlined />} onClick={onCancel} block className="sm:w-auto!">
               Cancel
             </Button>
-            <Button type="primary" htmlType="submit" loading={loading} block className="sm:!w-auto">
-              Create Engagement
+            <Button type="primary" htmlType="submit" loading={loading} block className="sm:w-auto!">
+              {submitLabel}
             </Button>
           </div>
         </Form.Item>

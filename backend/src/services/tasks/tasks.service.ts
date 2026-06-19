@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CacheService } from "../../common/cache/cache.service";
@@ -15,6 +15,7 @@ import {
   TaskDetailDto,
   TaskListItemDto,
   UpdateTaskDto,
+  UpsertTaskDto,
 } from "../../dtos/tasks/task.dto";
 import { TaskStatus } from "../../dtos/common/enums.dto";
 
@@ -143,6 +144,22 @@ export class TasksService {
     return this.toListItem(task);
   }
 
+  async upsert(
+    engagementId: number,
+    dto: UpsertTaskDto,
+    createdByUid: number,
+  ): Promise<TaskListItemDto> {
+    const { id, ...data } = dto;
+    if (id != null) {
+      await this.ensureBelongsToEngagement(id, engagementId);
+      return this.update(id, data);
+    }
+    if (!data.title?.trim()) {
+      throw new BadRequestException("title is required");
+    }
+    return this.create(engagementId, data as CreateTaskDto, createdByUid);
+  }
+
   async update(id: number, dto: UpdateTaskDto): Promise<TaskListItemDto> {
     await this.ensureExists(id);
 
@@ -208,6 +225,17 @@ export class TasksService {
     const task = await this.prisma.task.findUnique({ where: { uid: id } });
     if (!task) {
       throw new NotFoundException(`Task ${id} not found`);
+    }
+  }
+
+  private async ensureBelongsToEngagement(taskId: number, engagementId: number) {
+    const task = await this.prisma.task.findFirst({
+      where: { uid: taskId, engagementUid: engagementId },
+    });
+    if (!task) {
+      throw new NotFoundException(
+        `Task ${taskId} not found for engagement ${engagementId}`,
+      );
     }
   }
 

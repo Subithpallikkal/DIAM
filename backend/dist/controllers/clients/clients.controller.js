@@ -28,17 +28,14 @@ let ClientsController = class ClientsController {
     constructor(clientsService) {
         this.clientsService = clientsService;
     }
-    create(dto, user) {
-        return this.clientsService.create(dto, user.sub);
+    upsert(dto, user) {
+        return this.clientsService.upsert(dto, user.sub);
     }
     findAll(query) {
         return this.clientsService.findAll(query);
     }
     findOne(id) {
         return this.clientsService.findOne(id);
-    }
-    update(id, dto) {
-        return this.clientsService.update(id, dto);
     }
     deactivate(id) {
         return this.clientsService.deactivate(id);
@@ -48,16 +45,17 @@ exports.ClientsController = ClientsController;
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)(),
-    (0, swagger_1.ApiOperation)({ summary: "Create a new client" }),
+    (0, swagger_1.ApiOperation)({ summary: "Create or update a client" }),
     (0, swagger_1.ApiBody)({
-        type: client_dto_1.CreateClientDto,
-        description: "Client details",
+        type: client_dto_1.UpsertClientDto,
+        description: "Include id to update; omit id to create",
         examples: {
-            default: api_examples_1.SwaggerExamples.clients.create,
+            create: api_examples_1.SwaggerExamples.clients.create,
+            update: api_examples_1.SwaggerExamples.clients.update,
         },
     }),
     (0, swagger_1.ApiCreatedResponse)({
-        description: "Client created",
+        description: "Client saved",
         type: client_dto_1.ClientDetailDto,
         schema: { example: api_examples_1.SwaggerExamples.clients.detail },
     }),
@@ -65,9 +63,9 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [client_dto_1.CreateClientDto, Object]),
+    __metadata("design:paramtypes", [client_dto_1.UpsertClientDto, Object]),
     __metadata("design:returntype", void 0)
-], ClientsController.prototype, "create", null);
+], ClientsController.prototype, "upsert", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)(),
@@ -98,30 +96,6 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], ClientsController.prototype, "findOne", null);
-__decorate([
-    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
-    (0, common_1.Patch)(":id"),
-    (0, swagger_1.ApiOperation)({ summary: "Update client details" }),
-    (0, swagger_1.ApiParam)({ name: "id", type: Number, example: 1 }),
-    (0, swagger_1.ApiBody)({
-        type: client_dto_1.UpdateClientDto,
-        description: "Fields to update",
-        examples: {
-            default: api_examples_1.SwaggerExamples.clients.update,
-        },
-    }),
-    (0, swagger_1.ApiOkResponse)({
-        description: "Client updated",
-        type: client_dto_1.ClientDetailDto,
-        schema: { example: api_examples_1.SwaggerExamples.clients.detail },
-    }),
-    (0, api_error_decorator_1.ApiStandardErrors)(),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, client_dto_1.UpdateClientDto]),
-    __metadata("design:returntype", void 0)
-], ClientsController.prototype, "update", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_ONLY),
     (0, common_1.Delete)(":id"),

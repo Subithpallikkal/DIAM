@@ -89,6 +89,17 @@ let RisksService = class RisksService {
         });
         return this.toListItem(risk);
     }
+    async upsert(engagementId, dto, createdByUid) {
+        const { id, ...data } = dto;
+        if (id != null) {
+            await this.ensureBelongsToEngagement(id, engagementId);
+            return this.update(id, data);
+        }
+        if (!data.title?.trim()) {
+            throw new common_1.BadRequestException("title is required");
+        }
+        return this.create(engagementId, data, createdByUid);
+    }
     async update(id, dto) {
         await this.ensureExists(id);
         const risk = await this.prisma.risk.update({
@@ -140,6 +151,16 @@ let RisksService = class RisksService {
             assigneeName: null,
         };
     }
+    async upsertChecklistItem(riskId, dto) {
+        const { id, ...data } = dto;
+        if (id != null) {
+            return this.updateChecklistItem(riskId, id, data);
+        }
+        if (!data.title?.trim()) {
+            throw new common_1.BadRequestException("title is required");
+        }
+        return this.addChecklistItem(riskId, data);
+    }
     async updateChecklistItem(riskId, checklistId, dto) {
         await this.ensureChecklistBelongsToRisk(riskId, checklistId);
         const item = await this.prisma.riskChecklist.update({
@@ -177,6 +198,14 @@ let RisksService = class RisksService {
         const risk = await this.prisma.risk.findUnique({ where: { uid: id } });
         if (!risk) {
             throw new common_1.NotFoundException(`Risk ${id} not found`);
+        }
+    }
+    async ensureBelongsToEngagement(riskId, engagementId) {
+        const risk = await this.prisma.risk.findFirst({
+            where: { uid: riskId, engagementUid: engagementId },
+        });
+        if (!risk) {
+            throw new common_1.NotFoundException(`Risk ${riskId} not found for engagement ${engagementId}`);
         }
     }
     async ensureEngagementExists(engagementId) {

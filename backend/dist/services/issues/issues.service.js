@@ -74,6 +74,11 @@ let IssuesService = class IssuesService {
                 engagement: true,
                 findings: { include: { createdBy: true } },
                 statusLogs: { include: { changedBy: true }, orderBy: { createdAt: "desc" } },
+                assignments: {
+                    include: { assignedTo: true },
+                    orderBy: { createdAt: "desc" },
+                    take: 1,
+                },
             },
         });
         if (!issue) {
@@ -103,6 +108,17 @@ let IssuesService = class IssuesService {
             },
         });
         return this.toListItem(issue);
+    }
+    async upsert(engagementId, dto, changedByUid) {
+        const { id, ...data } = dto;
+        if (id != null) {
+            await this.ensureBelongsToEngagement(id, engagementId);
+            return this.update(id, data, changedByUid);
+        }
+        if (!data.title?.trim()) {
+            throw new common_1.BadRequestException("title is required");
+        }
+        return this.create(engagementId, data, changedByUid);
     }
     async update(id, dto, changedByUid) {
         const existing = await this.prisma.issue.findUnique({ where: { uid: id } });
@@ -168,6 +184,14 @@ let IssuesService = class IssuesService {
             throw new common_1.NotFoundException(`Issue ${id} not found`);
         }
     }
+    async ensureBelongsToEngagement(issueId, engagementId) {
+        const issue = await this.prisma.issue.findFirst({
+            where: { uid: issueId, engagementUid: engagementId },
+        });
+        if (!issue) {
+            throw new common_1.NotFoundException(`Issue ${issueId} not found for engagement ${engagementId}`);
+        }
+    }
     async ensureEngagementExists(engagementId) {
         const engagement = await this.prisma.auditEngagement.findUnique({
             where: { uid: engagementId },
@@ -199,6 +223,7 @@ let IssuesService = class IssuesService {
         return {
             ...this.toListItem({ ...issue, findings: issue.findings }),
             description: issue.description,
+            assigneeName: issue.assignments?.[0]?.assignedTo.name ?? null,
             updatedAt: issue.updatedAt,
             findings: issue.findings.map((finding) => ({
                 id: finding.uid,

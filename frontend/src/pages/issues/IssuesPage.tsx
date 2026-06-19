@@ -1,44 +1,54 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import { Form, Select, message } from 'antd'
-import { EyeOutlined, PlusOutlined } from '@ant-design/icons'
-import { createIssue, fetchIssues, ISSUE_STATUS_OPTIONS, SEVERITY_OPTIONS } from '../../api/issues.api'
+import { EyeOutlined, PlusOutlined, AuditOutlined, FileSearchOutlined } from '@ant-design/icons'
+import { upsertIssue, fetchIssues, ISSUE_STATUS_OPTIONS, SEVERITY_OPTIONS } from '../../api/issues.api'
 import {
   Button,
+  DetailDrawer,
   Input,
   IssueStatusTag,
   ModalForm,
   ModalFormField,
   ModalFormGrid,
   modalFormClassName,
+  MobileCardBadge,
+  MobileListActionButton,
+  MobileListCard,
+  MobileListRow,
   PageBody,
   PageContainer,
   PageHeader,
+  PageToolbar,
   PriorityTag,
-  Table,
+  ResponsiveDataList,
+  TableActions,
   applyTableQuery,
+  actionsColumnBase,
   enumFilters,
   type ColumnsType,
 } from '../../components/common'
+import { useDetailDrawer } from '../../hooks/useDetailDrawer'
 import { useEngagementOptions } from '../../hooks/useEngagementOptions'
 import { usePaginatedList } from '../../hooks/usePaginatedList'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
+import { IssueDetailPanel } from './IssueDetailPanel'
 import type { IssueListItem } from '../../types/issue'
 import { getApiErrorMessage } from '../../utils/errors'
 
 export function IssuesPage() {
-  const navigate = useNavigate()
   const { engagements } = useEngagementOptions()
   const [createOpen, setCreateOpen] = useState(false)
   const [form] = Form.useForm()
-  const modalWidth = useResponsiveModalWidth(560)
+  const modalWidth = useResponsiveModalWidth(480)
+  const { viewId, openDetail, closeDetail } = useDetailDrawer('/issues')
+  const [detailMeta, setDetailMeta] = useState<{ title: string; subtitle?: string } | null>(null)
 
   const fetcher = useCallback(
     (params: Parameters<typeof fetchIssues>[0]) => fetchIssues(params),
     [],
   )
 
-  const { data: issues, loading, pagination, tableSort, tableFilters, onTableChange } = usePaginatedList({
+  const { data: issues, loading, pagination, search, setSearch, tableSort, tableFilters, onTableChange } = usePaginatedList({
     fetcher,
     initialPageSize: 10,
   })
@@ -55,6 +65,15 @@ export function IssuesPage() {
         width: 180,
         sorter: true,
         showSorterTooltip: true,
+        render: (title: string, record) => (
+          <button
+            type="button"
+            className="cursor-pointer border-0 bg-transparent p-0 text-left font-medium text-brand hover:underline"
+            onClick={() => openDetail(record.id)}
+          >
+            {title}
+          </button>
+        ),
       },
       {
         title: 'Engagement',
@@ -88,27 +107,30 @@ export function IssuesPage() {
       },
       { title: 'Findings', dataIndex: 'findingsCount', key: 'findingsCount', responsive: ['xl'] },
       {
-        title: 'Actions',
-        key: 'actions',
-        width: 72,
-        fixed: 'right',
+        ...actionsColumnBase('one'),
         render: (_, record) => (
-          <Link to={`/issues/${record.id}`}>
-            <Button type="text" size="small" icon={<EyeOutlined />} aria-label="View" />
-          </Link>
+          <TableActions>
+            <Button
+              type="text"
+              size="small"
+              icon={<EyeOutlined />}
+              aria-label="View"
+              onClick={() => openDetail(record.id)}
+            />
+          </TableActions>
         ),
       },
         ],
         tableSort,
         tableFilters,
       ),
-    [tableSort, tableFilters],
+    [openDetail, tableSort, tableFilters],
   )
 
   const handleCreate = async () => {
     try {
       const values = await form.validateFields()
-      const issue = await createIssue(values.engagementId, {
+      const issue = await upsertIssue(values.engagementId, {
         title: values.title,
         description: values.description,
         severity: values.severity,
@@ -117,7 +139,7 @@ export function IssuesPage() {
       message.success('Issue created')
       setCreateOpen(false)
       form.resetFields()
-      navigate(`/issues/${issue.id}`)
+      openDetail(issue.id)
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return
       message.error(getApiErrorMessage(err, 'Failed to create issue'))
@@ -129,21 +151,58 @@ export function IssuesPage() {
       <PageHeader
         title="Issues & Findings"
         subtitle="Track audit issues and related findings"
-        extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)} block className="sm:!inline-flex">
+      />
+
+      <PageToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search issues by title or description..."
+        actions={
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
             Report Issue
           </Button>
         }
       />
 
       <PageBody variant="fill">
-        <Table
+        <ResponsiveDataList
           rowKey="id"
           loading={loading}
           columns={columns}
           dataSource={issues}
           pagination={pagination}
           onChange={onTableChange}
+          emptyDescription="No issues found"
+          renderMobileCard={(issue) => (
+            <MobileListCard
+              title={issue.title}
+              badge={
+                <MobileCardBadge
+                  label={issue.severity}
+                  tone={
+                    issue.severity === 'HIGH'
+                      ? 'danger'
+                      : issue.severity === 'MEDIUM'
+                        ? 'warning'
+                        : 'info'
+                  }
+                />
+              }
+              actions={
+                <MobileListActionButton
+                  label="View Details"
+                  className="col-span-2"
+                  onClick={() => openDetail(issue.id)}
+                />
+              }
+            >
+              <MobileListRow icon={<AuditOutlined />}>{issue.engagementTitle}</MobileListRow>
+              <MobileListRow icon={<FileSearchOutlined />}>
+                {issue.status.replace('_', ' ')} · {issue.findingsCount} finding
+                {issue.findingsCount === 1 ? '' : 's'}
+              </MobileListRow>
+            </MobileListCard>
+          )}
         />
       </PageBody>
 
@@ -195,6 +254,27 @@ export function IssuesPage() {
           </ModalFormGrid>
         </Form>
       </ModalForm>
+
+      <DetailDrawer
+        open={viewId !== null}
+        onClose={() => {
+          closeDetail()
+          setDetailMeta(null)
+        }}
+        title={detailMeta?.title}
+        subtitle={detailMeta?.subtitle}
+        width={520}
+      >
+        {viewId !== null && (
+          <IssueDetailPanel
+            issueId={viewId}
+            onLoaded={(issue) =>
+              setDetailMeta({ title: issue.title, subtitle: `Issue for ${issue.engagementTitle}` })
+            }
+            onError={closeDetail}
+          />
+        )}
+      </DetailDrawer>
     </PageContainer>
   )
 }

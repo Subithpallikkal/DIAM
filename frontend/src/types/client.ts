@@ -14,16 +14,8 @@ export interface ClientDetail extends ClientListItem {
   updatedAt: string
 }
 
-export interface CreateClientPayload {
-  name: string
-  email?: string
-  phone?: string
-  address?: string
-  gstNumber?: string
-  code?: string
-}
-
-export interface UpdateClientPayload {
+export interface UpsertClientPayload {
+  id?: number
   name?: string
   email?: string
   phone?: string
@@ -32,3 +24,9 @@ export interface UpdateClientPayload {
   code?: string
   isActive?: boolean
 }
+
+/** @deprecated Use UpsertClientPayload */
+export type CreateClientPayload = Omit<UpsertClientPayload, 'id' | 'isActive'> & { name: string }
+
+/** @deprecated Use UpsertClientPayload */
+export type UpdateClientPayload = Omit<UpsertClientPayload, 'id'>

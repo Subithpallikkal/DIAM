@@ -59,6 +59,14 @@ export class UpdateIssueDto {
   responsiblePerson?: string;
 }
 
+export class UpsertIssueDto extends UpdateIssueDto {
+  @ApiPropertyOptional({ example: 1, description: "When set, updates the existing issue" })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  id?: number;
+}
+
 export class AssignIssueDto {
   @ApiProperty({ example: 3 })
   @IsInt()
@@ -152,6 +160,9 @@ export class IssueStatusLogDto {
 export class IssueDetailDto extends IssueListItemDto {
   @ApiProperty({ nullable: true })
   description!: string | null;
+
+  @ApiProperty({ example: "Demo Auditor", nullable: true })
+  assigneeName!: string | null;
 
   @ApiProperty({ type: [FindingDto] })
   findings!: FindingDto[];

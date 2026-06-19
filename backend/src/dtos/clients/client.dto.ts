@@ -2,10 +2,12 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsBoolean,
   IsEmail,
+  IsInt,
   IsOptional,
   IsString,
   MinLength,
 } from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateClientDto {
   @ApiProperty({ example: "ABC Pvt Ltd" })
@@ -75,6 +77,14 @@ export class UpdateClientDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+}
+
+export class UpsertClientDto extends UpdateClientDto {
+  @ApiPropertyOptional({ example: 1, description: "When set, updates the existing client" })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  id?: number;
 }
 
 export class ClientListItemDto {

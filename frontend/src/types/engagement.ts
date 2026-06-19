@@ -18,18 +18,8 @@ export interface EngagementDetail extends EngagementListItem {
   updatedAt: string
 }
 
-export interface CreateEngagementPayload {
-  clientId: number
-  title: string
-  auditType: string
-  financialYear?: string
-  startDate?: string
-  endDate?: string
-  status?: EngagementStatus
-  description?: string
-}
-
-export interface UpdateEngagementPayload {
+export interface UpsertEngagementPayload {
+  id?: number
   clientId?: number
   title?: string
   auditType?: string
@@ -39,6 +29,16 @@ export interface UpdateEngagementPayload {
   status?: EngagementStatus
   description?: string
 }
+
+/** @deprecated Use UpsertEngagementPayload */
+export type CreateEngagementPayload = Omit<UpsertEngagementPayload, 'id'> & {
+  clientId: number
+  title: string
+  auditType: string
+}
+
+/** @deprecated Use UpsertEngagementPayload */
+export type UpdateEngagementPayload = Omit<UpsertEngagementPayload, 'id'>
 
 export interface ScopeItem {
   id: number
@@ -59,7 +59,14 @@ export interface RequiredDocument {
   isReceived: boolean
 }
 
-export interface CreateRequiredDocumentPayload {
-  documentName: string
+export interface UpsertRequiredDocumentPayload {
+  id?: number
+  documentName?: string
   isRequired?: boolean
+  isReceived?: boolean
+}
+
+/** @deprecated Use UpsertRequiredDocumentPayload */
+export type CreateRequiredDocumentPayload = Omit<UpsertRequiredDocumentPayload, 'id' | 'isReceived'> & {
+  documentName: string
 }

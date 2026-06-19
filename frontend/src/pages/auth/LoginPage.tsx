@@ -36,28 +36,28 @@ export function LoginPage() {
 
   return (
     <div className="grid h-dvh w-full grid-cols-1 overflow-hidden lg:grid-cols-2">
-      <div className="hidden items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-indigo-900 p-8 lg:flex lg:p-12">
+      <div className="hidden items-center justify-center bg-linear-to-br from-shell via-table-header to-[#0d5249] p-8 lg:flex lg:p-12">
         <div className="max-w-md text-white">
-          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-[28px]">
+          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/20 text-[28px] text-brand">
             <SafetyCertificateOutlined />
           </div>
-          <Title level={2} className="!mb-4 !text-white">
+          <Title level={2} className="mb-4! text-white!">
             DIAM
           </Title>
-          <Paragraph className="!mb-0 !text-base !text-white/75">
+          <Paragraph className="mb-0! text-base! text-white/75!">
             Digital Internal Audit Management — streamline clients, engagements, and audit
             workflows in one place.
           </Paragraph>
         </div>
       </div>
 
-      <div className="flex h-full min-h-0 flex-col overflow-y-auto bg-slate-50 px-4 py-6 sm:justify-center sm:p-8">
+      <div className="flex h-full min-h-0 flex-col overflow-y-auto bg-surface px-4 py-6 sm:justify-center sm:p-8">
         <div className="mb-6 flex items-center gap-3 lg:hidden">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-lg font-bold text-white">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br from-table-header to-brand text-lg font-bold text-white">
             D
           </div>
           <div>
-            <Title level={4} className="!mb-0">
+            <Title level={4} className="mb-0!">
               DIAM
             </Title>
             <Text type="secondary" className="text-xs">
@@ -66,9 +66,9 @@ export function LoginPage() {
           </div>
         </div>
 
-        <Card bordered={false} className="w-full max-w-md self-center !rounded-2xl !shadow-xl sm:mx-auto">
+        <Card bordered={false} className="w-full max-w-md self-center rounded-2xl! shadow-xl! sm:mx-auto">
           <Space direction="vertical" size={8} className="mb-6 w-full">
-            <Title level={3} className="!text-xl sm:!text-2xl">
+            <Title level={3} className="text-xl! sm:text-2xl!">
               Welcome back
             </Title>
             <Text type="secondary" className="text-sm sm:text-base">
@@ -123,7 +123,7 @@ export function LoginPage() {
               />
             </Form.Item>
 
-            <Form.Item className="!mb-0 !mt-2">
+            <Form.Item className="mb-0! mt-2!">
               <Button type="primary" htmlType="submit" size="large" block loading={loading}>
                 Sign in
               </Button>

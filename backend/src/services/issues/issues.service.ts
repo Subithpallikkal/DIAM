@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CacheService } from "../../common/cache/cache.service";
@@ -16,6 +16,7 @@ import {
   IssueDetailDto,
   IssueListItemDto,
   UpdateIssueDto,
+  UpsertIssueDto,
 } from "../../dtos/issues/issue.dto";
 import { IssueStatus, Priority } from "../../dtos/common/enums.dto";
 
@@ -96,6 +97,11 @@ export class IssuesService {
         engagement: true,
         findings: { include: { createdBy: true } },
         statusLogs: { include: { changedBy: true }, orderBy: { createdAt: "desc" } },
+        assignments: {
+          include: { assignedTo: true },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
       },
     });
 
@@ -135,6 +141,22 @@ export class IssuesService {
     });
 
     return this.toListItem(issue);
+  }
+
+  async upsert(
+    engagementId: number,
+    dto: UpsertIssueDto,
+    changedByUid: number,
+  ): Promise<IssueDetailDto | IssueListItemDto> {
+    const { id, ...data } = dto;
+    if (id != null) {
+      await this.ensureBelongsToEngagement(id, engagementId);
+      return this.update(id, data, changedByUid);
+    }
+    if (!data.title?.trim()) {
+      throw new BadRequestException("title is required");
+    }
+    return this.create(engagementId, data as CreateIssueDto, changedByUid);
   }
 
   async update(
@@ -225,6 +247,17 @@ export class IssuesService {
     }
   }
 
+  private async ensureBelongsToEngagement(issueId: number, engagementId: number) {
+    const issue = await this.prisma.issue.findFirst({
+      where: { uid: issueId, engagementUid: engagementId },
+    });
+    if (!issue) {
+      throw new NotFoundException(
+        `Issue ${issueId} not found for engagement ${engagementId}`,
+      );
+    }
+  }
+
   private async ensureEngagementExists(engagementId: number) {
     const engagement = await this.prisma.auditEngagement.findUnique({
       where: { uid: engagementId },
@@ -292,10 +325,14 @@ export class IssuesService {
       createdAt: Date;
       changedBy: { name: string };
     }[];
+    assignments?: {
+      assignedTo: { name: string };
+    }[];
   }): IssueDetailDto {
     return {
       ...this.toListItem({ ...issue, findings: issue.findings }),
       description: issue.description,
+      assigneeName: issue.assignments?.[0]?.assignedTo.name ?? null,
       updatedAt: issue.updatedAt,
       findings: issue.findings.map((finding) => ({
         id: finding.uid,

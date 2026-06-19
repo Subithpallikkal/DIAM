@@ -124,6 +124,43 @@ export class DocumentsController {
   }
 
   @RequireRoles(...Roles.ALL)
+  @Get(":id/versions")
+  @ApiOperation({ summary: "List all versions of a document" })
+  @ApiOkResponse({ type: [DocumentListItemDto] })
+  findVersions(@Param("id", ParseIntPipe) id: number) {
+    return this.documentsService.findVersions(id);
+  }
+
+  @RequireRoles(...Roles.ALL)
+  @Post(":id/versions/upload")
+  @ApiOperation({ summary: "Upload a new version of an existing document" })
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        file: { type: "string", format: "binary" },
+      },
+      required: ["file"],
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor("file", {
+      storage: memoryStorage(),
+      limits: { fileSize: 10 * 1024 * 1024 },
+    }),
+  )
+  @ApiCreatedResponse({ type: DocumentListItemDto })
+  @ApiStandardErrors()
+  uploadVersion(
+    @Param("id", ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.storageService.uploadVersion(id, file, user.sub);
+  }
+
+  @RequireRoles(...Roles.ALL)
   @Get(":id")
   @ApiOperation({ summary: "Get document metadata" })
   @ApiParam({ name: "id", type: Number })

@@ -22,6 +22,10 @@ export interface DocumentListItem {
   mimeType: string
   fileSize: number
   uploadedByName: string
+  version: number
+  parentDocumentId: number | null
+  rootDocumentId: number
+  versionCount: number
   createdAt: string
 }
 
@@ -38,4 +42,8 @@ export interface UploadDocumentPayload {
   clientId: number
   engagementId?: number
   categoryId?: number
+}
+
+export interface UploadDocumentVersionPayload {
+  file: File
 }

@@ -12,6 +12,9 @@ export declare class UpdateUserDto {
     role?: RoleName;
     isActive?: boolean;
 }
+export declare class UpsertUserDto extends UpdateUserDto {
+    id?: number;
+}
 export declare class UserListItemDto {
     id: number;
     name: string;

@@ -55,7 +55,7 @@ __decorate([
 ], DocumentCategoryDto.prototype, "createdAt", void 0);
 class DocumentListItemDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, clientId: { required: true, type: () => Number }, clientName: { required: true, type: () => String }, engagementId: { required: true, type: () => Number, nullable: true }, engagementTitle: { required: true, type: () => String, nullable: true }, categoryId: { required: true, type: () => Number, nullable: true }, categoryName: { required: true, type: () => String, nullable: true }, originalName: { required: true, type: () => String }, mimeType: { required: true, type: () => String }, fileSize: { required: true, type: () => Number }, uploadedByName: { required: true, type: () => String }, createdAt: { required: true, type: () => Date } };
+        return { id: { required: true, type: () => Number }, clientId: { required: true, type: () => Number }, clientName: { required: true, type: () => String }, engagementId: { required: true, type: () => Number, nullable: true }, engagementTitle: { required: true, type: () => String, nullable: true }, categoryId: { required: true, type: () => Number, nullable: true }, categoryName: { required: true, type: () => String, nullable: true }, originalName: { required: true, type: () => String }, mimeType: { required: true, type: () => String }, fileSize: { required: true, type: () => Number }, uploadedByName: { required: true, type: () => String }, version: { required: true, type: () => Number }, parentDocumentId: { required: true, type: () => Number, nullable: true }, rootDocumentId: { required: true, type: () => Number }, versionCount: { required: true, type: () => Number }, createdAt: { required: true, type: () => Date } };
     }
 }
 exports.DocumentListItemDto = DocumentListItemDto;
@@ -103,6 +103,22 @@ __decorate([
     (0, swagger_1.ApiProperty)({ example: "Demo Auditor" }),
     __metadata("design:type", String)
 ], DocumentListItemDto.prototype, "uploadedByName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    __metadata("design:type", Number)
+], DocumentListItemDto.prototype, "version", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 1, nullable: true }),
+    __metadata("design:type", Object)
+], DocumentListItemDto.prototype, "parentDocumentId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    __metadata("design:type", Number)
+], DocumentListItemDto.prototype, "rootDocumentId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    __metadata("design:type", Number)
+], DocumentListItemDto.prototype, "versionCount", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", Date)

@@ -6,7 +6,7 @@ import {
   addTaskComment,
   assignTask,
   fetchTask,
-  updateTask,
+  upsertTask,
 } from '../../api/tasks.api'
 import { fetchUsers } from '../../api/users.api'
 import { Button, Input, Loader, PageBody, PageContainer, PageHeader, ResponsiveCard, stackListItemClass } from '../../components/common'
@@ -54,8 +54,12 @@ export function TaskDetailPage() {
   }, [loadData])
 
   const handleStatusChange = async (status: string) => {
+    if (!task) return
     try {
-      await updateTask(taskId, { status: status as TaskDetail['status'] })
+      await upsertTask(task.engagementId, {
+        id: taskId,
+        status: status as TaskDetail['status'],
+      })
       message.success('Status updated')
       loadData()
     } catch (err) {
@@ -146,7 +150,7 @@ export function TaskDetailPage() {
                 options={users.map((item) => ({ label: item.name, value: item.id }))}
               />
             </div>
-            <Button type="primary" onClick={handleAssign} block className="sm:!inline-flex sm:!w-auto">
+            <Button type="primary" onClick={handleAssign} block className="sm:inline-flex! sm:w-auto!">
               Assign
             </Button>
           </div>
@@ -180,7 +184,7 @@ export function TaskDetailPage() {
             onChange={(e) => setComment(e.target.value)}
             placeholder="Add a comment..."
           />
-          <Button type="primary" onClick={handleComment} block className="sm:!inline-flex sm:!w-auto sm:shrink-0">
+          <Button type="primary" onClick={handleComment} block className="sm:inline-flex! sm:w-auto! sm:shrink-0">
             Post Comment
           </Button>
         </div>

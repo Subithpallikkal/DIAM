@@ -4,7 +4,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
 } from "@nestjs/common";
 import {
@@ -19,9 +18,8 @@ import {
 } from "@nestjs/swagger";
 import { RequiredDocumentsService } from "../../services/engagements/required-documents.service";
 import {
-  CreateRequiredDocumentDto,
   RequiredDocumentListItemDto,
-  UpdateRequiredDocumentDto,
+  UpsertRequiredDocumentDto,
 } from "../../dtos/engagements/engagement.dto";
 import { RequireRoles } from "../../common/decorators/roles.decorator";
 import { Roles } from "../../common/constants/roles.constants";
@@ -36,26 +34,27 @@ export class RequiredDocumentsController {
 
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post()
-  @ApiOperation({ summary: "Add a required document checklist item" })
+  @ApiOperation({ summary: "Create or update a required document checklist item" })
   @ApiParam({ name: "id", type: Number, example: 1, description: "Engagement id" })
   @ApiBody({
-    type: CreateRequiredDocumentDto,
-    description: "Checklist item details",
+    type: UpsertRequiredDocumentDto,
+    description: "Include id to update; omit id to create",
     examples: {
-      default: SwaggerExamples.requiredDocuments.create,
+      create: SwaggerExamples.requiredDocuments.create,
+      update: SwaggerExamples.requiredDocuments.updateReceived,
     },
   })
   @ApiCreatedResponse({
-    description: "Checklist item created",
+    description: "Checklist item saved",
     type: RequiredDocumentListItemDto,
     schema: { example: SwaggerExamples.requiredDocuments.listItem },
   })
   @ApiStandardErrors()
-  create(
+  upsert(
     @Param("id", ParseIntPipe) engagementId: number,
-    @Body() dto: CreateRequiredDocumentDto,
+    @Body() dto: UpsertRequiredDocumentDto,
   ) {
-    return this.requiredDocumentsService.create(engagementId, dto);
+    return this.requiredDocumentsService.upsert(engagementId, dto);
   }
 
   @RequireRoles(...Roles.ALL)
@@ -74,33 +73,5 @@ export class RequiredDocumentsController {
   })
   findAll(@Param("id", ParseIntPipe) engagementId: number) {
     return this.requiredDocumentsService.findAll(engagementId);
-  }
-
-  @RequireRoles(...Roles.ALL)
-  @Patch(":docId")
-  @ApiOperation({ summary: "Update a checklist item (e.g. mark as received)" })
-  @ApiParam({ name: "id", type: Number, example: 1, description: "Engagement id" })
-  @ApiParam({ name: "docId", type: Number, example: 1 })
-  @ApiBody({
-    type: UpdateRequiredDocumentDto,
-    description: "Fields to update",
-    examples: {
-      markReceived: SwaggerExamples.requiredDocuments.updateReceived,
-    },
-  })
-  @ApiOkResponse({
-    description: "Checklist item updated",
-    type: RequiredDocumentListItemDto,
-    schema: {
-      example: { ...SwaggerExamples.requiredDocuments.listItem, isReceived: true },
-    },
-  })
-  @ApiStandardErrors()
-  update(
-    @Param("id", ParseIntPipe) engagementId: number,
-    @Param("docId", ParseIntPipe) docId: number,
-    @Body() dto: UpdateRequiredDocumentDto,
-  ) {
-    return this.requiredDocumentsService.update(engagementId, docId, dto);
   }
 }

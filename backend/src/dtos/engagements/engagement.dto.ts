@@ -98,6 +98,14 @@ export class UpdateEngagementDto {
   description?: string;
 }
 
+export class UpsertEngagementDto extends UpdateEngagementDto {
+  @ApiPropertyOptional({ example: 1, description: "When set, updates the existing engagement" })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  id?: number;
+}
+
 export class EngagementListItemDto {
   @ApiProperty({ example: 1 })
   id!: number;
@@ -186,6 +194,20 @@ export class UpdateRequiredDocumentDto {
   @IsOptional()
   @IsBoolean()
   isRequired?: boolean;
+}
+
+export class UpsertRequiredDocumentDto extends UpdateRequiredDocumentDto {
+  @ApiPropertyOptional({ example: 1, description: "When set, updates the existing checklist item" })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  id?: number;
+
+  @ApiPropertyOptional({ example: "Bank Statement" })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  documentName?: string;
 }
 
 export class RequiredDocumentListItemDto {

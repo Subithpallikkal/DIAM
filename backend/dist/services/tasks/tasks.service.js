@@ -111,6 +111,17 @@ let TasksService = class TasksService {
         });
         return this.toListItem(task);
     }
+    async upsert(engagementId, dto, createdByUid) {
+        const { id, ...data } = dto;
+        if (id != null) {
+            await this.ensureBelongsToEngagement(id, engagementId);
+            return this.update(id, data);
+        }
+        if (!data.title?.trim()) {
+            throw new common_1.BadRequestException("title is required");
+        }
+        return this.create(engagementId, data, createdByUid);
+    }
     async update(id, dto) {
         await this.ensureExists(id);
         const task = await this.prisma.task.update({
@@ -158,6 +169,14 @@ let TasksService = class TasksService {
         const task = await this.prisma.task.findUnique({ where: { uid: id } });
         if (!task) {
             throw new common_1.NotFoundException(`Task ${id} not found`);
+        }
+    }
+    async ensureBelongsToEngagement(taskId, engagementId) {
+        const task = await this.prisma.task.findFirst({
+            where: { uid: taskId, engagementUid: engagementId },
+        });
+        if (!task) {
+            throw new common_1.NotFoundException(`Task ${taskId} not found for engagement ${engagementId}`);
         }
     }
     async ensureEngagementExists(engagementId) {

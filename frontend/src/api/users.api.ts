@@ -1,11 +1,6 @@
 import { api } from './axios'
 import type { ListQueryParams, PaginatedResponse } from '../types/api'
-import type {
-  CreateUserPayload,
-  UpdateUserPayload,
-  UserDetail,
-  UserListItem,
-} from '../types/user'
+import type { UpsertUserPayload, UserDetail, UserListItem } from '../types/user'
 
 export const ROLE_OPTIONS = [
   { label: 'Admin', value: 'ADMIN' as const },
@@ -25,13 +20,8 @@ export async function fetchUser(id: number): Promise<UserDetail> {
   return data
 }
 
-export async function createUser(payload: CreateUserPayload): Promise<UserDetail> {
+export async function upsertUser(payload: UpsertUserPayload): Promise<UserDetail> {
   const { data } = await api.post<UserDetail>('/users', payload)
-  return data
-}
-
-export async function updateUser(id: number, payload: UpdateUserPayload): Promise<UserDetail> {
-  const { data } = await api.patch<UserDetail>(`/users/${id}`, payload)
   return data
 }
 

@@ -19,6 +19,9 @@ export declare class UpdateEngagementDto {
     status?: EngagementStatus;
     description?: string;
 }
+export declare class UpsertEngagementDto extends UpdateEngagementDto {
+    id?: number;
+}
 export declare class EngagementListItemDto {
     id: number;
     clientId: number;
@@ -52,6 +55,10 @@ export declare class CreateRequiredDocumentDto {
 export declare class UpdateRequiredDocumentDto {
     isReceived?: boolean;
     isRequired?: boolean;
+}
+export declare class UpsertRequiredDocumentDto extends UpdateRequiredDocumentDto {
+    id?: number;
+    documentName?: string;
 }
 export declare class RequiredDocumentListItemDto {
     id: number;

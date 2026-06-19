@@ -22,14 +22,25 @@ export interface ChecklistItem {
   assigneeName: string | null
 }
 
-export interface CreateRiskPayload {
-  title: string
+export interface UpsertRiskPayload {
+  id?: number
+  title?: string
   description?: string
   priority?: Priority
   status?: RiskStatus
 }
 
-export interface CreateChecklistPayload {
-  title: string
+/** @deprecated Use UpsertRiskPayload */
+export type CreateRiskPayload = Omit<UpsertRiskPayload, 'id'> & { title: string }
+
+export interface UpsertChecklistPayload {
+  id?: number
+  title?: string
   sortOrder?: number
+  isCompleted?: boolean
+}
+
+/** @deprecated Use UpsertChecklistPayload */
+export type CreateChecklistPayload = Omit<UpsertChecklistPayload, 'id' | 'isCompleted'> & {
+  title: string
 }

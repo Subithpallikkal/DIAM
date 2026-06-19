@@ -27,7 +27,7 @@ export function PageHeader({ title, subtitle, breadcrumbs, extra }: PageHeaderPr
           />
         )}
         <Space direction="vertical" size={0} className="w-full">
-          <h1 className="m-0 text-base font-semibold tracking-tight text-[#34495e] md:text-lg">
+          <h1 className="m-0 text-base font-semibold tracking-tight text-brand-dark md:text-lg">
             {title}
           </h1>
           {subtitle && (
@@ -36,9 +36,7 @@ export function PageHeader({ title, subtitle, breadcrumbs, extra }: PageHeaderPr
         </Space>
       </div>
       {extra && (
-        <div className="w-full shrink-0 sm:w-auto [&_.ant-btn-primary]:!border-[#1abc9c] [&_.ant-btn-primary]:!bg-[#1abc9c] [&_.ant-btn]:w-full hover:[&_.ant-btn-primary]:!border-[#16a085] hover:[&_.ant-btn-primary]:!bg-[#16a085] sm:[&_.ant-btn]:w-auto">
-          {extra}
-        </div>
+        <div className="w-full shrink-0 sm:w-auto">{extra}</div>
       )}
     </div>
   )

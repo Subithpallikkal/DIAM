@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RequiredDocumentListItemDto = exports.UpdateRequiredDocumentDto = exports.CreateRequiredDocumentDto = exports.ScopeListItemDto = exports.CreateScopeDto = exports.EngagementDetailDto = exports.EngagementListItemDto = exports.UpdateEngagementDto = exports.CreateEngagementDto = void 0;
+exports.RequiredDocumentListItemDto = exports.UpsertRequiredDocumentDto = exports.UpdateRequiredDocumentDto = exports.CreateRequiredDocumentDto = exports.ScopeListItemDto = exports.CreateScopeDto = exports.EngagementDetailDto = exports.EngagementListItemDto = exports.UpsertEngagementDto = exports.UpdateEngagementDto = exports.CreateEngagementDto = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
@@ -126,6 +126,19 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateEngagementDto.prototype, "description", void 0);
+class UpsertEngagementDto extends UpdateEngagementDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: false, type: () => Number } };
+    }
+}
+exports.UpsertEngagementDto = UpsertEngagementDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1, description: "When set, updates the existing engagement" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], UpsertEngagementDto.prototype, "id", void 0);
 class EngagementListItemDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { id: { required: true, type: () => Number }, clientId: { required: true, type: () => Number }, clientName: { required: true, type: () => String }, title: { required: true, type: () => String }, auditType: { required: true, type: () => String }, financialYear: { required: true, type: () => String, nullable: true }, status: { required: true, type: () => String }, startDate: { required: true, type: () => Date, nullable: true }, endDate: { required: true, type: () => Date, nullable: true }, createdAt: { required: true, type: () => Date } };
@@ -262,6 +275,26 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateRequiredDocumentDto.prototype, "isRequired", void 0);
+class UpsertRequiredDocumentDto extends UpdateRequiredDocumentDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: false, type: () => Number }, documentName: { required: false, type: () => String, minLength: 1 } };
+    }
+}
+exports.UpsertRequiredDocumentDto = UpsertRequiredDocumentDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1, description: "When set, updates the existing checklist item" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], UpsertRequiredDocumentDto.prototype, "id", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: "Bank Statement" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(1),
+    __metadata("design:type", String)
+], UpsertRequiredDocumentDto.prototype, "documentName", void 0);
 class RequiredDocumentListItemDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { id: { required: true, type: () => Number }, documentName: { required: true, type: () => String }, isRequired: { required: true, type: () => Boolean }, isReceived: { required: true, type: () => Boolean } };

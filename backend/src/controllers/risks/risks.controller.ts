@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
 } from "@nestjs/common";
@@ -22,11 +21,9 @@ import { RisksService } from "../../services/risks/risks.service";
 import {
   AssignChecklistDto,
   ChecklistItemDto,
-  CreateChecklistItemDto,
-  CreateRiskDto,
   RiskListItemDto,
-  UpdateChecklistItemDto,
-  UpdateRiskDto,
+  UpsertChecklistItemDto,
+  UpsertRiskDto,
 } from "../../dtos/risks/risk.dto";
 import { RequireRoles } from "../../common/decorators/roles.decorator";
 import { Roles } from "../../common/constants/roles.constants";
@@ -67,23 +64,16 @@ export class RisksController {
 
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post("engagements/:engagementId/risks")
-  @ApiOperation({ summary: "Create risk for engagement" })
+  @ApiOperation({ summary: "Create or update risk for engagement" })
   @ApiParam({ name: "engagementId", type: Number })
   @ApiCreatedResponse({ type: RiskListItemDto })
   @ApiStandardErrors()
-  create(
+  upsert(
     @Param("engagementId", ParseIntPipe) engagementId: number,
-    @Body() dto: CreateRiskDto,
+    @Body() dto: UpsertRiskDto,
     @CurrentUser() user: JwtPayload,
   ) {
-    return this.risksService.create(engagementId, dto, user.sub);
-  }
-
-  @RequireRoles(...Roles.ADMIN_MANAGER)
-  @Patch("risks/:id")
-  @ApiOperation({ summary: "Update risk" })
-  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateRiskDto) {
-    return this.risksService.update(id, dto);
+    return this.risksService.upsert(engagementId, dto, user.sub);
   }
 
   @RequireRoles(...Roles.ADMIN_MANAGER)
@@ -103,24 +93,13 @@ export class RisksController {
 
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post("risks/:id/checklists")
-  @ApiOperation({ summary: "Add checklist item" })
+  @ApiOperation({ summary: "Create or update checklist item" })
   @ApiCreatedResponse({ type: ChecklistItemDto })
-  addChecklist(
+  upsertChecklist(
     @Param("id", ParseIntPipe) id: number,
-    @Body() dto: CreateChecklistItemDto,
+    @Body() dto: UpsertChecklistItemDto,
   ) {
-    return this.risksService.addChecklistItem(id, dto);
-  }
-
-  @RequireRoles(...Roles.ALL)
-  @Patch("risks/:id/checklists/:checklistId")
-  @ApiOperation({ summary: "Update checklist item" })
-  updateChecklist(
-    @Param("id", ParseIntPipe) id: number,
-    @Param("checklistId", ParseIntPipe) checklistId: number,
-    @Body() dto: UpdateChecklistItemDto,
-  ) {
-    return this.risksService.updateChecklistItem(id, checklistId, dto);
+    return this.risksService.upsertChecklistItem(id, dto);
   }
 
   @RequireRoles(...Roles.ADMIN_MANAGER)

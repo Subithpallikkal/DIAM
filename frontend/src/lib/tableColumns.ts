@@ -91,3 +91,25 @@ export function readTableSorter<T>(sorter: SorterResult<T> | SorterResult<T>[]):
     order: entry.order,
   }
 }
+
+/** Width presets for action columns — sized to keep icon buttons on one row */
+export const TABLE_ACTION_WIDTH = {
+  one: 96,
+  two: 136,
+  three: 176,
+  four: 216,
+  five: 256,
+} as const
+
+export type TableActionButtonCount = keyof typeof TABLE_ACTION_WIDTH
+
+export function actionsColumnBase(buttonCount: TableActionButtonCount = 'one') {
+  return {
+    title: 'Actions',
+    key: 'actions',
+    width: TABLE_ACTION_WIDTH[buttonCount],
+    fixed: 'right' as const,
+    align: 'center' as const,
+    onCell: () => ({ className: 'diam-table-actions-cell' }),
+  }
+}

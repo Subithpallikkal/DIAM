@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
 } from "@nestjs/common";
@@ -22,11 +21,10 @@ import { IssuesService } from "../../services/issues/issues.service";
 import {
   AssignIssueDto,
   CreateFindingDto,
-  CreateIssueDto,
   FindingDto,
   IssueDetailDto,
   IssueListItemDto,
-  UpdateIssueDto,
+  UpsertIssueDto,
 } from "../../dtos/issues/issue.dto";
 import { RequireRoles } from "../../common/decorators/roles.decorator";
 import { Roles } from "../../common/constants/roles.constants";
@@ -68,26 +66,15 @@ export class IssuesController {
 
   @RequireRoles(...Roles.ALL)
   @Post("engagements/:engagementId/issues")
-  @ApiOperation({ summary: "Create issue for engagement" })
+  @ApiOperation({ summary: "Create or update issue for engagement" })
   @ApiCreatedResponse({ type: IssueListItemDto })
   @ApiStandardErrors()
-  create(
+  upsert(
     @Param("engagementId", ParseIntPipe) engagementId: number,
-    @Body() dto: CreateIssueDto,
+    @Body() dto: UpsertIssueDto,
     @CurrentUser() user: JwtPayload,
   ) {
-    return this.issuesService.create(engagementId, dto, user.sub);
-  }
-
-  @RequireRoles(...Roles.ALL)
-  @Patch("issues/:id")
-  @ApiOperation({ summary: "Update issue" })
-  update(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() dto: UpdateIssueDto,
-    @CurrentUser() user: JwtPayload,
-  ) {
-    return this.issuesService.update(id, dto, user.sub);
+    return this.issuesService.upsert(engagementId, dto, user.sub);
   }
 
   @RequireRoles(...Roles.ADMIN_MANAGER)

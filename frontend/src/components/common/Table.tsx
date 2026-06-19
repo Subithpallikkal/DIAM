@@ -1,8 +1,16 @@
 import { Table as AntTable, Pagination, type TableProps } from 'antd'
 import { Grid } from 'antd'
 import type { TablePaginationConfig } from 'antd/es/table/interface'
-import { useCallback, useLayoutEffect, useRef, useState, type RefObject } from 'react'
+import { useCallback, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { cn } from '../../utils/cn'
+
+export function TableActions({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex flex-nowrap items-center justify-center gap-0 whitespace-nowrap">
+      {children}
+    </div>
+  )
+}
 
 function useTableBodyHeight(enabled: boolean, revision: number) {
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -17,7 +25,7 @@ function useTableBodyHeight(enabled: boolean, revision: number) {
     if (!bodySlot) return
 
     const header = bodySlot.querySelector('.ant-table-thead') as HTMLElement | null
-    const headerHeight = header?.offsetHeight ?? 36
+    const headerHeight = header?.offsetHeight ?? 30
     const next = bodySlot.clientHeight - headerHeight
 
     if (next > 80) {
@@ -77,46 +85,48 @@ function usePinnedTableBodyScroll(
 }
 
 const tableShellClass = cn(
-  'flex w-full min-w-0 flex-col overflow-hidden rounded border border-[#dfe6e9] bg-white shadow-none',
+  'flex w-full min-w-0 flex-col overflow-hidden rounded border border-border bg-white shadow-none',
   '[&_.ant-table]:rounded-none [&_.ant-table]:bg-white',
-  '[&_.ant-table-thead>tr>th]:!border-b [&_.ant-table-thead>tr>th]:!border-r [&_.ant-table-thead>tr>th]:!border-[#455a64]',
-  '[&_.ant-table-thead>tr>th]:!bg-[#52606d] [&_.ant-table-thead>tr>th]:!px-3 [&_.ant-table-thead>tr>th]:!py-2',
-  '[&_.ant-table-thead>tr>th]:!text-xs [&_.ant-table-thead>tr>th]:!font-bold [&_.ant-table-thead>tr>th]:!leading-tight [&_.ant-table-thead>tr>th]:!text-white',
-  '[&_.ant-table-thead>tr>th:last-child]:!border-r-0',
-  '[&_.ant-table-thead>tr>th::before]:!hidden',
-  '[&_.ant-table-thead>tr>th_.ant-table-column-sorter]:!text-white/70',
-  '[&_.ant-table-thead>tr>th_.ant-table-column-sorter-up.active]:!text-[#1abc9c]',
-  '[&_.ant-table-thead>tr>th_.ant-table-column-sorter-down.active]:!text-[#1abc9c]',
-  '[&_.ant-table-thead>tr>th_.ant-table-filter-trigger.active]:!text-[#1abc9c]',
-  '[&_.ant-table-filter-dropdown]:!rounded-md',
-  '[&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-r [&_.ant-table-tbody>tr>td]:border-[#dfe6e9]',
-  '[&_.ant-table-tbody>tr>td]:bg-white [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-1.5',
-  '[&_.ant-table-tbody>tr>td]:text-xs [&_.ant-table-tbody>tr>td]:leading-snug [&_.ant-table-tbody>tr>td]:text-[#2c3e50]',
-  '[&_.ant-table-tbody>tr>td:last-child]:!border-r-0',
-  '[&_.ant-table-tbody>tr:hover>td]:!bg-[#f0faf8]',
-  '[&_.ant-table-tbody>tr.ant-table-row-selected>td]:!bg-[#dff5ef]',
-  '[&_.ant-table-bordered_.ant-table-cell]:border-[#dfe6e9]',
+  '[&_.ant-table-thead>tr>th]:border-b! [&_.ant-table-thead>tr>th]:border-r! [&_.ant-table-thead>tr>th]:border-[#455a64]!',
+  '[&_.ant-table-thead>tr>th]:bg-[#52606d]! [&_.ant-table-thead>tr>th]:px-2.5! [&_.ant-table-thead>tr>th]:py-1.5!',
+  '[&_.ant-table-thead>tr>th]:text-xs! [&_.ant-table-thead>tr>th]:font-bold! [&_.ant-table-thead>tr>th]:leading-none! [&_.ant-table-thead>tr>th]:text-white!',
+  '[&_.ant-table-thead>tr>th:last-child]:border-r-0!',
+  '[&_.ant-table-thead>tr>th::before]:hidden!',
+  '[&_.ant-table-thead>tr>th_.ant-table-column-sorter]:text-white/70!',
+  '[&_.ant-table-thead>tr>th_.ant-table-column-sorter-up.active]:text-brand!',
+  '[&_.ant-table-thead>tr>th_.ant-table-column-sorter-down.active]:text-brand!',
+  '[&_.ant-table-thead>tr>th_.ant-table-filter-trigger.active]:text-brand!',
+  '[&_.ant-table-filter-dropdown]:rounded-md!',
+  '[&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-r [&_.ant-table-tbody>tr>td]:border-border',
+  '[&_.ant-table-tbody>tr>td]:bg-white [&_.ant-table-tbody>tr>td]:px-2.5 [&_.ant-table-tbody>tr>td]:py-1',
+  '[&_.ant-table-tbody>tr>td]:text-xs [&_.ant-table-tbody>tr>td]:leading-tight [&_.ant-table-tbody>tr>td]:text-[#2c3e50]',
+  '[&_.diam-table-actions-cell]:px-1.5! [&_.diam-table-actions-cell]:py-0.5! [&_.diam-table-actions-cell]:whitespace-nowrap!',
+  '[&_.diam-table-actions-cell_.ant-btn]:m-0! [&_.diam-table-actions-cell_.ant-btn]:h-7! [&_.diam-table-actions-cell_.ant-btn]:w-7! [&_.diam-table-actions-cell_.ant-btn]:min-w-7! [&_.diam-table-actions-cell_.ant-btn]:p-0!',
+  '[&_.ant-table-tbody>tr>td:last-child]:border-r-0!',
+  '[&_.ant-table-tbody>tr:hover>td]:bg-[#f0faf8]!',
+  '[&_.ant-table-tbody>tr.ant-table-row-selected>td]:bg-[#dff5ef]!',
+  '[&_.ant-table-bordered_.ant-table-cell]:border-border',
 )
 
 const tableBodySlotClass = cn(
   'flex min-h-0 flex-1 flex-col overflow-hidden',
-  '[&_.ant-table-wrapper]:!flex [&_.ant-table-wrapper]:!h-full [&_.ant-table-wrapper]:!min-h-0 [&_.ant-table-wrapper]:!flex-1 [&_.ant-table-wrapper]:!flex-col',
-  '[&_.ant-spin-nested-loading]:!flex [&_.ant-spin-nested-loading]:!h-full [&_.ant-spin-nested-loading]:!min-h-0 [&_.ant-spin-nested-loading]:!flex-1 [&_.ant-spin-nested-loading]:!flex-col',
-  '[&_.ant-spin-container]:!flex [&_.ant-spin-container]:!h-full [&_.ant-spin-container]:!min-h-0 [&_.ant-spin-container]:!flex-1 [&_.ant-spin-container]:!flex-col',
-  '[&_.ant-table]:!flex [&_.ant-table]:!h-full [&_.ant-table]:!min-h-0 [&_.ant-table]:!flex-1 [&_.ant-table]:!flex-col',
-  '[&_.ant-table-container]:!flex [&_.ant-table-container]:!min-h-0 [&_.ant-table-container]:!flex-1 [&_.ant-table-container]:!flex-col',
+  '[&_.ant-table-wrapper]:flex! [&_.ant-table-wrapper]:h-full! [&_.ant-table-wrapper]:min-h-0! [&_.ant-table-wrapper]:flex-1! [&_.ant-table-wrapper]:flex-col!',
+  '[&_.ant-spin-nested-loading]:flex! [&_.ant-spin-nested-loading]:h-full! [&_.ant-spin-nested-loading]:min-h-0! [&_.ant-spin-nested-loading]:flex-1! [&_.ant-spin-nested-loading]:flex-col!',
+  '[&_.ant-spin-container]:flex! [&_.ant-spin-container]:h-full! [&_.ant-spin-container]:min-h-0! [&_.ant-spin-container]:flex-1! [&_.ant-spin-container]:flex-col!',
+  '[&_.ant-table]:flex! [&_.ant-table]:h-full! [&_.ant-table]:min-h-0! [&_.ant-table]:flex-1! [&_.ant-table]:flex-col!',
+  '[&_.ant-table-container]:flex! [&_.ant-table-container]:min-h-0! [&_.ant-table-container]:flex-1! [&_.ant-table-container]:flex-col!',
   '[&_.ant-table-header]:shrink-0',
-  '[&_.ant-table-body]:!min-h-0',
-  '[&_.ant-table-placeholder>td]:!border-b [&_.ant-table-placeholder>td]:!border-[#dfe6e9]',
+  '[&_.ant-table-body]:min-h-0!',
+  '[&_.ant-table-placeholder>td]:border-b! [&_.ant-table-placeholder>td]:border-border!',
 )
 
 const paginationFooterClass = cn(
-  'shrink-0 border-t border-[#dfe6e9] bg-white px-3 py-1.5',
-  '[&_.ant-pagination]:!m-0',
-  '[&_.ant-pagination-item-active]:!border-[#1abc9c] [&_.ant-pagination-item-active]:!bg-[#1abc9c]',
-  '[&_.ant-pagination-item-active_a]:!text-white',
-  '[&_.ant-pagination-item:hover]:!border-[#1abc9c]',
-  '[&_.ant-pagination-item:hover_a]:!text-[#1abc9c]',
+  'shrink-0 border-t border-border bg-white px-3 py-1.5',
+  '[&_.ant-pagination]:m-0!',
+  '[&_.ant-pagination-item-active]:border-brand! [&_.ant-pagination-item-active]:bg-brand!',
+  '[&_.ant-pagination-item-active_a]:text-white!',
+  '[&_.ant-pagination-item:hover]:border-brand!',
+  '[&_.ant-pagination-item:hover_a]:text-brand!',
 )
 
 function mergePaginationConfig(
@@ -130,7 +140,6 @@ function mergePaginationConfig(
 
 export function Table<RecordType extends object = object>(props: TableProps<RecordType>) {
   const screens = Grid.useBreakpoint()
-  const isCompact = !screens.md
   const isMobile = !screens.sm
   const rowCount = Array.isArray(props.dataSource) ? props.dataSource.length : 0
   const layoutRevision = rowCount + Number(props.loading)
@@ -143,7 +152,7 @@ export function Table<RecordType extends object = object>(props: TableProps<Reco
     pageSizeOptions: [10, 20, 50],
     responsive: true,
     simple: isMobile,
-    size: isCompact ? ('small' as const) : ('middle' as const),
+    size: 'small' as const,
     showTotal: (total: number, range: [number, number]) =>
       total === 0
         ? 'Showing 0 entries'

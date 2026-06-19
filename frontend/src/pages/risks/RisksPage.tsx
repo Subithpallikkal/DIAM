@@ -1,46 +1,56 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import { Form, Select, message } from 'antd'
-import { EyeOutlined, PlusOutlined } from '@ant-design/icons'
-import { createRisk, fetchRisks, PRIORITY_OPTIONS, RISK_STATUS_OPTIONS } from '../../api/risks.api'
+import { EyeOutlined, PlusOutlined, AuditOutlined, UnorderedListOutlined } from '@ant-design/icons'
+import { upsertRisk, fetchRisks, PRIORITY_OPTIONS, RISK_STATUS_OPTIONS } from '../../api/risks.api'
 import {
   Button,
+  DetailDrawer,
   Input,
   ModalForm,
   ModalFormField,
   ModalFormGrid,
   modalFormClassName,
+  MobileCardBadge,
+  MobileListActionButton,
+  MobileListCard,
+  MobileListRow,
   PageBody,
   PageContainer,
   PageHeader,
+  PageToolbar,
   PriorityTag,
-  Table,
+  ResponsiveDataList,
+  TableActions,
   applyTableQuery,
+  actionsColumnBase,
   enumFilters,
   type ColumnsType,
 } from '../../components/common'
 import { useAuth } from '../../context/AuthContext'
+import { useDetailDrawer } from '../../hooks/useDetailDrawer'
 import { useEngagementOptions } from '../../hooks/useEngagementOptions'
 import { usePaginatedList } from '../../hooks/usePaginatedList'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
+import { RiskDetailPanel } from './RiskDetailPanel'
 import type { RiskListItem } from '../../types/risk'
 import { getApiErrorMessage } from '../../utils/errors'
 
 export function RisksPage() {
-  const navigate = useNavigate()
   const { user } = useAuth()
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER'
   const { engagements } = useEngagementOptions()
   const [createOpen, setCreateOpen] = useState(false)
   const [form] = Form.useForm()
-  const modalWidth = useResponsiveModalWidth(560)
+  const modalWidth = useResponsiveModalWidth(480)
+  const { viewId, openDetail, closeDetail } = useDetailDrawer('/risks')
+  const [detailMeta, setDetailMeta] = useState<{ title: string; subtitle?: string } | null>(null)
 
   const fetcher = useCallback(
     (params: Parameters<typeof fetchRisks>[0]) => fetchRisks(params),
     [],
   )
 
-  const { data: risks, loading, pagination, tableSort, tableFilters, onTableChange } = usePaginatedList({
+  const { data: risks, loading, pagination, search, setSearch, tableSort, tableFilters, onTableChange } = usePaginatedList({
     fetcher,
     initialPageSize: 10,
   })
@@ -57,6 +67,15 @@ export function RisksPage() {
         width: 180,
         sorter: true,
         showSorterTooltip: true,
+        render: (title: string, record) => (
+          <button
+            type="button"
+            className="cursor-pointer border-0 bg-transparent p-0 text-left font-medium text-brand hover:underline"
+            onClick={() => openDetail(record.id)}
+          >
+            {title}
+          </button>
+        ),
       },
       {
         title: 'Priority',
@@ -86,27 +105,30 @@ export function RisksPage() {
         render: (_, record) => `${record.completedChecklistCount}/${record.checklistCount}`,
       },
       {
-        title: 'Actions',
-        key: 'actions',
-        width: 72,
-        fixed: 'right',
+        ...actionsColumnBase('one'),
         render: (_, record) => (
-          <Link to={`/risks/${record.id}`}>
-            <Button type="text" size="small" icon={<EyeOutlined />} aria-label="View" />
-          </Link>
+          <TableActions>
+            <Button
+              type="text"
+              size="small"
+              icon={<EyeOutlined />}
+              aria-label="View"
+              onClick={() => openDetail(record.id)}
+            />
+          </TableActions>
         ),
       },
         ],
         tableSort,
         tableFilters,
       ),
-    [tableSort, tableFilters],
+    [openDetail, tableSort, tableFilters],
   )
 
   const handleCreate = async () => {
     try {
       const values = await form.validateFields()
-      const risk = await createRisk(values.engagementId, {
+      const risk = await upsertRisk(values.engagementId, {
         title: values.title,
         description: values.description,
         priority: values.priority,
@@ -114,7 +136,7 @@ export function RisksPage() {
       message.success('Risk created')
       setCreateOpen(false)
       form.resetFields()
-      navigate(`/risks/${risk.id}`)
+      openDetail(risk.id)
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return
       message.error(getApiErrorMessage(err, 'Failed to create risk'))
@@ -126,9 +148,15 @@ export function RisksPage() {
       <PageHeader
         title="Risk Register"
         subtitle="Track audit risks and verification checklists"
-        extra={
+      />
+
+      <PageToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search risks by title or description..."
+        actions={
           canManage ? (
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)} block className="sm:!inline-flex">
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
               Add Risk
             </Button>
           ) : undefined
@@ -136,13 +164,43 @@ export function RisksPage() {
       />
 
       <PageBody variant="fill">
-        <Table
+        <ResponsiveDataList
           rowKey="id"
           loading={loading}
           columns={columns}
           dataSource={risks}
           pagination={pagination}
           onChange={onTableChange}
+          emptyDescription="No risks found"
+          renderMobileCard={(risk) => (
+            <MobileListCard
+              title={risk.title}
+              badge={
+                <MobileCardBadge
+                  label={risk.priority}
+                  tone={
+                    risk.priority === 'HIGH'
+                      ? 'danger'
+                      : risk.priority === 'MEDIUM'
+                        ? 'warning'
+                        : 'info'
+                  }
+                />
+              }
+              actions={
+                <MobileListActionButton
+                  label="View Details"
+                  className="col-span-2"
+                  onClick={() => openDetail(risk.id)}
+                />
+              }
+            >
+              <MobileListRow icon={<AuditOutlined />}>Status: {risk.status}</MobileListRow>
+              <MobileListRow icon={<UnorderedListOutlined />}>
+                Checklist {risk.completedChecklistCount}/{risk.checklistCount}
+              </MobileListRow>
+            </MobileListCard>
+          )}
         />
       </PageBody>
 
@@ -191,6 +249,25 @@ export function RisksPage() {
           </ModalFormGrid>
         </Form>
       </ModalForm>
+
+      <DetailDrawer
+        open={viewId !== null}
+        onClose={() => {
+          closeDetail()
+          setDetailMeta(null)
+        }}
+        title={detailMeta?.title}
+        subtitle={detailMeta?.subtitle ?? 'Risk details and verification checklist'}
+        width={520}
+      >
+        {viewId !== null && (
+          <RiskDetailPanel
+            riskId={viewId}
+            onLoaded={(risk) => setDetailMeta({ title: risk.title, subtitle: 'Risk details and checklist' })}
+            onError={closeDetail}
+          />
+        )}
+      </DetailDrawer>
     </PageContainer>
   )
 }

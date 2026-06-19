@@ -9,6 +9,9 @@ export declare class UpdateTaskDto {
     description?: string;
     status?: TaskStatus;
 }
+export declare class UpsertTaskDto extends UpdateTaskDto {
+    id?: number;
+}
 export declare class AssignTaskDto {
     assignedToId: number;
 }

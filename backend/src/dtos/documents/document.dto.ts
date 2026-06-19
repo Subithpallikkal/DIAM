@@ -62,6 +62,18 @@ export class DocumentListItemDto {
   @ApiProperty({ example: "Demo Auditor" })
   uploadedByName!: string;
 
+  @ApiProperty({ example: 1 })
+  version!: number;
+
+  @ApiProperty({ example: 1, nullable: true })
+  parentDocumentId!: number | null;
+
+  @ApiProperty({ example: 1 })
+  rootDocumentId!: number;
+
+  @ApiProperty({ example: 1 })
+  versionCount!: number;
+
   @ApiProperty()
   createdAt!: Date;
 }

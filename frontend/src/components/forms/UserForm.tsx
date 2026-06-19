@@ -2,6 +2,8 @@ import { Form, Select, Switch } from 'antd'
 import type { FormInstance } from 'antd/es/form'
 import { Button, ModalFormField, ModalFormGrid, modalFormClassName } from '../common'
 import { Input } from '../common/Input'
+import { selectFieldClass } from '../../lib/ui'
+import { cn } from '../../utils/cn'
 import { ROLE_OPTIONS } from '../../api/users.api'
 import type { RoleName } from '../../types/auth'
 
@@ -72,7 +74,11 @@ export function UserForm({
           requiredMark
           rules={[{ required: true, message: 'Role is required' }]}
         >
-          <Select className="w-full" placeholder="Select role" options={ROLE_OPTIONS} />
+          <Select
+            className={cn('w-full', !inModal && selectFieldClass)}
+            placeholder="Select role"
+            options={ROLE_OPTIONS}
+          />
         </Field>
 
         <Field

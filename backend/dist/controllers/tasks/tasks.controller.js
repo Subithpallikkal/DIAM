@@ -37,11 +37,8 @@ let TasksController = class TasksController {
     findOne(id) {
         return this.tasksService.findOne(id);
     }
-    create(engagementId, dto, user) {
-        return this.tasksService.create(engagementId, dto, user.sub);
-    }
-    update(id, dto) {
-        return this.tasksService.update(id, dto);
+    upsert(engagementId, dto, user) {
+        return this.tasksService.upsert(engagementId, dto, user.sub);
     }
     assign(id, dto, user) {
         return this.tasksService.assign(id, dto, user.sub);
@@ -83,27 +80,16 @@ __decorate([
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("engagements/:engagementId/tasks"),
-    (0, swagger_1.ApiOperation)({ summary: "Create task for engagement" }),
+    (0, swagger_1.ApiOperation)({ summary: "Create or update task for engagement" }),
     (0, swagger_1.ApiCreatedResponse)({ type: task_dto_1.TaskListItemDto }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("engagementId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, task_dto_1.CreateTaskDto, Object]),
+    __metadata("design:paramtypes", [Number, task_dto_1.UpsertTaskDto, Object]),
     __metadata("design:returntype", void 0)
-], TasksController.prototype, "create", null);
-__decorate([
-    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
-    (0, common_1.Patch)("tasks/:id"),
-    (0, swagger_1.ApiOperation)({ summary: "Update task" }),
-    openapi.ApiResponse({ status: 200, type: require("../../dtos/tasks/task.dto").TaskListItemDto }),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, task_dto_1.UpdateTaskDto]),
-    __metadata("design:returntype", void 0)
-], TasksController.prototype, "update", null);
+], TasksController.prototype, "upsert", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("tasks/:id/assign"),

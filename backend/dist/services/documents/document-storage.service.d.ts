@@ -10,6 +10,7 @@ export declare class DocumentStorageService {
         categoryId?: number;
         uploadedByUid: number;
     }): Promise<import("../../dtos/documents/document.dto").DocumentListItemDto>;
+    uploadVersion(baseDocumentId: number, file: Express.Multer.File, uploadedByUid: number): Promise<import("../../dtos/documents/document.dto").DocumentListItemDto>;
     download(documentId: number, performedByUid: number): Promise<StreamableFile>;
     view(documentId: number, performedByUid: number): Promise<StreamableFile>;
     deleteFile(documentId: number, performedByUid: number): Promise<void>;

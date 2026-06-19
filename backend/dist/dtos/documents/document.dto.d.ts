@@ -20,6 +20,10 @@ export declare class DocumentListItemDto {
     mimeType: string;
     fileSize: number;
     uploadedByName: string;
+    version: number;
+    parentDocumentId: number | null;
+    rootDocumentId: number;
+    versionCount: number;
     createdAt: Date;
 }
 export declare class DocumentLogDto {

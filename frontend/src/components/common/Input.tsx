@@ -16,7 +16,7 @@ import {
   type ReactNode,
 } from 'react'
 import { cn } from '../../utils/cn'
-import { inputFieldClass, outlinedControlClass } from '../../lib/ui'
+import { inputFieldClass, modalFieldShellClass, outlinedControlClass } from '../../lib/ui'
 
 export interface OutlinedFieldProps {
   label: string
@@ -29,16 +29,16 @@ export function OutlinedField({ label, required, className, children }: Outlined
   return (
     <div
       className={cn(
-        'relative min-h-[44px] rounded-[5px] border border-[#cfd6df] bg-white transition-[border-color,box-shadow] duration-200',
-        'focus-within:border-[#1abc9c] focus-within:shadow-[0_0_0_1px_#1abc9c]',
+        modalFieldShellClass,
+        'flex flex-col',
         className,
       )}
     >
-      <span className="absolute -top-[9px] left-[11px] z-[2] bg-white px-[5px] text-[12px] leading-none text-[#7d8694]">
+      <span className="absolute -top-2 left-2.5 z-2 bg-white px-1 text-[11px] leading-none text-[#7d8694]">
         {label}
         {required && <span className="ml-0.5 text-[#e53935]">*</span>}
       </span>
-      <div className={cn('h-full w-full', outlinedControlClass)}>{children}</div>
+      <div className={cn(outlinedControlClass, 'flex-1')}>{children}</div>
     </div>
   )
 }
@@ -116,7 +116,7 @@ export function Input({
       defaultValue={defaultValue}
       {...focusHandlers}
       variant={useOutlined ? 'borderless' : undefined}
-      className={cn(useOutlined ? 'px-3.5 py-[10px] text-sm font-semibold text-[#1c2430]' : inputFieldClass, className)}
+      className={cn(useOutlined ? 'h-9 px-3 text-sm font-semibold text-[#1c2430]' : inputFieldClass, className)}
     />
   )
 
@@ -169,7 +169,7 @@ function TextArea({
       defaultValue={defaultValue}
       {...focusHandlers}
       variant={useOutlined ? 'borderless' : undefined}
-      className={cn(useOutlined ? 'px-3.5 py-[10px] text-sm font-semibold text-[#1c2430]' : inputFieldClass, className)}
+      className={cn(useOutlined ? 'min-h-20 px-3 py-2 text-sm font-medium text-[#1c2430]' : inputFieldClass, className)}
     />
   )
 
@@ -178,7 +178,7 @@ function TextArea({
   }
 
   return (
-    <OutlinedField label={label} required={requiredMark} className="min-h-[96px]">
+    <OutlinedField label={label} required={requiredMark} className="min-h-20 items-start">
       {textArea}
     </OutlinedField>
   )
@@ -222,7 +222,7 @@ function Password({
       defaultValue={defaultValue}
       {...focusHandlers}
       variant={useOutlined ? 'borderless' : undefined}
-      className={cn(useOutlined ? 'px-3.5 py-[10px] text-sm font-semibold text-[#1c2430]' : inputFieldClass, className)}
+      className={cn(useOutlined ? 'h-9 px-3 text-sm font-semibold text-[#1c2430]' : inputFieldClass, className)}
     />
   )
 
@@ -265,6 +265,10 @@ export function isDiamInputElement(child: ReactElement) {
     type?.displayName === 'DiamTextArea' ||
     type?.displayName === 'DiamPassword'
   )
+}
+
+export function isDiamTextAreaElement(child: ReactElement) {
+  return (child.type as { displayName?: string })?.displayName === 'DiamTextArea'
 }
 
 export function enhanceOutlinedChild(

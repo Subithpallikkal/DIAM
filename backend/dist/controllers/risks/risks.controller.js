@@ -33,11 +33,8 @@ let RisksController = class RisksController {
     findOne(id) {
         return this.risksService.findOne(id);
     }
-    create(engagementId, dto, user) {
-        return this.risksService.create(engagementId, dto, user.sub);
-    }
-    update(id, dto) {
-        return this.risksService.update(id, dto);
+    upsert(engagementId, dto, user) {
+        return this.risksService.upsert(engagementId, dto, user.sub);
     }
     remove(id) {
         return this.risksService.remove(id);
@@ -45,11 +42,8 @@ let RisksController = class RisksController {
     findChecklists(id) {
         return this.risksService.findChecklists(id);
     }
-    addChecklist(id, dto) {
-        return this.risksService.addChecklistItem(id, dto);
-    }
-    updateChecklist(id, checklistId, dto) {
-        return this.risksService.updateChecklistItem(id, checklistId, dto);
+    upsertChecklist(id, dto) {
+        return this.risksService.upsertChecklistItem(id, dto);
     }
     assignChecklist(id, checklistId, dto, user) {
         return this.risksService.assignChecklistItem(id, checklistId, dto, user.sub);
@@ -82,7 +76,7 @@ __decorate([
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("engagements/:engagementId/risks"),
-    (0, swagger_1.ApiOperation)({ summary: "Create risk for engagement" }),
+    (0, swagger_1.ApiOperation)({ summary: "Create or update risk for engagement" }),
     (0, swagger_1.ApiParam)({ name: "engagementId", type: Number }),
     (0, swagger_1.ApiCreatedResponse)({ type: risk_dto_1.RiskListItemDto }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
@@ -90,20 +84,9 @@ __decorate([
     __param(1, (0, common_1.Body)()),
     __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, risk_dto_1.CreateRiskDto, Object]),
+    __metadata("design:paramtypes", [Number, risk_dto_1.UpsertRiskDto, Object]),
     __metadata("design:returntype", void 0)
-], RisksController.prototype, "create", null);
-__decorate([
-    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
-    (0, common_1.Patch)("risks/:id"),
-    (0, swagger_1.ApiOperation)({ summary: "Update risk" }),
-    openapi.ApiResponse({ status: 200, type: require("../../dtos/risks/risk.dto").RiskListItemDto }),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, risk_dto_1.UpdateRiskDto]),
-    __metadata("design:returntype", void 0)
-], RisksController.prototype, "update", null);
+], RisksController.prototype, "upsert", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Delete)("risks/:id"),
@@ -127,26 +110,14 @@ __decorate([
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("risks/:id/checklists"),
-    (0, swagger_1.ApiOperation)({ summary: "Add checklist item" }),
+    (0, swagger_1.ApiOperation)({ summary: "Create or update checklist item" }),
     (0, swagger_1.ApiCreatedResponse)({ type: risk_dto_1.ChecklistItemDto }),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, risk_dto_1.CreateChecklistItemDto]),
+    __metadata("design:paramtypes", [Number, risk_dto_1.UpsertChecklistItemDto]),
     __metadata("design:returntype", void 0)
-], RisksController.prototype, "addChecklist", null);
-__decorate([
-    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
-    (0, common_1.Patch)("risks/:id/checklists/:checklistId"),
-    (0, swagger_1.ApiOperation)({ summary: "Update checklist item" }),
-    openapi.ApiResponse({ status: 200, type: require("../../dtos/risks/risk.dto").ChecklistItemDto }),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Param)("checklistId", common_1.ParseIntPipe)),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, risk_dto_1.UpdateChecklistItemDto]),
-    __metadata("design:returntype", void 0)
-], RisksController.prototype, "updateChecklist", null);
+], RisksController.prototype, "upsertChecklist", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("risks/:id/checklists/:checklistId/assign"),

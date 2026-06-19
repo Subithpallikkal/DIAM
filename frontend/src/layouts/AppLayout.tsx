@@ -12,7 +12,6 @@ import {
   LogoutOutlined,
   MailOutlined,
   MenuFoldOutlined,
-  MenuOutlined,
   MenuUnfoldOutlined,
   SafetyCertificateOutlined,
   TeamOutlined,
@@ -26,19 +25,19 @@ import { useAuth } from '../context/AuthContext'
 import { useIsMobile } from '../hooks/useResponsive'
 import { canManageUsers } from '../lib/roles'
 import { cn } from '../utils/cn'
+import { MobileBottomNav } from './MobileBottomNav'
 
-const { Header, Sider, Content } = Layout
+const { Header, Content } = Layout
 const { Text } = Typography
 
 const SIDEBAR_COLLAPSED_KEY = 'diam-sidebar-collapsed'
 
 const sidebarMenuClass = cn(
-  '!border-e-0 !bg-transparent',
-  '[&_.ant-menu-item]:!mx-2 [&_.ant-menu-item]:!mb-0.5 [&_.ant-menu-item]:!h-9 [&_.ant-menu-item]:!w-[calc(100%-16px)] [&_.ant-menu-item]:!rounded-md [&_.ant-menu-item]:!text-white/80',
-  '[&_.ant-menu-item:hover]:!bg-white/10 [&_.ant-menu-item:hover]:!text-white',
-  '[&_.ant-menu-item-selected]:!bg-[#455a64] [&_.ant-menu-item-selected]:!font-semibold [&_.ant-menu-item-selected]:!text-white',
-  '[&_.ant-menu-item-selected]:!border-l-[3px] [&_.ant-menu-item-selected]:!border-[#1abc9c] [&_.ant-menu-item-selected]:!pl-[calc(1rem-3px)]',
-  '[&_.ant-menu-item-selected_.ant-menu-item-icon]:!text-[#1abc9c] [&_.ant-menu-item-selected_a]:!text-white',
+  'border-e-0! bg-transparent!',
+  '[&_.ant-menu-item]:mx-3! [&_.ant-menu-item]:mb-1! [&_.ant-menu-item]:h-10! [&_.ant-menu-item]:w-[calc(100%-24px)]! [&_.ant-menu-item]:rounded-xl! [&_.ant-menu-item]:text-white/75!',
+  '[&_.ant-menu-item:hover]:bg-white/10! [&_.ant-menu-item:hover]:text-white!',
+  '[&_.ant-menu-item-selected]:bg-white/15! [&_.ant-menu-item-selected]:font-medium! [&_.ant-menu-item-selected]:text-white!',
+  '[&_.ant-menu-item-selected_.ant-menu-item-icon]:text-[#2ecc71]! [&_.ant-menu-item-selected_a]:text-white!',
 )
 
 const menuItems = [
@@ -106,6 +105,8 @@ export function AppLayout() {
     },
   ]
 
+  const userHandle = user?.email ? `#${user.email.split('@')[0]}` : undefined
+
   const navigationMenu = (
     <Menu
       theme="dark"
@@ -115,7 +116,11 @@ export function AppLayout() {
         ...item,
         label: <Link to={item.key}>{item.label}</Link>,
       }))}
-      className={sidebarMenuClass}
+      className={cn(
+        sidebarMenuClass,
+        collapsed && '[&_.ant-menu-item]:mx-2! [&_.ant-menu-item]:w-[calc(100%-16px)]! [&_.ant-menu-item]:px-0! [&_.ant-menu-item]:text-center!',
+      )}
+      inlineCollapsed={collapsed}
       onClick={() => setDrawerOpen(false)}
     />
   )
@@ -123,20 +128,19 @@ export function AppLayout() {
   const brandBlock = (compact = false) => (
     <div
       className={cn(
-        'flex items-center border-b',
-        compact ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-3',
+        'flex items-center',
+        compact ? 'justify-center px-2 py-5' : 'gap-3 px-5 py-5',
       )}
-      style={{ borderColor: UI.sidebarBorder }}
     >
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#1abc9c] text-xs font-bold text-white">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#2ecc71] text-sm font-bold text-white shadow-sm">
         D
       </div>
       {!compact && (
         <div className="flex min-w-0 flex-col overflow-hidden">
-          <Text strong className="!truncate !text-sm !leading-tight !text-white">
+          <Text strong className="truncate! text-base! leading-tight! text-white!">
             DIAM
           </Text>
-          <Text className="!truncate !text-[11px] !text-white/60">
+          <Text className="truncate! text-[11px]! text-white/50!">
             Audit Management
           </Text>
         </div>
@@ -144,129 +148,148 @@ export function AppLayout() {
     </div>
   )
 
-  const sidebarFooter = !isMobile && (
-    <div className="border-t p-2" style={{ borderColor: UI.sidebarBorder }}>
-      <button
-        type="button"
-        onClick={toggleCollapsed}
-        className="flex w-full items-center justify-center rounded-lg py-2.5 text-white/70 transition hover:bg-white/10 hover:text-white"
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        {collapsed ? <MenuUnfoldOutlined className="text-lg" /> : <MenuFoldOutlined className="text-lg" />}
-      </button>
+  const sectionLabel = (label: string) => (
+    <Text className="mb-2! block! px-5! text-[10px]! font-semibold! uppercase! tracking-[0.14em]! text-white/35!">
+      {label}
+    </Text>
+  )
+
+  const profileBlock = (compact = false) => (
+    <div className="border-t px-3 py-3" style={{ borderColor: UI.sidebarBorder }}>
+      {!compact && sectionLabel('User Account')}
+      <Dropdown menu={{ items: userMenu }} placement="topRight" trigger={['click']}>
+        <button
+          type="button"
+          className={cn(
+            'flex w-full cursor-pointer items-center rounded-xl transition hover:bg-white/10',
+            compact ? 'justify-center p-2' : 'gap-3 p-2',
+          )}
+        >
+          <Avatar
+            size={compact ? 36 : 40}
+            icon={<UserOutlined />}
+            className="shrink-0! bg-[#2ecc71]!"
+          />
+          {!compact && (
+            <div className="min-w-0 flex-1 text-left">
+              <Text strong className="block! truncate! text-sm! text-white!">
+                {user?.name}
+              </Text>
+              <Text className="block! truncate! text-[11px]! text-white/45!">
+                {userHandle ?? user?.role?.toLowerCase()}
+              </Text>
+            </div>
+          )}
+        </button>
+      </Dropdown>
+
+      {!isMobile && (
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          className="mt-1 flex w-full items-center justify-center rounded-xl py-2 text-white/50 transition hover:bg-white/10 hover:text-white"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? <MenuUnfoldOutlined className="text-lg" /> : <MenuFoldOutlined className="text-lg" />}
+        </button>
+      )}
     </div>
   )
 
-  const desktopSidebar = (
-    <Sider
-      width={220}
-      collapsedWidth={68}
-      collapsed={collapsed}
-      className={cn(
-        '!flex !h-dvh !flex-col',
-        collapsed && '[&_.ant-menu-item]:!px-0 [&_.ant-menu-item]:!text-center',
-      )}
-      style={{ background: UI.sidebar, borderRight: `1px solid ${UI.sidebarBorder}` }}
-      trigger={null}
-    >
-      {brandBlock(collapsed)}
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden py-2">
+  const sidebarContent = (compact = false) => (
+    <>
+      {brandBlock(compact)}
+      {!compact && sectionLabel('Navigation')}
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-2">
         {navigationMenu}
       </div>
-      {sidebarFooter}
-    </Sider>
+      {profileBlock(compact)}
+    </>
+  )
+
+  const desktopSidebar = (
+    <aside
+      className={cn(
+        'flex h-full shrink-0 flex-col transition-[width] duration-200',
+        collapsed ? 'w-19' : 'w-62',
+      )}
+      style={{ background: UI.sidebar }}
+    >
+      {sidebarContent(collapsed)}
+    </aside>
   )
 
   return (
-    <Layout className="flex h-dvh w-full overflow-hidden bg-[#f4f6f9]">
-      {!isMobile && desktopSidebar}
+    <div
+      className="flex h-dvh w-full overflow-hidden p-2 md:p-3"
+      style={{ background: UI.sidebar }}
+    >
+      <div
+        className="flex h-full w-full min-w-0 overflow-hidden rounded-[28px] md:rounded-[44px]"
+        style={{ background: UI.sidebar }}
+      >
+        {!isMobile && desktopSidebar}
 
-      {isMobile && (
-        <Drawer
-          title={null}
-          placement="left"
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          width={260}
-          styles={{
-            body: { padding: 0, background: UI.sidebar },
-            header: { display: 'none' },
-          }}
-        >
-          {brandBlock(false)}
-          {navigationMenu}
-        </Drawer>
-      )}
+        {isMobile && (
+          <Drawer
+            title={null}
+            placement="left"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            width={272}
+            styles={{
+              body: { padding: 0, background: UI.sidebar, display: 'flex', flexDirection: 'column' },
+              header: { display: 'none' },
+            }}
+          >
+            <div className="flex h-full flex-col">{sidebarContent(false)}</div>
+          </Drawer>
+        )}
 
-      <Layout className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <Header className="!flex !h-12 !items-center !gap-2 !border-b !border-[#e4e8ef] !bg-white !px-3 !shadow-sm md:!px-4">
-          {isMobile ? (
-            <Button
-              type="text"
-              aria-label="Open menu"
-              icon={<MenuOutlined className="text-lg text-[#34495e]" />}
-              onClick={() => setDrawerOpen(true)}
-              className="!flex !h-9 !w-9 !items-center !justify-center"
-            />
-          ) : (
-            <Text strong className="hidden shrink-0 text-base text-[#34495e] sm:block">
-              DIAM
-            </Text>
-          )}
-
-          <div className="mx-auto w-full max-w-xl flex-1 px-0 sm:px-4">
-            <Input
-              allowClear
-              prefix={<span className="text-slate-400">⌕</span>}
-              placeholder="Search anything..."
-              value={globalSearch}
-              onChange={(e) => setGlobalSearch(e.target.value)}
-              className={cn(inputFieldClass, '!h-9 !rounded-full !border-[#e4e8ef] !bg-[#f8fafc]')}
-            />
-          </div>
-
-          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <Button
-              type="text"
-              icon={<MailOutlined className="text-base text-slate-500" />}
-              className="!hidden !h-9 !w-9 sm:!inline-flex"
-            />
-            <Badge dot offset={[-2, 2]}>
-              <Button
-                type="text"
-                icon={<BellOutlined className="text-base text-slate-500" />}
-                className="!h-9 !w-9"
-              />
-            </Badge>
-            <Dropdown menu={{ items: userMenu }} placement="bottomRight" trigger={['click']}>
-              <button
-                type="button"
-                className="ml-1 flex max-w-[10rem] cursor-pointer items-center gap-2 rounded-full border border-[#e4e8ef] bg-white py-1 pl-1 pr-2 transition hover:border-[#c5d0e0] sm:max-w-none sm:pr-3"
-              >
-                <Avatar
-                  size={32}
-                  icon={<UserOutlined />}
-                  className="!bg-[#1abc9c]"
-                />
-                <div className="hidden min-w-0 flex-col items-start text-left sm:flex">
-                  <Text strong className="max-w-[100px] truncate text-sm text-slate-800">
-                    {user?.name}
-                  </Text>
-                  <Text className="!text-[11px] capitalize text-slate-500">
-                    {user?.role?.toLowerCase()}
-                  </Text>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col p-2 md:p-3 md:pl-2">
+          <div
+            className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px] shadow-[0_4px_24px_rgba(0,0,0,0.12)] md:rounded-[36px]"
+            style={{ background: UI.contentSurface }}
+          >
+            <Layout className="flex! h-full! min-h-0! flex-col! bg-transparent!">
+              <Header className="flex! h-14! shrink-0! items-center! gap-2! border-b! border-[#e8ecf0]! bg-transparent! px-3! shadow-none! md:px-5!">
+                <div className={cn('w-full flex-1 px-0 sm:px-2', !isMobile && 'mx-auto max-w-xl')}>
+                  <Input
+                    allowClear
+                    prefix={<span className="text-slate-400">⌕</span>}
+                    placeholder="Search anything..."
+                    value={globalSearch}
+                    onChange={(e) => setGlobalSearch(e.target.value)}
+                    className={cn(inputFieldClass, 'h-9! rounded-full! border-border! bg-white!')}
+                  />
                 </div>
-              </button>
-            </Dropdown>
-          </div>
-        </Header>
 
-        <Content className="flex min-h-0 flex-1 flex-col overflow-hidden p-2 md:p-3">
-          <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
-            <Outlet />
+                <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+                  <Button
+                    type="text"
+                    icon={<MailOutlined className="text-base text-slate-500" />}
+                    className="hidden! h-9! w-9! sm:inline-flex!"
+                  />
+                  <Badge dot offset={[-2, 2]}>
+                    <Button
+                      type="text"
+                      icon={<BellOutlined className="text-base text-slate-500" />}
+                      className="h-9! w-9!"
+                    />
+                  </Badge>
+                </div>
+              </Header>
+
+              <Content className="flex! min-h-0! flex-1! flex-col! overflow-hidden! bg-transparent! p-2! md:p-4!">
+                <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
+                  <Outlet />
+                </div>
+                {isMobile && <MobileBottomNav onMoreClick={() => setDrawerOpen(true)} />}
+              </Content>
+            </Layout>
           </div>
-        </Content>
-      </Layout>
-    </Layout>
+        </div>
+      </div>
+    </div>
   )
 }

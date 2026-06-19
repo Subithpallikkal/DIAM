@@ -12,17 +12,9 @@ const DashboardPage = lazy(() =>
 const ClientsListPage = lazy(() =>
   import('../pages/clients/ClientsListPage').then((m) => ({ default: m.ClientsListPage })),
 )
-const ClientDetailPage = lazy(() =>
-  import('../pages/clients/ClientDetailPage').then((m) => ({ default: m.ClientDetailPage })),
-)
 const EngagementsListPage = lazy(() =>
   import('../pages/engagements/EngagementsListPage').then((m) => ({
     default: m.EngagementsListPage,
-  })),
-)
-const EngagementDetailPage = lazy(() =>
-  import('../pages/engagements/EngagementDetailPage').then((m) => ({
-    default: m.EngagementDetailPage,
   })),
 )
 const DocumentsPage = lazy(() =>
@@ -31,20 +23,11 @@ const DocumentsPage = lazy(() =>
 const RisksPage = lazy(() =>
   import('../pages/risks/RisksPage').then((m) => ({ default: m.RisksPage })),
 )
-const RiskDetailPage = lazy(() =>
-  import('../pages/risks/RiskDetailPage').then((m) => ({ default: m.RiskDetailPage })),
-)
 const TasksPage = lazy(() =>
   import('../pages/tasks/TasksPage').then((m) => ({ default: m.TasksPage })),
 )
-const TaskDetailPage = lazy(() =>
-  import('../pages/tasks/TaskDetailPage').then((m) => ({ default: m.TaskDetailPage })),
-)
 const IssuesPage = lazy(() =>
   import('../pages/issues/IssuesPage').then((m) => ({ default: m.IssuesPage })),
-)
-const IssueDetailPage = lazy(() =>
-  import('../pages/issues/IssueDetailPage').then((m) => ({ default: m.IssueDetailPage })),
 )
 const ReportsPage = lazy(() =>
   import('../pages/reports/ReportsPage').then((m) => ({ default: m.ReportsPage })),
@@ -76,16 +59,16 @@ export function AppRoutes() {
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/clients" element={<ClientsListPage />} />
-            <Route path="/clients/:id" element={<ClientDetailPage />} />
+            <Route path="/clients/:id" element={<ClientsListPage />} />
             <Route path="/engagements" element={<EngagementsListPage />} />
-            <Route path="/engagements/:id" element={<EngagementDetailPage />} />
+            <Route path="/engagements/:id" element={<EngagementsListPage />} />
             <Route path="/documents" element={<DocumentsPage />} />
             <Route path="/risks" element={<RisksPage />} />
-            <Route path="/risks/:id" element={<RiskDetailPage />} />
+            <Route path="/risks/:id" element={<RisksPage />} />
             <Route path="/tasks" element={<TasksPage />} />
-            <Route path="/tasks/:id" element={<TaskDetailPage />} />
+            <Route path="/tasks/:id" element={<TasksPage />} />
             <Route path="/issues" element={<IssuesPage />} />
-            <Route path="/issues/:id" element={<IssueDetailPage />} />
+            <Route path="/issues/:id" element={<IssuesPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route element={<RoleRoute allowed={['ADMIN', 'MANAGER']} />}>
               <Route path="/users" element={<UsersListPage />} />

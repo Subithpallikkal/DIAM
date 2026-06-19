@@ -3,10 +3,12 @@ import {
   IsBoolean,
   IsEmail,
   IsEnum,
+  IsInt,
   IsOptional,
   IsString,
   MinLength,
 } from "class-validator";
+import { Type } from "class-transformer";
 import { RoleName } from "../common/role.dto";
 
 export class CreateUserDto {
@@ -56,6 +58,14 @@ export class UpdateUserDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+}
+
+export class UpsertUserDto extends UpdateUserDto {
+  @ApiPropertyOptional({ example: 1, description: "When set, updates the existing user" })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  id?: number;
 }
 
 export class UserListItemDto {

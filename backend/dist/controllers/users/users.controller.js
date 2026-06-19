@@ -27,17 +27,14 @@ let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
     }
-    create(dto) {
-        return this.usersService.create(dto);
+    upsert(dto) {
+        return this.usersService.upsert(dto);
     }
     findAll(query) {
         return this.usersService.findAll(query);
     }
     findOne(id) {
         return this.usersService.findOne(id);
-    }
-    update(id, dto) {
-        return this.usersService.update(id, dto);
     }
     deactivate(id, user) {
         return this.usersService.deactivate(id, user.sub);
@@ -47,15 +44,15 @@ exports.UsersController = UsersController;
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_ONLY),
     (0, common_1.Post)(),
-    (0, swagger_1.ApiOperation)({ summary: "Create a new user (Admin only)" }),
-    (0, swagger_1.ApiBody)({ type: user_dto_1.CreateUserDto }),
-    (0, swagger_1.ApiCreatedResponse)({ description: "User created", type: user_dto_1.UserDetailDto }),
+    (0, swagger_1.ApiOperation)({ summary: "Create or update a user (Admin only)" }),
+    (0, swagger_1.ApiBody)({ type: user_dto_1.UpsertUserDto }),
+    (0, swagger_1.ApiCreatedResponse)({ description: "User saved", type: user_dto_1.UserDetailDto }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [user_dto_1.CreateUserDto]),
+    __metadata("design:paramtypes", [user_dto_1.UpsertUserDto]),
     __metadata("design:returntype", void 0)
-], UsersController.prototype, "create", null);
+], UsersController.prototype, "upsert", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Get)(),
@@ -79,20 +76,6 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "findOne", null);
-__decorate([
-    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_ONLY),
-    (0, common_1.Patch)(":id"),
-    (0, swagger_1.ApiOperation)({ summary: "Update user details (Admin only)" }),
-    (0, swagger_1.ApiParam)({ name: "id", type: Number, example: 1 }),
-    (0, swagger_1.ApiBody)({ type: user_dto_1.UpdateUserDto }),
-    (0, swagger_1.ApiOkResponse)({ description: "User updated", type: user_dto_1.UserDetailDto }),
-    (0, api_error_decorator_1.ApiStandardErrors)(),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, user_dto_1.UpdateUserDto]),
-    __metadata("design:returntype", void 0)
-], UsersController.prototype, "update", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_ONLY),
     (0, common_1.Delete)(":id"),

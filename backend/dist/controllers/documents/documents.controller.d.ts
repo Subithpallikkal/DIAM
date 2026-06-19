@@ -12,6 +12,8 @@ export declare class DocumentsController {
     createCategory(dto: CreateDocumentCategoryDto): Promise<DocumentCategoryDto>;
     findAll(query: PaginationQueryDto, clientId?: string, engagementId?: string, categoryId?: string): Promise<import("../../dtos/common/pagination.dto").PaginatedResponseDto<DocumentListItemDto>>;
     upload(file: Express.Multer.File, clientId: string, engagementId: string | undefined, categoryId: string | undefined, user: JwtPayload): Promise<DocumentListItemDto>;
+    findVersions(id: number): Promise<DocumentListItemDto[]>;
+    uploadVersion(id: number, file: Express.Multer.File, user: JwtPayload): Promise<DocumentListItemDto>;
     findOne(id: number): Promise<DocumentListItemDto>;
     download(id: number, user: JwtPayload): Promise<StreamableFile>;
     view(id: number, user: JwtPayload): Promise<StreamableFile>;

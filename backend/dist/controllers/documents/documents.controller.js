@@ -52,6 +52,12 @@ let DocumentsController = class DocumentsController {
             uploadedByUid: user.sub,
         });
     }
+    findVersions(id) {
+        return this.documentsService.findVersions(id);
+    }
+    uploadVersion(id, file, user) {
+        return this.storageService.uploadVersion(id, file, user.sub);
+    }
     findOne(id) {
         return this.documentsService.findOne(id);
     }
@@ -136,6 +142,43 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, Object, Object, Object]),
     __metadata("design:returntype", void 0)
 ], DocumentsController.prototype, "upload", null);
+__decorate([
+    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
+    (0, common_1.Get)(":id/versions"),
+    (0, swagger_1.ApiOperation)({ summary: "List all versions of a document" }),
+    (0, swagger_1.ApiOkResponse)({ type: [document_dto_1.DocumentListItemDto] }),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], DocumentsController.prototype, "findVersions", null);
+__decorate([
+    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
+    (0, common_1.Post)(":id/versions/upload"),
+    (0, swagger_1.ApiOperation)({ summary: "Upload a new version of an existing document" }),
+    (0, swagger_1.ApiConsumes)("multipart/form-data"),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: "object",
+            properties: {
+                file: { type: "string", format: "binary" },
+            },
+            required: ["file"],
+        },
+    }),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)("file", {
+        storage: (0, multer_1.memoryStorage)(),
+        limits: { fileSize: 10 * 1024 * 1024 },
+    })),
+    (0, swagger_1.ApiCreatedResponse)({ type: document_dto_1.DocumentListItemDto }),
+    (0, api_error_decorator_1.ApiStandardErrors)(),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.UploadedFile)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object, Object]),
+    __metadata("design:returntype", void 0)
+], DocumentsController.prototype, "uploadVersion", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)(":id"),

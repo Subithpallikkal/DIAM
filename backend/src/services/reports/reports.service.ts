@@ -34,6 +34,7 @@ export class ReportsService {
       pendingTasks,
       openIssues,
       resolvedIssues,
+      workload,
     ] = await Promise.all([
       this.prisma.client.count({ where: { isActive: true } }),
       this.prisma.auditEngagement.count(),
@@ -50,6 +51,7 @@ export class ReportsService {
       this.prisma.issue.count({
         where: { status: { in: [IssueStatus.RESOLVED, IssueStatus.CLOSED] } },
       }),
+      this.getWorkloadStats(),
     ]);
 
     const stats = {
@@ -60,6 +62,7 @@ export class ReportsService {
       pendingTasks,
       openIssues,
       resolvedIssues,
+      workload,
     };
 
     this.cache.set(
@@ -69,6 +72,85 @@ export class ReportsService {
     );
 
     return stats;
+  }
+
+  async getWorkloadStats() {
+    const [tasks, openChecklists] = await Promise.all([
+      this.prisma.task.findMany({
+        where: {
+          status: { in: [TaskStatus.PENDING, TaskStatus.IN_PROGRESS] },
+        },
+        include: {
+          assignments: {
+            include: { assignedTo: true },
+            orderBy: { createdAt: "desc" },
+            take: 1,
+          },
+        },
+      }),
+      this.prisma.riskChecklist.findMany({
+        where: { isCompleted: false },
+        include: {
+          assignments: {
+            include: { assignedTo: true },
+            orderBy: { createdAt: "desc" },
+            take: 1,
+          },
+        },
+      }),
+    ]);
+
+    const taskWorkload = new Map<
+      number,
+      { userId: number; userName: string; pending: number; inProgress: number }
+    >();
+
+    for (const task of tasks) {
+      const assignee = task.assignments[0]?.assignedTo;
+      const key = assignee?.uid ?? 0;
+      const userName = assignee?.name ?? "Unassigned";
+      const current = taskWorkload.get(key) ?? {
+        userId: key,
+        userName,
+        pending: 0,
+        inProgress: 0,
+      };
+
+      if (task.status === TaskStatus.PENDING) {
+        current.pending += 1;
+      } else if (task.status === TaskStatus.IN_PROGRESS) {
+        current.inProgress += 1;
+      }
+
+      taskWorkload.set(key, current);
+    }
+
+    const checklistWorkload = new Map<
+      number,
+      { userId: number; userName: string; openCount: number }
+    >();
+
+    for (const item of openChecklists) {
+      const assignee = item.assignments[0]?.assignedTo;
+      const key = assignee?.uid ?? 0;
+      const userName = assignee?.name ?? "Unassigned";
+      const current = checklistWorkload.get(key) ?? {
+        userId: key,
+        userName,
+        openCount: 0,
+      };
+      current.openCount += 1;
+      checklistWorkload.set(key, current);
+    }
+
+    return {
+      tasksByAssignee: Array.from(taskWorkload.values()).sort((a, b) =>
+        a.userName.localeCompare(b.userName),
+      ),
+      openChecklistsByAssignee: Array.from(checklistWorkload.values()).sort((a, b) =>
+        a.userName.localeCompare(b.userName),
+      ),
+    };
   }
 
   async getAuditSummary(engagementId: number): Promise<AuditSummaryReportDto> {

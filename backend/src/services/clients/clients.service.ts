@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CacheService } from "../../common/cache/cache.service";
@@ -13,6 +13,7 @@ import {
   ClientListItemDto,
   CreateClientDto,
   UpdateClientDto,
+  UpsertClientDto,
 } from "../../dtos/clients/client.dto";
 
 @Injectable()
@@ -35,6 +36,20 @@ export class ClientsService {
 
     this.cache.invalidatePrefix("dashboard:");
     return this.toDetail(client);
+  }
+
+  async upsert(
+    dto: UpsertClientDto,
+    createdByUid: number,
+  ): Promise<ClientDetailDto> {
+    const { id, ...data } = dto;
+    if (id != null) {
+      return this.update(id, data);
+    }
+    if (!data.name?.trim()) {
+      throw new BadRequestException("name is required");
+    }
+    return this.create(data as CreateClientDto, createdByUid);
   }
 
   async findAll(

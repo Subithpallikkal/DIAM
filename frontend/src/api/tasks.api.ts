@@ -2,9 +2,9 @@ import { api } from './axios'
 import type { ListQueryParams, PaginatedResponse } from '../types/api'
 import type {
   CreateTaskCommentPayload,
-  CreateTaskPayload,
   TaskDetail,
   TaskListItem,
+  UpsertTaskPayload,
 } from '../types/task'
 import type { TaskStatus } from '../types/document'
 
@@ -23,22 +23,14 @@ export async function fetchTask(taskId: number): Promise<TaskDetail> {
   return data
 }
 
-export async function createTask(
+export async function upsertTask(
   engagementId: number,
-  payload: CreateTaskPayload,
+  payload: UpsertTaskPayload,
 ): Promise<TaskListItem> {
   const { data } = await api.post<TaskListItem>(
     `/engagements/${engagementId}/tasks`,
     payload,
   )
-  return data
-}
-
-export async function updateTask(
-  taskId: number,
-  payload: Partial<CreateTaskPayload> & { status?: TaskStatus },
-): Promise<TaskListItem> {
-  const { data } = await api.patch<TaskListItem>(`/tasks/${taskId}`, payload)
   return data
 }
 

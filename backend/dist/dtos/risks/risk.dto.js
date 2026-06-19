@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AssignChecklistDto = exports.ChecklistItemDto = exports.UpdateChecklistItemDto = exports.CreateChecklistItemDto = exports.RiskListItemDto = exports.UpdateRiskDto = exports.CreateRiskDto = void 0;
+exports.AssignChecklistDto = exports.ChecklistItemDto = exports.UpsertChecklistItemDto = exports.UpdateChecklistItemDto = exports.CreateChecklistItemDto = exports.RiskListItemDto = exports.UpsertRiskDto = exports.UpdateRiskDto = exports.CreateRiskDto = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
@@ -76,6 +76,19 @@ __decorate([
     (0, class_validator_1.IsEnum)(enums_dto_1.RiskStatus),
     __metadata("design:type", String)
 ], UpdateRiskDto.prototype, "status", void 0);
+class UpsertRiskDto extends UpdateRiskDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: false, type: () => Number } };
+    }
+}
+exports.UpsertRiskDto = UpsertRiskDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1, description: "When set, updates the existing risk" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], UpsertRiskDto.prototype, "id", void 0);
 class RiskListItemDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { id: { required: true, type: () => Number }, engagementId: { required: true, type: () => Number }, title: { required: true, type: () => String }, description: { required: true, type: () => String, nullable: true }, priority: { required: true, type: () => String }, status: { required: true, type: () => String }, checklistCount: { required: true, type: () => Number }, completedChecklistCount: { required: true, type: () => Number }, createdAt: { required: true, type: () => Date } };
@@ -163,6 +176,19 @@ __decorate([
     (0, class_transformer_1.Type)(() => Number),
     __metadata("design:type", Number)
 ], UpdateChecklistItemDto.prototype, "sortOrder", void 0);
+class UpsertChecklistItemDto extends UpdateChecklistItemDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: false, type: () => Number } };
+    }
+}
+exports.UpsertChecklistItemDto = UpsertChecklistItemDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1, description: "When set, updates the existing checklist item" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], UpsertChecklistItemDto.prototype, "id", void 0);
 class ChecklistItemDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { id: { required: true, type: () => Number }, title: { required: true, type: () => String }, isCompleted: { required: true, type: () => Boolean }, sortOrder: { required: true, type: () => Number }, assigneeName: { required: true, type: () => String, nullable: true } };

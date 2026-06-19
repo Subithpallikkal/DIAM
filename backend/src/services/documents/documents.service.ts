@@ -92,15 +92,21 @@ export class DocumentsService {
           uploadedBy: true,
         },
         orderBy: this.buildOrderBy(query),
-        skip,
-        take,
       }),
       this.prisma.document.count({ where }),
     ]);
 
+    const latestDocuments = this.filterToLatestVersions(documents);
+    const versionCounts = await this.getVersionCounts(
+      latestDocuments.map((doc) => this.getRootDocumentId(doc)),
+    );
+    const paginated = latestDocuments.slice(skip, skip + take);
+
     return buildPaginatedResponse(
-      documents.map((doc) => this.toListItem(doc)),
-      total,
+      paginated.map((doc) =>
+        this.toListItem(doc, versionCounts.get(this.getRootDocumentId(doc)) ?? 1),
+      ),
+      latestDocuments.length,
       page,
       limit,
     );
@@ -142,7 +148,28 @@ export class DocumentsService {
       throw new NotFoundException(`Document ${id} not found`);
     }
 
-    return this.toListItem(document);
+    return this.toListItem(document, await this.countVersions(this.getRootDocumentId(document)));
+  }
+
+  async findVersions(documentId: number): Promise<DocumentListItemDto[]> {
+    const document = await this.ensureExists(documentId);
+    const rootId = this.getRootDocumentId(document);
+
+    const versions = await this.prisma.document.findMany({
+      where: {
+        OR: [{ uid: rootId }, { parentDocumentUid: rootId }],
+      },
+      include: {
+        client: true,
+        engagement: true,
+        category: true,
+        uploadedBy: true,
+      },
+      orderBy: { version: "asc" },
+    });
+
+    const versionCount = versions.length;
+    return versions.map((item) => this.toListItem(item, versionCount));
   }
 
   async createRecord(data: {
@@ -186,7 +213,61 @@ export class DocumentsService {
 
     await this.logAction(document.uid, DocumentLogAction.UPLOAD, data.uploadedByUid);
 
-    return this.toListItem(document);
+    return this.toListItem(document, 1);
+  }
+
+  async createVersionRecord(
+    baseDocumentId: number,
+    data: {
+      originalName: string;
+      storedName: string;
+      mimeType: string;
+      fileSize: number;
+      uploadedByUid: number;
+    },
+  ): Promise<DocumentListItemDto> {
+    const baseDocument = await this.ensureExists(baseDocumentId);
+    const rootId = this.getRootDocumentId(baseDocument);
+
+    const latestVersion = await this.prisma.document.aggregate({
+      where: {
+        OR: [{ uid: rootId }, { parentDocumentUid: rootId }],
+      },
+      _max: { version: true },
+    });
+
+    const nextVersion = (latestVersion._max.version ?? 0) + 1;
+
+    const document = await this.prisma.document.create({
+      data: {
+        clientUid: baseDocument.clientUid,
+        engagementUid: baseDocument.engagementUid,
+        categoryUid: baseDocument.categoryUid,
+        parentDocumentUid: rootId,
+        version: nextVersion,
+        originalName: data.originalName,
+        storedName: data.storedName,
+        mimeType: data.mimeType,
+        fileSize: data.fileSize,
+        uploadedByUid: data.uploadedByUid,
+      },
+      include: {
+        client: true,
+        engagement: true,
+        category: true,
+        uploadedBy: true,
+      },
+    });
+
+    await this.logAction(
+      document.uid,
+      DocumentLogAction.UPLOAD,
+      data.uploadedByUid,
+      `Version ${nextVersion} of document ${rootId}`,
+    );
+
+    const versionCount = await this.countVersions(rootId);
+    return this.toListItem(document, versionCount);
   }
 
   async logAction(
@@ -282,20 +363,65 @@ export class DocumentsService {
     }
   }
 
-  private toListItem(document: {
-    uid: number;
-    clientUid: number;
-    engagementUid: number | null;
-    categoryUid: number | null;
-    originalName: string;
-    mimeType: string;
-    fileSize: number;
-    createdAt: Date;
-    client: { name: string };
-    engagement: { title: string } | null;
-    category: { name: string } | null;
-    uploadedBy: { name: string };
-  }): DocumentListItemDto {
+  private getRootDocumentId(document: { uid: number; parentDocumentUid: number | null }) {
+    return document.parentDocumentUid ?? document.uid;
+  }
+
+  private async countVersions(rootId: number): Promise<number> {
+    return this.prisma.document.count({
+      where: {
+        OR: [{ uid: rootId }, { parentDocumentUid: rootId }],
+      },
+    });
+  }
+
+  private async getVersionCounts(rootIds: number[]): Promise<Map<number, number>> {
+    const uniqueRootIds = [...new Set(rootIds)];
+    const counts = await Promise.all(
+      uniqueRootIds.map(async (rootId) => [rootId, await this.countVersions(rootId)] as const),
+    );
+    return new Map(counts);
+  }
+
+  private filterToLatestVersions<
+    T extends { uid: number; parentDocumentUid: number | null; version: number },
+  >(documents: T[]): T[] {
+    const families = new Map<number, T[]>();
+
+    for (const document of documents) {
+      const rootId = this.getRootDocumentId(document);
+      const family = families.get(rootId) ?? [];
+      family.push(document);
+      families.set(rootId, family);
+    }
+
+    return Array.from(families.values()).map((family) =>
+      family.reduce((latest, current) =>
+        current.version >= latest.version ? current : latest,
+      ),
+    );
+  }
+
+  private toListItem(
+    document: {
+      uid: number;
+      clientUid: number;
+      engagementUid: number | null;
+      categoryUid: number | null;
+      parentDocumentUid: number | null;
+      version: number;
+      originalName: string;
+      mimeType: string;
+      fileSize: number;
+      createdAt: Date;
+      client: { name: string };
+      engagement: { title: string } | null;
+      category: { name: string } | null;
+      uploadedBy: { name: string };
+    },
+    versionCount: number,
+  ): DocumentListItemDto {
+    const rootDocumentId = this.getRootDocumentId(document);
     return {
       id: document.uid,
       clientId: document.clientUid,
@@ -308,6 +434,10 @@ export class DocumentsService {
       mimeType: document.mimeType,
       fileSize: document.fileSize,
       uploadedByName: document.uploadedBy.name,
+      version: document.version,
+      parentDocumentId: document.parentDocumentUid,
+      rootDocumentId,
+      versionCount,
       createdAt: document.createdAt,
     };
   }

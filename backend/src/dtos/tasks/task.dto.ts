@@ -44,6 +44,14 @@ export class UpdateTaskDto {
   status?: TaskStatus;
 }
 
+export class UpsertTaskDto extends UpdateTaskDto {
+  @ApiPropertyOptional({ example: 1, description: "When set, updates the existing task" })
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  id?: number;
+}
+
 export class AssignTaskDto {
   @ApiProperty({ example: 3 })
   @IsInt()

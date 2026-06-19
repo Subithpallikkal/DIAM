@@ -1,35 +1,46 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Form, Modal, message } from 'antd'
 import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
+  MailOutlined,
+  PhoneOutlined,
   PlusOutlined,
 } from '@ant-design/icons'
 import {
-  createClient,
   deactivateClient,
   fetchClient,
   fetchClients,
-  updateClient,
+  upsertClient,
 } from '../../api/clients.api'
 import {
   Button,
   ClientStatusTag,
+  DetailDrawer,
+  MobileCardBadge,
+  MobileListActionButton,
+  MobileListCard,
+  MobileListRow,
   ModalForm,
   PageBody,
   PageContainer,
   PageHeader,
-  Table,
+  PageToolbar,
+  ResponsiveDataList,
+  TableActions,
   applyTableQuery,
+  actionsColumnBase,
   BOOL_FILTERS,
   type ColumnsType,
 } from '../../components/common'
 import { ClientForm, type ClientFormValues } from '../../components/forms'
+import { ClientDetailPanel } from './ClientDetailPanel'
+import { useDetailDrawer } from '../../hooks/useDetailDrawer'
 import { usePaginatedList } from '../../hooks/usePaginatedList'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
-import type { ClientDetail, ClientListItem, CreateClientPayload, UpdateClientPayload } from '../../types/client'
+import type { ClientDetail, ClientListItem, UpsertClientPayload } from '../../types/client'
 import { getApiErrorMessage } from '../../utils/errors'
 
 type ClientModalMode = 'create' | 'edit'
@@ -45,14 +56,16 @@ export function ClientsListPage() {
   const [submitting, setSubmitting] = useState(false)
   const [loadingClient, setLoadingClient] = useState(false)
   const [modalError, setModalError] = useState<string | null>(null)
-  const modalWidth = useResponsiveModalWidth(900)
+  const modalWidth = useResponsiveModalWidth(720)
+  const { viewId, openDetail, closeDetail } = useDetailDrawer('/clients')
+  const [detailMeta, setDetailMeta] = useState<{ title: string; subtitle?: string } | null>(null)
 
   const fetcher = useCallback(
     (params: Parameters<typeof fetchClients>[0]) => fetchClients(params),
     [],
   )
 
-  const { data: clients, loading, reload, pagination, tableSort, tableFilters, onTableChange } =
+  const { data: clients, loading, reload, pagination, search, setSearch, tableSort, tableFilters, onTableChange } =
     usePaginatedList({
     fetcher,
     initialPageSize: 10,
@@ -123,13 +136,12 @@ export function ClientsListPage() {
     setModalError(null)
 
     try {
-      if (modalMode === 'create') {
-        await createClient(values as CreateClientPayload)
-        message.success('Client created')
-      } else if (editingClientId) {
-        await updateClient(editingClientId, values as UpdateClientPayload)
-        message.success('Client updated')
+      const payload: UpsertClientPayload = {
+        ...values,
+        ...(editingClientId ? { id: editingClientId } : {}),
       }
+      await upsertClient(payload)
+      message.success(editingClientId ? 'Client updated' : 'Client created')
 
       closeModal()
       reload()
@@ -173,9 +185,13 @@ export function ClientsListPage() {
         sorter: true,
         showSorterTooltip: true,
         render: (name: string, record) => (
-          <Link to={`/clients/${record.id}`} className="font-medium text-[#2D46B9] hover:text-[#243a9a]">
+          <button
+            type="button"
+            className="cursor-pointer border-0 bg-transparent p-0 text-left font-medium text-[#2D46B9] hover:text-[#243a9a] hover:underline"
+            onClick={() => openDetail(record.id)}
+          >
             {name}
-          </Link>
+          </button>
         ),
       },
       {
@@ -217,15 +233,16 @@ export function ClientsListPage() {
         render: (isActive: boolean) => <ClientStatusTag isActive={isActive} />,
       },
       {
-        title: 'Actions',
-        key: 'actions',
-        width: 96,
-        fixed: 'right',
+        ...actionsColumnBase('three'),
         render: (_, record) => (
-          <div className="flex items-center gap-0.5">
-            <Link to={`/clients/${record.id}`}>
-              <Button type="text" size="small" icon={<EyeOutlined />} aria-label="View" />
-            </Link>
+          <TableActions>
+            <Button
+              type="text"
+              size="small"
+              icon={<EyeOutlined />}
+              aria-label="View"
+              onClick={() => openDetail(record.id)}
+            />
             <Button
               type="text"
               size="small"
@@ -243,14 +260,14 @@ export function ClientsListPage() {
                 onClick={() => handleDeactivate(record)}
               />
             )}
-          </div>
+          </TableActions>
         ),
       },
         ],
         tableSort,
         tableFilters,
       ),
-    [openEditModal, tableSort, tableFilters],
+    [openEditModal, openDetail, tableSort, tableFilters],
   )
 
   const isEdit = modalMode === 'edit'
@@ -260,21 +277,67 @@ export function ClientsListPage() {
       <PageHeader
         title="Clients"
         subtitle="Manage audit client organizations"
-        extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal} block className="sm:!inline-flex">
+      />
+
+      <PageToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search clients by name, email, or GST..."
+        actions={
+          <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal}>
             Add Client
           </Button>
         }
       />
 
       <PageBody variant="fill">
-        <Table
+        <ResponsiveDataList
           rowKey="id"
           loading={loading}
           columns={columns}
           dataSource={clients}
           pagination={pagination}
           onChange={onTableChange}
+          emptyDescription="No clients found"
+          renderMobileCard={(client) => (
+            <MobileListCard
+              title={client.name}
+              badge={
+                <MobileCardBadge
+                  label={client.isActive ? 'Active' : 'Inactive'}
+                  tone={client.isActive ? 'success' : 'danger'}
+                />
+              }
+              actions={
+                <>
+                  <MobileListActionButton
+                    label="View Details"
+                    onClick={() => openDetail(client.id)}
+                  />
+                  <MobileListActionButton
+                    label="Edit Profile"
+                    variant="outline"
+                    onClick={() => openEditModal(client.id)}
+                  />
+                  {client.isActive && (
+                    <MobileListActionButton
+                      label="Deactivate"
+                      variant="danger"
+                      className="col-span-2"
+                      onClick={() => handleDeactivate(client)}
+                    />
+                  )}
+                </>
+              }
+            >
+              <MobileListRow icon={<MailOutlined />}>
+                {client.email || 'No email provided'}
+              </MobileListRow>
+              <MobileListRow icon={<PhoneOutlined />}>
+                {client.phone || 'No phone provided'}
+              </MobileListRow>
+            </MobileListCard>
+          )}
         />
       </PageBody>
 
@@ -312,6 +375,32 @@ export function ClientsListPage() {
           inModal
         />
       </ModalForm>
+
+      <DetailDrawer
+        open={viewId !== null}
+        onClose={() => {
+          closeDetail()
+          setDetailMeta(null)
+        }}
+        title={detailMeta?.title}
+        subtitle={detailMeta?.subtitle ?? 'Client details'}
+        width={520}
+      >
+        {viewId !== null && (
+          <ClientDetailPanel
+            clientId={viewId}
+            onLoaded={(client) =>
+              setDetailMeta({ title: client.name, subtitle: 'Client details' })
+            }
+            onError={closeDetail}
+            onEdit={(clientId) => {
+              closeDetail()
+              setDetailMeta(null)
+              openEditModal(clientId)
+            }}
+          />
+        )}
+      </DetailDrawer>
     </PageContainer>
   )
 }

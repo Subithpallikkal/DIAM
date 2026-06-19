@@ -12,6 +12,9 @@ export declare class UpdateIssueDto {
     status?: IssueStatus;
     responsiblePerson?: string;
 }
+export declare class UpsertIssueDto extends UpdateIssueDto {
+    id?: number;
+}
 export declare class AssignIssueDto {
     assignedToId: number;
 }
@@ -48,6 +51,7 @@ export declare class IssueStatusLogDto {
 }
 export declare class IssueDetailDto extends IssueListItemDto {
     description: string | null;
+    assigneeName: string | null;
     findings: FindingDto[];
     statusLogs: IssueStatusLogDto[];
     updatedAt: Date;

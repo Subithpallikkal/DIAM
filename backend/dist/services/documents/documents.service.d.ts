@@ -18,10 +18,18 @@ export declare class DocumentsService {
     }): Promise<PaginatedResponseDto<DocumentListItemDto>>;
     private buildOrderBy;
     findOne(id: number): Promise<DocumentListItemDto>;
+    findVersions(documentId: number): Promise<DocumentListItemDto[]>;
     createRecord(data: {
         clientId: number;
         engagementId?: number;
         categoryId?: number;
+        originalName: string;
+        storedName: string;
+        mimeType: string;
+        fileSize: number;
+        uploadedByUid: number;
+    }): Promise<DocumentListItemDto>;
+    createVersionRecord(baseDocumentId: number, data: {
         originalName: string;
         storedName: string;
         mimeType: string;
@@ -40,12 +48,18 @@ export declare class DocumentsService {
         originalName: string;
         mimeType: string;
         fileSize: number;
+        version: number;
         categoryUid: number | null;
+        parentDocumentUid: number | null;
         storedName: string;
         uploadedByUid: number;
     }>;
     private ensureClientExists;
     private ensureEngagementExists;
     private ensureCategoryExists;
+    private getRootDocumentId;
+    private countVersions;
+    private getVersionCounts;
+    private filterToLatestVersions;
     private toListItem;
 }

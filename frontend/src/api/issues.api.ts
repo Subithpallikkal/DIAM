@@ -2,11 +2,10 @@ import { api } from './axios'
 import type { ListQueryParams, PaginatedResponse } from '../types/api'
 import type {
   CreateFindingPayload,
-  CreateIssuePayload,
   Finding,
   IssueDetail,
   IssueListItem,
-  UpdateIssuePayload,
+  UpsertIssuePayload,
 } from '../types/issue'
 import type { IssueStatus, Priority } from '../types/document'
 
@@ -24,22 +23,14 @@ export async function fetchIssue(issueId: number): Promise<IssueDetail> {
   return data
 }
 
-export async function createIssue(
+export async function upsertIssue(
   engagementId: number,
-  payload: CreateIssuePayload,
-): Promise<IssueListItem> {
-  const { data } = await api.post<IssueListItem>(
+  payload: UpsertIssuePayload,
+): Promise<IssueDetail | IssueListItem> {
+  const { data } = await api.post<IssueDetail | IssueListItem>(
     `/engagements/${engagementId}/issues`,
     payload,
   )
-  return data
-}
-
-export async function updateIssue(
-  issueId: number,
-  payload: UpdateIssuePayload,
-): Promise<IssueDetail> {
-  const { data } = await api.patch<IssueDetail>(`/issues/${issueId}`, payload)
   return data
 }
 

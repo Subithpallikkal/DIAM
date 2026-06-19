@@ -4,8 +4,10 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   EyeOutlined,
+  FileOutlined,
   HistoryOutlined,
   PlusOutlined,
+  TeamOutlined,
   UploadOutlined,
 } from '@ant-design/icons'
 import {
@@ -13,8 +15,10 @@ import {
   downloadDocument,
   fetchDocumentCategories,
   fetchDocumentLogs,
+  fetchDocumentVersions,
   fetchDocuments,
   uploadDocument,
+  uploadDocumentVersion,
   viewDocument,
 } from '../../api/documents.api'
 import { fetchClients } from '../../api/clients.api'
@@ -24,12 +28,19 @@ import {
   ModalFormField,
   ModalFormGrid,
   modalFormClassName,
+  MobileCardBadge,
+  MobileListActionButton,
+  MobileListCard,
+  MobileListRow,
   stackListItemClass,
   PageBody,
   PageContainer,
   PageHeader,
-  Table,
+  PageToolbar,
+  ResponsiveDataList,
+  TableActions,
   applyTableQuery,
+  actionsColumnBase,
   type ColumnsType,
 } from '../../components/common'
 import { useAuth } from '../../context/AuthContext'
@@ -59,17 +70,22 @@ export function DocumentsPage() {
   const [clients, setClients] = useState<ClientListItem[]>([])
   const [categories, setCategories] = useState<DocumentCategory[]>([])
   const [uploadOpen, setUploadOpen] = useState(false)
+  const [versionOpen, setVersionOpen] = useState(false)
+  const [versionTarget, setVersionTarget] = useState<DocumentListItem | null>(null)
   const [logsOpen, setLogsOpen] = useState(false)
+  const [versionsOpen, setVersionsOpen] = useState(false)
+  const [versions, setVersions] = useState<DocumentListItem[]>([])
   const [logs, setLogs] = useState<DocumentLog[]>([])
   const [form] = Form.useForm()
-  const modalWidth = useResponsiveModalWidth(560)
+  const [versionForm] = Form.useForm()
+  const modalWidth = useResponsiveModalWidth(480)
 
   const fetcher = useCallback(
     (params: Parameters<typeof fetchDocuments>[0]) => fetchDocuments(params),
     [],
   )
 
-  const { data: documents, loading, reload, pagination, tableSort, tableFilters, onTableChange } =
+  const { data: documents, loading, reload, pagination, search, setSearch, tableSort, tableFilters, onTableChange } =
     usePaginatedList({
     fetcher,
     initialPageSize: 10,
@@ -132,6 +148,25 @@ export function DocumentsPage() {
         render: (value: string | null) => value || '—',
       },
       {
+        title: 'Version',
+        dataIndex: 'version',
+        key: 'version',
+        responsive: ['sm'],
+        render: (_value: number, record) => (
+          <button
+            type="button"
+            className="cursor-pointer border-0 bg-transparent p-0 text-brand hover:underline"
+            onClick={async () => {
+              setVersions(await fetchDocumentVersions(record.id))
+              setVersionsOpen(true)
+            }}
+          >
+            v{record.version}
+            {record.versionCount > 1 ? ` (${record.versionCount})` : ''}
+          </button>
+        ),
+      },
+      {
         title: 'Size',
         dataIndex: 'fileSize',
         key: 'fileSize',
@@ -149,12 +184,9 @@ export function DocumentsPage() {
         showSorterTooltip: true,
       },
       {
-        title: 'Actions',
-        key: 'actions',
-        width: 112,
-        fixed: 'right',
+        ...actionsColumnBase('five'),
         render: (_, record) => (
-          <div className="flex flex-wrap items-center gap-0.5">
+          <TableActions>
             <Button
               type="text"
               size="small"
@@ -168,6 +200,16 @@ export function DocumentsPage() {
               icon={<DownloadOutlined />}
               aria-label="Download"
               onClick={() => downloadDocument(record.id, record.originalName)}
+            />
+            <Button
+              type="text"
+              size="small"
+              icon={<UploadOutlined />}
+              aria-label="Upload new version"
+              onClick={() => {
+                setVersionTarget(record)
+                setVersionOpen(true)
+              }}
             />
             <Button
               type="text"
@@ -200,7 +242,7 @@ export function DocumentsPage() {
                 }}
               />
             )}
-          </div>
+          </TableActions>
         ),
       },
         ],
@@ -234,26 +276,92 @@ export function DocumentsPage() {
     }
   }
 
+  const handleUploadVersion = async () => {
+    if (!versionTarget) return
+    try {
+      const values = await versionForm.validateFields()
+      const file = values.file?.fileList?.[0]?.originFileObj as File | undefined
+      if (!file) {
+        message.error('Please select a file')
+        return
+      }
+      await uploadDocumentVersion(versionTarget.id, { file })
+      message.success('New version uploaded')
+      setVersionOpen(false)
+      setVersionTarget(null)
+      versionForm.resetFields()
+      reload()
+    } catch (err) {
+      if (err && typeof err === 'object' && 'errorFields' in err) return
+      message.error(getApiErrorMessage(err, 'Version upload failed'))
+    }
+  }
+
   return (
     <PageContainer>
       <PageHeader
         title="Documents"
         subtitle="Upload, download, and manage client audit documents"
-        extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setUploadOpen(true)} block className="sm:!inline-flex">
+      />
+
+      <PageToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search documents by file name..."
+        actions={
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setUploadOpen(true)}>
             Upload Document
           </Button>
         }
       />
 
       <PageBody variant="fill">
-        <Table
+        <ResponsiveDataList
           rowKey="id"
           loading={loading}
           columns={columns}
           dataSource={documents}
           pagination={pagination}
           onChange={onTableChange}
+          emptyDescription="No documents found"
+          renderMobileCard={(doc) => (
+            <MobileListCard
+              title={doc.originalName}
+              badge={
+                doc.versionCount > 1 ? (
+                  <MobileCardBadge label={`v${doc.version}`} tone="info" />
+                ) : undefined
+              }
+              actions={
+                <>
+                  <MobileListActionButton
+                    label="View"
+                    onClick={() => viewDocument(doc.id)}
+                  />
+                  <MobileListActionButton
+                    label="Download"
+                    variant="outline"
+                    onClick={() => downloadDocument(doc.id, doc.originalName)}
+                  />
+                  <MobileListActionButton
+                    label="History"
+                    variant="muted"
+                    className="col-span-2"
+                    onClick={async () => {
+                      setLogs(await fetchDocumentLogs(doc.id))
+                      setLogsOpen(true)
+                    }}
+                  />
+                </>
+              }
+            >
+              <MobileListRow icon={<TeamOutlined />}>{doc.clientName}</MobileListRow>
+              <MobileListRow icon={<FileOutlined />}>
+                {formatFileSize(doc.fileSize)}
+                {doc.categoryName ? ` · ${doc.categoryName}` : ''}
+              </MobileListRow>
+            </MobileListCard>
+          )}
         />
       </PageBody>
 
@@ -304,6 +412,73 @@ export function DocumentsPage() {
             </ModalFormField>
           </ModalFormGrid>
         </Form>
+      </ModalForm>
+
+      <ModalForm
+        open={versionOpen}
+        title="Upload New Version"
+        subtitle={versionTarget?.originalName}
+        onClose={() => {
+          setVersionOpen(false)
+          setVersionTarget(null)
+          versionForm.resetFields()
+        }}
+        onSubmit={handleUploadVersion}
+        submitText="Upload Version"
+        width={modalWidth}
+      >
+        <Form form={versionForm} layout="vertical" requiredMark="optional" className={modalFormClassName}>
+          <ModalFormField name="file" label="File" requiredMark rules={[{ required: true }]} valuePropName="file">
+            <Upload beforeUpload={() => false} maxCount={1}>
+              <Button icon={<UploadOutlined />}>Select file</Button>
+            </Upload>
+          </ModalFormField>
+        </Form>
+      </ModalForm>
+
+      <ModalForm
+        open={versionsOpen}
+        title="Document Versions"
+        subtitle="Version History"
+        onClose={() => setVersionsOpen(false)}
+        onSubmit={() => setVersionsOpen(false)}
+        showSubmit={false}
+        width={modalWidth}
+      >
+        {versions.length === 0 ? (
+          <p className="text-sm text-slate-500">No versions found.</p>
+        ) : (
+          <ul className="space-y-2">
+            {versions.map((item) => (
+              <li key={item.id} className={stackListItemClass}>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <strong>v{item.version}</strong> — {item.originalName}
+                    <div className="text-slate-500">
+                      {item.uploadedByName} · {new Date(item.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                  <TableActions>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<EyeOutlined />}
+                      aria-label="View version"
+                      onClick={() => viewDocument(item.id)}
+                    />
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<DownloadOutlined />}
+                      aria-label="Download version"
+                      onClick={() => downloadDocument(item.id, item.originalName)}
+                    />
+                  </TableActions>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </ModalForm>
 
       <ModalForm

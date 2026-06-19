@@ -15,6 +15,9 @@ export declare class UpdateClientDto {
     gstNumber?: string;
     isActive?: boolean;
 }
+export declare class UpsertClientDto extends UpdateClientDto {
+    id?: number;
+}
 export declare class ClientListItemDto {
     id: number;
     name: string;
