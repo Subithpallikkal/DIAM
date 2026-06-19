@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CacheService } from "../../common/cache/cache.service";
 import {
   buildPaginatedResponse,
   resolvePagination,
+  resolveSortDirection,
 } from "../../common/prisma/pagination.util";
 import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
 import {
@@ -31,6 +33,8 @@ export class RisksService {
     const { page, limit, skip, take } = resolvePagination(query);
     const where = {
       engagementUid: engagementId,
+      ...(query.status ? { status: query.status as RiskStatus } : {}),
+      ...(query.priority ? { priority: query.priority as Priority } : {}),
       ...(query.search?.trim()
         ? {
             OR: [
@@ -47,7 +51,7 @@ export class RisksService {
         include: {
           checklists: { select: { isCompleted: true } },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: this.buildOrderBy(query),
         skip,
         take,
       }),
@@ -60,6 +64,23 @@ export class RisksService {
       page,
       limit,
     );
+  }
+
+  private buildOrderBy(query: PaginationQueryDto): Prisma.RiskOrderByWithRelationInput {
+    const direction = resolveSortDirection(query);
+
+    switch (query.sortBy) {
+      case "title":
+        return { title: direction };
+      case "priority":
+        return { priority: direction };
+      case "status":
+        return { status: direction };
+      case "createdAt":
+        return { createdAt: direction };
+      default:
+        return { createdAt: "desc" };
+    }
   }
 
   async findOne(id: number): Promise<RiskListItemDto> {

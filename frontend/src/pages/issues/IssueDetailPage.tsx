@@ -19,6 +19,8 @@ import {
   PageHeader,
   PriorityTag,
   ResponsiveCard,
+  mobileFullSelectClass,
+  stackListItemClass,
 } from '../../components/common'
 import type { IssueDetail } from '../../types/issue'
 import { getApiErrorMessage } from '../../utils/errors'
@@ -88,7 +90,7 @@ export function IssueDetailPage() {
         breadcrumbs={[{ title: 'Issues', href: '/issues' }, { title: issue.title }]}
       />
 
-      <PageBody className="space-y-4 sm:space-y-5">
+      <PageBody variant="fill" className="gap-3 overflow-y-auto pr-0.5 md:gap-4">
       <ResponsiveCard className="mb-0">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -139,7 +141,7 @@ export function IssueDetailPage() {
           dataSource={issue.findings}
           locale={{ emptyText: 'No findings recorded yet' }}
           renderItem={(item) => (
-            <List.Item className="stack-list-item">
+            <List.Item className={stackListItemClass}>
               <List.Item.Meta
                 title={
                   <span className="flex flex-wrap items-center gap-2">
@@ -169,7 +171,7 @@ export function IssueDetailPage() {
           <Select
             value={findingSeverity}
             onChange={setFindingSeverity}
-            className="mobile-full-select sm:w-36"
+            className={`${mobileFullSelectClass} sm:w-36`}
             options={SEVERITY_OPTIONS.map((value) => ({ label: value, value }))}
           />
           <Button type="primary" onClick={handleAddFinding} block className="sm:!inline-flex">
@@ -183,7 +185,7 @@ export function IssueDetailPage() {
           dataSource={issue.statusLogs}
           locale={{ emptyText: 'No status changes yet' }}
           renderItem={(item) => (
-            <List.Item className="stack-list-item">
+            <List.Item className={stackListItemClass}>
               <Text className="min-w-0 break-words">
                 {item.oldStatus} → {item.newStatus} by {item.changedByName}
               </Text>

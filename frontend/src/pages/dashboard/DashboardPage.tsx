@@ -29,12 +29,12 @@ function StatCard({ title, value, icon, iconClassName, loading, link }: StatCard
   return (
     <Card
       bordered={false}
-      className="!rounded-2xl !shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+      className="!rounded-xl !shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <div
           className={cn(
-            'flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-[14px] text-[22px] text-indigo-600',
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg text-indigo-600 md:h-11 md:w-11 md:text-xl',
             iconClassName,
           )}
         >
@@ -48,7 +48,7 @@ function StatCard({ title, value, icon, iconClassName, loading, link }: StatCard
               <Text type="secondary" className="mb-1 block text-[13px]">
                 {title}
               </Text>
-              <Statistic value={value} valueStyle={{ fontSize: 28, fontWeight: 700 }} />
+              <Statistic value={value} valueStyle={{ fontSize: 22, fontWeight: 700 }} />
             </>
           )}
         </div>
@@ -102,8 +102,8 @@ export function DashboardPage() {
         subtitle="Overview of your audit management workspace"
       />
 
-      <PageBody className="space-y-5">
-      <Row gutter={[20, 20]}>
+      <PageBody variant="fill" className="gap-3 overflow-y-auto pr-0.5">
+      <Row gutter={[12, 12]} className="!mx-0">
         <Col xs={24} sm={12} xl={8} xxl={6}>
           <StatCard
             title="Total Clients"
@@ -166,11 +166,11 @@ export function DashboardPage() {
         </Col>
       </Row>
 
-      <Row gutter={[20, 20]}>
+      <Row gutter={[12, 12]} className="!mx-0">
         <Col xs={24} md={12}>
           <Card
             bordered={false}
-            className="flex flex-wrap items-center justify-between gap-4 !rounded-2xl !shadow-sm"
+            className="flex flex-wrap items-center justify-between gap-3 !rounded-xl !shadow-sm"
           >
             <div className="flex items-start gap-4">
               <TeamOutlined className="mt-1 text-[28px] text-indigo-600" />
@@ -193,7 +193,7 @@ export function DashboardPage() {
         <Col xs={24} md={12}>
           <Card
             bordered={false}
-            className="flex flex-wrap items-center justify-between gap-4 !rounded-2xl !shadow-sm"
+            className="flex flex-wrap items-center justify-between gap-3 !rounded-xl !shadow-sm"
           >
             <div className="flex items-start gap-4">
               <AuditOutlined className="mt-1 text-[28px] text-indigo-600" />
@@ -216,7 +216,7 @@ export function DashboardPage() {
         <Col xs={24} md={12}>
           <Card
             bordered={false}
-            className="flex flex-wrap items-center justify-between gap-4 !rounded-2xl !shadow-sm"
+            className="flex flex-wrap items-center justify-between gap-3 !rounded-xl !shadow-sm"
           >
             <div className="flex items-start gap-4">
               <WarningOutlined className="mt-1 text-[28px] text-indigo-600" />

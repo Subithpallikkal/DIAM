@@ -2,7 +2,13 @@ import { DatePicker, Form, Select } from 'antd'
 import type { FormInstance } from 'antd/es/form'
 import { type Dayjs } from 'dayjs'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '../common/Button'
+import {
+  Button,
+  ModalFormField,
+  ModalFormGrid,
+  ModalFormSection,
+  modalFormClassName,
+} from '../common'
 import { Input } from '../common/Input'
 import type { ClientListItem } from '../../types/client'
 import type { CreateEngagementPayload, EngagementStatus } from '../../types/engagement'
@@ -25,6 +31,7 @@ interface EngagementFormProps {
   clients: ClientListItem[]
   loading?: boolean
   hideActions?: boolean
+  inModal?: boolean
   onCancel: () => void
   onFinish: (values: EngagementFormValues) => void
 }
@@ -34,79 +41,93 @@ export function EngagementForm({
   clients,
   loading = false,
   hideActions = false,
+  inModal = false,
   onCancel,
   onFinish,
 }: EngagementFormProps) {
+  const Field = inModal ? ModalFormField : Form.Item
+
   return (
     <Form
       form={form}
       layout="vertical"
       requiredMark="optional"
+      className={inModal ? modalFormClassName : undefined}
       initialValues={{ status: 'DRAFT' }}
       onFinish={onFinish}
     >
-      <Form.Item
-        name="clientId"
-        label="Client"
-        rules={[{ required: true, message: 'Please select a client' }]}
-      >
-        <Select
-          showSearch
-          placeholder="Select client"
-          optionFilterProp="label"
-          options={clients.map((client) => ({
-            value: client.id,
-            label: client.name,
-          }))}
-        />
-      </Form.Item>
-
-      <Form.Item
-        name="title"
-        label="Title"
-        rules={[{ required: true, message: 'Title is required' }]}
-      >
-        <Input placeholder="Financial Audit 2026" />
-      </Form.Item>
-
-      <Form.Item
-        name="auditType"
-        label="Audit Type"
-        rules={[{ required: true, message: 'Audit type is required' }]}
-      >
-        <Select
-          placeholder="Select audit type"
-          options={AUDIT_TYPES.map((type) => ({ value: type, label: type }))}
-        />
-      </Form.Item>
-
-      <Form.Item name="financialYear" label="Financial Year">
-        <Input placeholder="2025-26" />
-      </Form.Item>
-
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-        <Form.Item name="startDate" label="Start Date" className="!mb-0">
-          <DatePicker className="w-full" format="YYYY-MM-DD" />
-        </Form.Item>
-        <Form.Item name="endDate" label="End Date" className="!mb-0">
-          <DatePicker
+      <ModalFormGrid>
+        <Field
+          name="clientId"
+          label="Client"
+          requiredMark
+          rules={[{ required: true, message: 'Please select a client' }]}
+        >
+          <Select
+            showSearch
             className="w-full"
-            format="YYYY-MM-DD"
-            disabledDate={(current) => {
-              const start = form.getFieldValue('startDate') as Dayjs | undefined
-              return start ? current && current.isBefore(start, 'day') : false
-            }}
+            placeholder="Select client"
+            optionFilterProp="label"
+            options={clients.map((client) => ({
+              value: client.id,
+              label: client.name,
+            }))}
           />
-        </Form.Item>
-      </div>
+        </Field>
 
-      <Form.Item name="status" label="Status">
-        <Select options={STATUS_OPTIONS} />
-      </Form.Item>
+        <Field
+          name="auditType"
+          label="Audit Type"
+          requiredMark
+          rules={[{ required: true, message: 'Audit type is required' }]}
+        >
+          <Select
+            className="w-full"
+            placeholder="Select audit type"
+            options={AUDIT_TYPES.map((type) => ({ value: type, label: type }))}
+          />
+        </Field>
 
-      <Form.Item name="description" label="Description">
+        <Field
+          name="title"
+          label="Title"
+          requiredMark
+          rules={[{ required: true, message: 'Title is required' }]}
+          className="ant-form-item-full"
+        >
+          <Input placeholder="Financial Audit 2026" />
+        </Field>
+
+        <Field name="financialYear" label="Financial Year">
+          <Input placeholder="2025-26" />
+        </Field>
+
+        <Field name="status" label="Status">
+          <Select className="w-full" options={STATUS_OPTIONS} />
+        </Field>
+      </ModalFormGrid>
+
+      <ModalFormSection title="Engagement Period" className="mt-1 mb-5">
+        <ModalFormGrid>
+          <Field name="startDate" label="Start Date" className="!mb-0">
+            <DatePicker className="w-full" format="YYYY-MM-DD" />
+          </Field>
+          <Field name="endDate" label="End Date" className="!mb-0">
+            <DatePicker
+              className="w-full"
+              format="YYYY-MM-DD"
+              disabledDate={(current) => {
+                const start = form.getFieldValue('startDate') as Dayjs | undefined
+                return start ? current && current.isBefore(start, 'day') : false
+              }}
+            />
+          </Field>
+        </ModalFormGrid>
+      </ModalFormSection>
+
+      <Field name="description" label="Description">
         <Input.TextArea rows={3} placeholder="Optional notes about this engagement" />
-      </Form.Item>
+      </Field>
 
       {!hideActions && (
         <Form.Item className="!mb-0 !mt-2">

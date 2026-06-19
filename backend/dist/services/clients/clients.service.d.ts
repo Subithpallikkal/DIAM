@@ -12,6 +12,7 @@ export declare class ClientsService {
     update(id: number, dto: UpdateClientDto): Promise<ClientDetailDto>;
     deactivate(id: number): Promise<ClientDetailDto>;
     private buildWhere;
+    private buildOrderBy;
     private ensureExists;
     private toListItem;
     private toDetail;

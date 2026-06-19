@@ -11,6 +11,10 @@ export function resolvePagination(query: PaginationQueryDto) {
   };
 }
 
+export function resolveSortDirection(query: PaginationQueryDto): "asc" | "desc" {
+  return query.sortOrder === "asc" ? "asc" : "desc";
+}
+
 export function buildPaginatedResponse<T>(
   data: T[],
   total: number,

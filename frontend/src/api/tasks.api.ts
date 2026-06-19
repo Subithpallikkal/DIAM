@@ -12,7 +12,6 @@ export async function fetchTasks(
   params?: ListQueryParams & {
     engagementId?: number
     assigneeId?: number
-    status?: TaskStatus
   },
 ): Promise<PaginatedResponse<TaskListItem>> {
   const { data } = await api.get<PaginatedResponse<TaskListItem>>('/tasks', { params })

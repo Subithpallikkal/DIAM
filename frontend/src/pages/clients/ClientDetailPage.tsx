@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Descriptions, message } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { fetchClient } from '../../api/clients.api'
-import { Button, ClientStatusTag, Loader, PageBody, PageContainer, PageHeader, ResponsiveCard } from '../../components/common'
+import { Button, ClientStatusTag, Loader, PageBody, PageContainer, PageHeader, ResponsiveCard, responsiveDescriptionsClass } from '../../components/common'
 import type { ClientDetail } from '../../types/client'
 import { getApiErrorMessage } from '../../utils/errors'
 
@@ -41,17 +41,21 @@ export function ClientDetailPage() {
           { title: client.name },
         ]}
         extra={
-          <Link to={`/clients/${client.id}/edit`} className="block w-full sm:w-auto">
-            <Button type="primary" icon={<EditOutlined />} block className="sm:!inline-flex">
-              Edit
-            </Button>
-          </Link>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            block
+            className="sm:!inline-flex"
+            onClick={() => navigate('/clients', { state: { openEdit: client.id } })}
+          >
+            Edit
+          </Button>
         }
       />
 
-      <PageBody>
+      <PageBody variant="fill" className="overflow-y-auto pr-0.5">
       <ResponsiveCard>
-        <Descriptions column={{ xs: 1, sm: 2 }} bordered size="middle" className="responsive-descriptions">
+        <Descriptions column={{ xs: 1, sm: 2 }} bordered size="middle" className={responsiveDescriptionsClass}>
           <Descriptions.Item label="Status">
             <ClientStatusTag isActive={client.isActive} />
           </Descriptions.Item>

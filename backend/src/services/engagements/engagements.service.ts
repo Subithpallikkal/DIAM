@@ -5,6 +5,7 @@ import { CacheService } from "../../common/cache/cache.service";
 import {
   buildPaginatedResponse,
   resolvePagination,
+  resolveSortDirection,
 } from "../../common/prisma/pagination.util";
 import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
 import {
@@ -50,13 +51,13 @@ export class EngagementsService {
     query: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<EngagementListItemDto>> {
     const { page, limit, skip, take } = resolvePagination(query);
-    const where = this.buildWhere(query.search);
+    const where = this.buildWhere(query);
 
     const [engagements, total] = await Promise.all([
       this.prisma.auditEngagement.findMany({
         where,
         include: { client: true },
-        orderBy: { createdAt: "desc" },
+        orderBy: this.buildOrderBy(query),
         skip,
         take,
       }),
@@ -118,17 +119,46 @@ export class EngagementsService {
     this.cache.invalidatePrefix("dashboard:");
   }
 
-  private buildWhere(search?: string): Prisma.AuditEngagementWhereInput {
-    if (!search?.trim()) return {};
+  private buildWhere(query: PaginationQueryDto): Prisma.AuditEngagementWhereInput {
+    const where: Prisma.AuditEngagementWhereInput = {};
 
-    const term = search.trim();
-    return {
-      OR: [
+    if (query.status) {
+      where.status = query.status as EngagementStatus;
+    }
+
+    if (query.search?.trim()) {
+      const term = query.search.trim();
+      where.OR = [
         { title: { contains: term, mode: "insensitive" } },
         { auditType: { contains: term, mode: "insensitive" } },
         { client: { name: { contains: term, mode: "insensitive" } } },
-      ],
-    };
+      ];
+    }
+
+    return where;
+  }
+
+  private buildOrderBy(
+    query: PaginationQueryDto,
+  ): Prisma.AuditEngagementOrderByWithRelationInput {
+    const direction = resolveSortDirection(query);
+
+    switch (query.sortBy) {
+      case "title":
+        return { title: direction };
+      case "clientName":
+        return { client: { name: direction } };
+      case "auditType":
+        return { auditType: direction };
+      case "financialYear":
+        return { financialYear: direction };
+      case "status":
+        return { status: direction };
+      case "createdAt":
+        return { createdAt: direction };
+      default:
+        return { createdAt: "desc" };
+    }
   }
 
   async ensureExists(id: number) {

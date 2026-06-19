@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CacheService } from "../../common/cache/cache.service";
 import {
   buildPaginatedResponse,
   resolvePagination,
+  resolveSortDirection,
 } from "../../common/prisma/pagination.util";
 import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
 import {
@@ -34,7 +36,7 @@ export class TasksService {
     const { page, limit, skip, take } = resolvePagination(query);
     const where = {
       engagementUid: filters?.engagementId,
-      status: filters?.status,
+      status: filters?.status ?? query.status,
       assignments: filters?.assigneeId
         ? { some: { assignedToUid: filters.assigneeId } }
         : undefined,
@@ -59,7 +61,7 @@ export class TasksService {
             take: 1,
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: this.buildOrderBy(query),
         skip,
         take,
       }),
@@ -72,6 +74,25 @@ export class TasksService {
       page,
       limit,
     );
+  }
+
+  private buildOrderBy(query: PaginationQueryDto): Prisma.TaskOrderByWithRelationInput {
+    const direction = resolveSortDirection(query);
+
+    switch (query.sortBy) {
+      case "title":
+        return { title: direction };
+      case "engagementTitle":
+        return { engagement: { title: direction } };
+      case "status":
+        return { status: direction };
+      case "assigneeName":
+        return { createdAt: direction };
+      case "createdAt":
+        return { createdAt: direction };
+      default:
+        return { createdAt: "desc" };
+    }
   }
 
   async findOne(id: number): Promise<TaskDetailDto> {

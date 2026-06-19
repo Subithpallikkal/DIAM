@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvePagination = resolvePagination;
+exports.resolveSortDirection = resolveSortDirection;
 exports.buildPaginatedResponse = buildPaginatedResponse;
 function resolvePagination(query) {
     const page = query.page ?? 1;
@@ -11,6 +12,9 @@ function resolvePagination(query) {
         skip: (page - 1) * limit,
         take: limit,
     };
+}
+function resolveSortDirection(query) {
+    return query.sortOrder === "asc" ? "asc" : "desc";
 }
 function buildPaginatedResponse(data, total, page, limit) {
     return {

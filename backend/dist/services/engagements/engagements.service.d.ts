@@ -12,6 +12,7 @@ export declare class EngagementsService {
     update(id: number, dto: UpdateEngagementDto): Promise<EngagementDetailDto>;
     remove(id: number): Promise<void>;
     private buildWhere;
+    private buildOrderBy;
     ensureExists(id: number): Promise<void>;
     private ensureClientExists;
     private toListItem;

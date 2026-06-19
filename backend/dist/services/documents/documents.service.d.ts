@@ -16,6 +16,7 @@ export declare class DocumentsService {
         engagementId?: number;
         categoryId?: number;
     }): Promise<PaginatedResponseDto<DocumentListItemDto>>;
+    private buildOrderBy;
     findOne(id: number): Promise<DocumentListItemDto>;
     createRecord(data: {
         clientId: number;

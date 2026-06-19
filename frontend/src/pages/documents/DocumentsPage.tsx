@@ -18,13 +18,27 @@ import {
   viewDocument,
 } from '../../api/documents.api'
 import { fetchClients } from '../../api/clients.api'
-import { Button, FilterBar, PageBody, PageContainer, PageHeader, Table, type ColumnsType } from '../../components/common'
+import {
+  Button,
+  ModalForm,
+  ModalFormField,
+  ModalFormGrid,
+  modalFormClassName,
+  stackListItemClass,
+  PageBody,
+  PageContainer,
+  PageHeader,
+  Table,
+  applyTableQuery,
+  type ColumnsType,
+} from '../../components/common'
 import { useAuth } from '../../context/AuthContext'
 import { useEngagementOptions } from '../../hooks/useEngagementOptions'
 import { usePaginatedList } from '../../hooks/usePaginatedList'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
 import type { ClientListItem } from '../../types/client'
 import type { DocumentCategory, DocumentListItem, DocumentLog } from '../../types/document'
+import { API_MAX_PAGE_SIZE } from '../../types/api'
 import { getApiErrorMessage } from '../../utils/errors'
 
 function formatFileSize(bytes: number): string {
@@ -33,13 +47,17 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
+const DOCUMENT_FILTER_PARAM_MAP = {
+  clientName: 'clientId',
+  categoryName: 'categoryId',
+} as const
+
 export function DocumentsPage() {
   const { user } = useAuth()
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER'
   const { engagements } = useEngagementOptions()
   const [clients, setClients] = useState<ClientListItem[]>([])
   const [categories, setCategories] = useState<DocumentCategory[]>([])
-  const [filterClientId, setFilterClientId] = useState<number | undefined>()
   const [uploadOpen, setUploadOpen] = useState(false)
   const [logsOpen, setLogsOpen] = useState(false)
   const [logs, setLogs] = useState<DocumentLog[]>([])
@@ -51,15 +69,16 @@ export function DocumentsPage() {
     [],
   )
 
-  const { data: documents, loading, reload, pagination } = usePaginatedList({
+  const { data: documents, loading, reload, pagination, tableSort, tableFilters, onTableChange } =
+    usePaginatedList({
     fetcher,
     initialPageSize: 10,
-    extraParams: { clientId: filterClientId },
+    filterParamMap: DOCUMENT_FILTER_PARAM_MAP,
   })
 
   useEffect(() => {
     Promise.all([
-      fetchClients({ page: 1, limit: 200 }),
+      fetchClients({ page: 1, limit: API_MAX_PAGE_SIZE }),
       fetchDocumentCategories(),
     ])
       .then(([clientResponse, categoryList]) => {
@@ -70,14 +89,35 @@ export function DocumentsPage() {
   }, [])
 
   const columns: ColumnsType<DocumentListItem> = useMemo(
-    () => [
-      { title: 'File Name', dataIndex: 'originalName', key: 'originalName', fixed: 'left', width: 160 },
-      { title: 'Client', dataIndex: 'clientName', key: 'clientName', responsive: ['md'] },
+    () =>
+      applyTableQuery<DocumentListItem>(
+        [
+      {
+        title: 'File Name',
+        dataIndex: 'originalName',
+        key: 'originalName',
+        fixed: 'left',
+        width: 160,
+        sorter: true,
+        showSorterTooltip: true,
+      },
+      {
+        title: 'Client',
+        dataIndex: 'clientName',
+        key: 'clientName',
+        responsive: ['md'],
+        sorter: true,
+        showSorterTooltip: true,
+        filters: clients.map((client) => ({ text: client.name, value: client.id })),
+        filterMultiple: false,
+      },
       {
         title: 'Engagement',
         dataIndex: 'engagementTitle',
         key: 'engagementTitle',
         responsive: ['lg'],
+        sorter: true,
+        showSorterTooltip: true,
         render: (value: string | null) => value || '—',
       },
       {
@@ -85,6 +125,10 @@ export function DocumentsPage() {
         dataIndex: 'categoryName',
         key: 'categoryName',
         responsive: ['xl'],
+        sorter: true,
+        showSorterTooltip: true,
+        filters: categories.map((category) => ({ text: category.name, value: category.id })),
+        filterMultiple: false,
         render: (value: string | null) => value || '—',
       },
       {
@@ -92,27 +136,44 @@ export function DocumentsPage() {
         dataIndex: 'fileSize',
         key: 'fileSize',
         responsive: ['sm'],
+        sorter: true,
+        showSorterTooltip: true,
         render: (value: number) => formatFileSize(value),
       },
-      { title: 'Uploaded By', dataIndex: 'uploadedByName', key: 'uploadedByName', responsive: ['xl'] },
+      {
+        title: 'Uploaded By',
+        dataIndex: 'uploadedByName',
+        key: 'uploadedByName',
+        responsive: ['xl'],
+        sorter: true,
+        showSorterTooltip: true,
+      },
       {
         title: 'Actions',
         key: 'actions',
-        width: 140,
+        width: 112,
         fixed: 'right',
         render: (_, record) => (
-          <div className="flex flex-wrap gap-1">
-            <Button type="text" size="small" icon={<EyeOutlined />} onClick={() => viewDocument(record.id)} />
+          <div className="flex flex-wrap items-center gap-0.5">
+            <Button
+              type="text"
+              size="small"
+              icon={<EyeOutlined />}
+              aria-label="View"
+              onClick={() => viewDocument(record.id)}
+            />
             <Button
               type="text"
               size="small"
               icon={<DownloadOutlined />}
+              aria-label="Download"
               onClick={() => downloadDocument(record.id, record.originalName)}
             />
             <Button
               type="text"
               size="small"
               icon={<HistoryOutlined />}
+              aria-label="History"
               onClick={async () => {
                 setLogs(await fetchDocumentLogs(record.id))
                 setLogsOpen(true)
@@ -124,6 +185,7 @@ export function DocumentsPage() {
                 danger
                 size="small"
                 icon={<DeleteOutlined />}
+                aria-label="Delete"
                 onClick={() => {
                   Modal.confirm({
                     title: 'Delete document?',
@@ -141,8 +203,11 @@ export function DocumentsPage() {
           </div>
         ),
       },
-    ],
-    [canManage, reload],
+        ],
+        tableSort,
+        tableFilters,
+      ),
+    [canManage, categories, clients, reload, tableSort, tableFilters],
   )
 
   const handleUpload = async () => {
@@ -181,80 +246,88 @@ export function DocumentsPage() {
         }
       />
 
-      <FilterBar>
-        <Select
-          allowClear
-          placeholder="Filter by client"
-          className="mobile-full-select"
-          value={filterClientId}
-          onChange={setFilterClientId}
-          options={clients.map((client) => ({ label: client.name, value: client.id }))}
+      <PageBody variant="fill">
+        <Table
+          rowKey="id"
+          loading={loading}
+          columns={columns}
+          dataSource={documents}
+          pagination={pagination}
+          onChange={onTableChange}
         />
-      </FilterBar>
-
-      <PageBody>
-        <Table rowKey="id" loading={loading} columns={columns} dataSource={documents} pagination={pagination} />
       </PageBody>
 
-      <Modal
-        title="Upload Document"
+      <ModalForm
         open={uploadOpen}
-        onCancel={() => {
+        title="Upload Document"
+        subtitle="Document Upload"
+        onClose={() => {
           setUploadOpen(false)
           form.resetFields()
         }}
-        onOk={handleUpload}
-        okText="Upload"
+        onSubmit={handleUpload}
+        submitText="Upload Document"
         width={modalWidth}
-        centered
-        destroyOnClose
       >
-        <Form form={form} layout="vertical" className="mt-2">
-          <Form.Item name="clientId" label="Client" rules={[{ required: true }]}>
-            <Select
-              placeholder="Select client"
-              options={clients.map((client) => ({ label: client.name, value: client.id }))}
-            />
-          </Form.Item>
-          <Form.Item name="engagementId" label="Engagement">
-            <Select
-              allowClear
-              placeholder="Optional engagement"
-              options={engagements.map((item) => ({
-                label: `${item.title} (${item.clientName})`,
-                value: item.id,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item name="categoryId" label="Category">
-            <Select
-              allowClear
-              placeholder="Optional category"
-              options={categories.map((item) => ({ label: item.name, value: item.id }))}
-            />
-          </Form.Item>
-          <Form.Item name="file" label="File" rules={[{ required: true }]} valuePropName="file">
-            <Upload beforeUpload={() => false} maxCount={1}>
-              <Button icon={<UploadOutlined />}>Select file</Button>
-            </Upload>
-          </Form.Item>
+        <Form form={form} layout="vertical" requiredMark="optional" className={modalFormClassName}>
+          <ModalFormGrid>
+            <ModalFormField name="clientId" label="Client" requiredMark rules={[{ required: true }]}>
+              <Select
+                className="w-full"
+                placeholder="Select client"
+                options={clients.map((client) => ({ label: client.name, value: client.id }))}
+              />
+            </ModalFormField>
+            <ModalFormField name="engagementId" label="Engagement">
+              <Select
+                allowClear
+                className="w-full"
+                placeholder="Optional engagement"
+                options={engagements.map((item) => ({
+                  label: `${item.title} (${item.clientName})`,
+                  value: item.id,
+                }))}
+              />
+            </ModalFormField>
+            <ModalFormField name="categoryId" label="Category">
+              <Select
+                allowClear
+                className="w-full"
+                placeholder="Optional category"
+                options={categories.map((item) => ({ label: item.name, value: item.id }))}
+              />
+            </ModalFormField>
+            <ModalFormField name="file" label="File" requiredMark rules={[{ required: true }]} valuePropName="file">
+              <Upload beforeUpload={() => false} maxCount={1}>
+                <Button icon={<UploadOutlined />}>Select file</Button>
+              </Upload>
+            </ModalFormField>
+          </ModalFormGrid>
         </Form>
-      </Modal>
+      </ModalForm>
 
-      <Modal title="Document Audit Trail" open={logsOpen} onCancel={() => setLogsOpen(false)} footer={null} width={modalWidth} centered>
+      <ModalForm
+        open={logsOpen}
+        title="Document Audit Trail"
+        subtitle="Activity History"
+        onClose={() => setLogsOpen(false)}
+        onSubmit={() => setLogsOpen(false)}
+        showSubmit={false}
+        width={modalWidth}
+      >
         {logs.length === 0 ? (
           <p className="text-sm text-slate-500">No activity recorded yet.</p>
         ) : (
           <ul className="space-y-2">
             {logs.map((log) => (
-              <li key={log.id} className="stack-list-item">
+              <li key={log.id} className={stackListItemClass}>
                 <strong>{log.action}</strong> by {log.performedByName}
                 <div className="text-slate-500">{new Date(log.createdAt).toLocaleString()}</div>
               </li>
             ))}
           </ul>
         )}
-      </Modal>
+      </ModalForm>
     </PageContainer>
   )
 }

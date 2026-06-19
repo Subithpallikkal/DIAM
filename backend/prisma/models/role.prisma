@@ -2,6 +2,7 @@ model Role {
   uid         Int     @id @default(autoincrement())
   name        String  @unique
   description String?
+  permissions Json?
   users       User[]
 
   @@map("roles")

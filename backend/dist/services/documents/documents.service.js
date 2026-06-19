@@ -66,13 +66,32 @@ let DocumentsService = DocumentsService_1 = class DocumentsService {
                     category: true,
                     uploadedBy: true,
                 },
-                orderBy: { createdAt: "desc" },
+                orderBy: this.buildOrderBy(query),
                 skip,
                 take,
             }),
             this.prisma.document.count({ where }),
         ]);
         return (0, pagination_util_1.buildPaginatedResponse)(documents.map((doc) => this.toListItem(doc)), total, page, limit);
+    }
+    buildOrderBy(query) {
+        const direction = (0, pagination_util_1.resolveSortDirection)(query);
+        switch (query.sortBy) {
+            case "originalName":
+                return { originalName: direction };
+            case "clientName":
+                return { client: { name: direction } };
+            case "engagementTitle":
+                return { engagement: { title: direction } };
+            case "categoryName":
+                return { category: { name: direction } };
+            case "fileSize":
+                return { fileSize: direction };
+            case "createdAt":
+                return { createdAt: direction };
+            default:
+                return { createdAt: "desc" };
+        }
     }
     async findOne(id) {
         const document = await this.prisma.document.findUnique({

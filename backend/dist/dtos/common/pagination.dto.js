@@ -20,7 +20,7 @@ class PaginationQueryDto {
         this.limit = 20;
     }
     static _OPENAPI_METADATA_FACTORY() {
-        return { page: { required: false, type: () => Number, default: 1, minimum: 1 }, limit: { required: false, type: () => Number, default: 20, minimum: 1, maximum: 100 }, search: { required: false, type: () => String } };
+        return { page: { required: false, type: () => Number, default: 1, minimum: 1 }, limit: { required: false, type: () => Number, default: 20, minimum: 1, maximum: 100 }, search: { required: false, type: () => String }, sortBy: { required: false, type: () => String }, sortOrder: { required: false, enum: ["asc", "desc"], enum: ["asc", "desc"] }, status: { required: false, type: () => String }, priority: { required: false, type: () => String }, severity: { required: false, type: () => String }, isActive: { required: false, type: () => Boolean }, role: { required: false, type: () => String } };
     }
 }
 exports.PaginationQueryDto = PaginationQueryDto;
@@ -47,6 +47,55 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], PaginationQueryDto.prototype, "search", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: "name" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], PaginationQueryDto.prototype, "sortBy", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: ["asc", "desc"], example: "asc" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(["asc", "desc"]),
+    __metadata("design:type", String)
+], PaginationQueryDto.prototype, "sortOrder", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: "IN_PROGRESS" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], PaginationQueryDto.prototype, "status", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: "HIGH" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], PaginationQueryDto.prototype, "priority", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: "HIGH" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], PaginationQueryDto.prototype, "severity", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: true }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => {
+        if (value === true || value === "true")
+            return true;
+        if (value === false || value === "false")
+            return false;
+        return undefined;
+    }),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], PaginationQueryDto.prototype, "isActive", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: "ADMIN" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], PaginationQueryDto.prototype, "role", void 0);
 class PaginatedMetaDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { page: { required: true, type: () => Number }, limit: { required: true, type: () => Number }, total: { required: true, type: () => Number }, totalPages: { required: true, type: () => Number } };

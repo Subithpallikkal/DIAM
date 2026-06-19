@@ -9,7 +9,7 @@ import {
   updateTask,
 } from '../../api/tasks.api'
 import { fetchUsers } from '../../api/users.api'
-import { Button, Input, Loader, PageBody, PageContainer, PageHeader, ResponsiveCard } from '../../components/common'
+import { Button, Input, Loader, PageBody, PageContainer, PageHeader, ResponsiveCard, stackListItemClass } from '../../components/common'
 import { useAuth } from '../../context/AuthContext'
 import type { TaskDetail } from '../../types/task'
 import type { UserListItem } from '../../types/user'
@@ -97,7 +97,7 @@ export function TaskDetailPage() {
         breadcrumbs={[{ title: 'Tasks', href: '/tasks' }, { title: task.title }]}
       />
 
-      <PageBody className="space-y-4 sm:space-y-5">
+      <PageBody variant="fill" className="gap-3 overflow-y-auto pr-0.5 md:gap-4">
       <ResponsiveCard className="mb-0">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -143,7 +143,7 @@ export function TaskDetailPage() {
                 className="w-full"
                 value={assigneeId}
                 onChange={setAssigneeId}
-                options={users.map((item) => ({ label: item.name, value: item.uid }))}
+                options={users.map((item) => ({ label: item.name, value: item.id }))}
               />
             </div>
             <Button type="primary" onClick={handleAssign} block className="sm:!inline-flex sm:!w-auto">
@@ -158,7 +158,7 @@ export function TaskDetailPage() {
           dataSource={task.comments}
           locale={{ emptyText: 'No comments yet' }}
           renderItem={(item) => (
-            <List.Item className="stack-list-item">
+            <List.Item className={stackListItemClass}>
               <List.Item.Meta
                 title={item.authorName}
                 description={

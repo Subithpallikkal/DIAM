@@ -1,18 +1,23 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Form, Modal, Select, message } from 'antd'
+import { Form, Select, message } from 'antd'
 import { EyeOutlined, PlusOutlined } from '@ant-design/icons'
 import { createIssue, fetchIssues, ISSUE_STATUS_OPTIONS, SEVERITY_OPTIONS } from '../../api/issues.api'
 import {
   Button,
-  FilterBar,
   Input,
   IssueStatusTag,
+  ModalForm,
+  ModalFormField,
+  ModalFormGrid,
+  modalFormClassName,
   PageBody,
   PageContainer,
   PageHeader,
   PriorityTag,
   Table,
+  applyTableQuery,
+  enumFilters,
   type ColumnsType,
 } from '../../components/common'
 import { useEngagementOptions } from '../../hooks/useEngagementOptions'
@@ -25,8 +30,6 @@ export function IssuesPage() {
   const navigate = useNavigate()
   const { engagements } = useEngagementOptions()
   const [createOpen, setCreateOpen] = useState(false)
-  const [engagementFilter, setEngagementFilter] = useState<number | undefined>()
-  const [statusFilter, setStatusFilter] = useState<string | undefined>()
   const [form] = Form.useForm()
   const modalWidth = useResponsiveModalWidth(560)
 
@@ -35,21 +38,41 @@ export function IssuesPage() {
     [],
   )
 
-  const { data: issues, loading, pagination } = usePaginatedList({
+  const { data: issues, loading, pagination, tableSort, tableFilters, onTableChange } = usePaginatedList({
     fetcher,
     initialPageSize: 10,
-    extraParams: { engagementId: engagementFilter, status: statusFilter },
   })
 
   const columns: ColumnsType<IssueListItem> = useMemo(
-    () => [
-      { title: 'Issue', dataIndex: 'title', key: 'title', fixed: 'left', width: 180 },
-      { title: 'Engagement', dataIndex: 'engagementTitle', key: 'engagementTitle', responsive: ['md'] },
+    () =>
+      applyTableQuery<IssueListItem>(
+        [
+      {
+        title: 'Issue',
+        dataIndex: 'title',
+        key: 'title',
+        fixed: 'left',
+        width: 180,
+        sorter: true,
+        showSorterTooltip: true,
+      },
+      {
+        title: 'Engagement',
+        dataIndex: 'engagementTitle',
+        key: 'engagementTitle',
+        responsive: ['md'],
+        sorter: true,
+        showSorterTooltip: true,
+      },
       {
         title: 'Severity',
         dataIndex: 'severity',
         key: 'severity',
         responsive: ['sm'],
+        sorter: true,
+        showSorterTooltip: true,
+        filters: enumFilters(SEVERITY_OPTIONS),
+        filterMultiple: false,
         render: (value: string) => <PriorityTag value={value} />,
       },
       {
@@ -57,6 +80,10 @@ export function IssuesPage() {
         dataIndex: 'status',
         key: 'status',
         responsive: ['lg'],
+        sorter: true,
+        showSorterTooltip: true,
+        filters: enumFilters(ISSUE_STATUS_OPTIONS),
+        filterMultiple: false,
         render: (value: string) => <IssueStatusTag status={value} />,
       },
       { title: 'Findings', dataIndex: 'findingsCount', key: 'findingsCount', responsive: ['xl'] },
@@ -67,12 +94,15 @@ export function IssuesPage() {
         fixed: 'right',
         render: (_, record) => (
           <Link to={`/issues/${record.id}`}>
-            <Button type="text" size="small" icon={<EyeOutlined />} />
+            <Button type="text" size="small" icon={<EyeOutlined />} aria-label="View" />
           </Link>
         ),
       },
-    ],
-    [],
+        ],
+        tableSort,
+        tableFilters,
+      ),
+    [tableSort, tableFilters],
   )
 
   const handleCreate = async () => {
@@ -106,67 +136,65 @@ export function IssuesPage() {
         }
       />
 
-      <FilterBar>
-        <Select
-          allowClear
-          placeholder="Filter by engagement"
-          className="mobile-full-select"
-          value={engagementFilter}
-          onChange={setEngagementFilter}
-          options={engagements.map((item) => ({ label: item.title, value: item.id }))}
+      <PageBody variant="fill">
+        <Table
+          rowKey="id"
+          loading={loading}
+          columns={columns}
+          dataSource={issues}
+          pagination={pagination}
+          onChange={onTableChange}
         />
-        <Select
-          allowClear
-          placeholder="Filter by status"
-          className="mobile-full-select sm:max-w-[12rem]"
-          value={statusFilter}
-          onChange={setStatusFilter}
-          options={ISSUE_STATUS_OPTIONS.map((value) => ({ label: value.replace('_', ' '), value }))}
-        />
-      </FilterBar>
-
-      <PageBody>
-        <Table rowKey="id" loading={loading} columns={columns} dataSource={issues} pagination={pagination} />
       </PageBody>
 
-      <Modal
-        title="Report Issue"
+      <ModalForm
         open={createOpen}
-        onCancel={() => {
+        title="Report Issue"
+        subtitle="Issue Creation"
+        onClose={() => {
           setCreateOpen(false)
           form.resetFields()
         }}
-        onOk={handleCreate}
-        okText="Create"
+        onSubmit={handleCreate}
+        submitText="Create Issue"
         width={modalWidth}
-        centered
-        destroyOnClose
-        className="[&_.ant-modal-body]:max-h-[calc(100vh-8rem)] [&_.ant-modal-body]:overflow-y-auto"
       >
-        <Form form={form} layout="vertical" initialValues={{ severity: 'MEDIUM' }} className="mt-2">
-          <Form.Item name="engagementId" label="Engagement" rules={[{ required: true }]}>
-            <Select
-              placeholder="Select engagement"
-              options={engagements.map((item) => ({
-                label: `${item.title} (${item.clientName})`,
-                value: item.id,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-            <Input placeholder="GST filing delayed" />
-          </Form.Item>
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={3} />
-          </Form.Item>
-          <Form.Item name="severity" label="Severity">
-            <Select options={SEVERITY_OPTIONS.map((value) => ({ label: value, value }))} />
-          </Form.Item>
-          <Form.Item name="responsiblePerson" label="Responsible Person">
-            <Input placeholder="Finance Manager" />
-          </Form.Item>
+        <Form
+          form={form}
+          layout="vertical"
+          requiredMark="optional"
+          initialValues={{ severity: 'MEDIUM' }}
+          className={modalFormClassName}
+        >
+          <ModalFormGrid>
+            <ModalFormField name="engagementId" label="Engagement" requiredMark rules={[{ required: true }]}>
+              <Select
+                className="w-full"
+                placeholder="Select engagement"
+                options={engagements.map((item) => ({
+                  label: `${item.title} (${item.clientName})`,
+                  value: item.id,
+                }))}
+              />
+            </ModalFormField>
+            <ModalFormField name="severity" label="Severity">
+              <Select
+                className="w-full"
+                options={SEVERITY_OPTIONS.map((value) => ({ label: value, value }))}
+              />
+            </ModalFormField>
+            <ModalFormField name="title" label="Title" requiredMark rules={[{ required: true }]}>
+              <Input placeholder="GST filing delayed" />
+            </ModalFormField>
+            <ModalFormField name="responsiblePerson" label="Responsible Person">
+              <Input placeholder="Finance Manager" />
+            </ModalFormField>
+            <ModalFormField name="description" label="Description" className="ant-form-item-full">
+              <Input.TextArea rows={3} />
+            </ModalFormField>
+          </ModalFormGrid>
         </Form>
-      </Modal>
+      </ModalForm>
     </PageContainer>
   )
 }

@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Loader } from '../components/common/Loader'
-import { AppLayout, ProtectedRoute, PublicRoute } from '../layouts'
+import { AppLayout, ProtectedRoute, PublicRoute, RoleRoute } from '../layouts'
 
 const LoginPage = lazy(() =>
   import('../pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })),
@@ -14,9 +14,6 @@ const ClientsListPage = lazy(() =>
 )
 const ClientDetailPage = lazy(() =>
   import('../pages/clients/ClientDetailPage').then((m) => ({ default: m.ClientDetailPage })),
-)
-const EditClientPage = lazy(() =>
-  import('../pages/clients/EditClientPage').then((m) => ({ default: m.EditClientPage })),
 )
 const EngagementsListPage = lazy(() =>
   import('../pages/engagements/EngagementsListPage').then((m) => ({
@@ -52,6 +49,12 @@ const IssueDetailPage = lazy(() =>
 const ReportsPage = lazy(() =>
   import('../pages/reports/ReportsPage').then((m) => ({ default: m.ReportsPage })),
 )
+const UsersListPage = lazy(() =>
+  import('../pages/users/UsersListPage').then((m) => ({ default: m.UsersListPage })),
+)
+const RolePermissionsPage = lazy(() =>
+  import('../pages/users/RolePermissionsPage').then((m) => ({ default: m.RolePermissionsPage })),
+)
 
 function PageLoader() {
   return (
@@ -74,7 +77,6 @@ export function AppRoutes() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/clients" element={<ClientsListPage />} />
             <Route path="/clients/:id" element={<ClientDetailPage />} />
-            <Route path="/clients/:id/edit" element={<EditClientPage />} />
             <Route path="/engagements" element={<EngagementsListPage />} />
             <Route path="/engagements/:id" element={<EngagementDetailPage />} />
             <Route path="/documents" element={<DocumentsPage />} />
@@ -85,6 +87,10 @@ export function AppRoutes() {
             <Route path="/issues" element={<IssuesPage />} />
             <Route path="/issues/:id" element={<IssueDetailPage />} />
             <Route path="/reports" element={<ReportsPage />} />
+            <Route element={<RoleRoute allowed={['ADMIN', 'MANAGER']} />}>
+              <Route path="/users" element={<UsersListPage />} />
+              <Route path="/role-permissions" element={<RolePermissionsPage />} />
+            </Route>
           </Route>
         </Route>
 

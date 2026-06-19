@@ -13,7 +13,6 @@ import type { IssueStatus, Priority } from '../types/document'
 export async function fetchIssues(
   params?: ListQueryParams & {
     engagementId?: number
-    status?: IssueStatus
   },
 ): Promise<PaginatedResponse<IssueListItem>> {
   const { data } = await api.get<PaginatedResponse<IssueListItem>>('/issues', { params })

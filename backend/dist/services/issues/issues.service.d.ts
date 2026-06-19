@@ -10,6 +10,7 @@ export declare class IssuesService {
         engagementId?: number;
         status?: string;
     }): Promise<PaginatedResponseDto<IssueListItemDto>>;
+    private buildOrderBy;
     findOne(id: number): Promise<IssueDetailDto>;
     create(engagementId: number, dto: CreateIssueDto, createdByUid: number): Promise<IssueListItemDto>;
     update(id: number, dto: UpdateIssueDto, changedByUid: number): Promise<IssueDetailDto>;

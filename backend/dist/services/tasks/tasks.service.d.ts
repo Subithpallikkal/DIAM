@@ -11,6 +11,7 @@ export declare class TasksService {
         assigneeId?: number;
         status?: string;
     }): Promise<PaginatedResponseDto<TaskListItemDto>>;
+    private buildOrderBy;
     findOne(id: number): Promise<TaskDetailDto>;
     create(engagementId: number, dto: CreateTaskDto, createdByUid: number): Promise<TaskListItemDto>;
     update(id: number, dto: UpdateTaskDto): Promise<TaskListItemDto>;

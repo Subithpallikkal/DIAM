@@ -15,6 +15,7 @@ import { RisksModule } from "./modules/risks/risks.module";
 import { TasksModule } from "./modules/tasks/tasks.module";
 import { IssuesModule } from "./modules/issues/issues.module";
 import { ReportsModule } from "./modules/reports/reports.module";
+import { RolesModule } from "./modules/roles/roles.module";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ReportsModule } from "./modules/reports/reports.module";
     CacheModule,
     AuthModule,
     UsersModule,
+    RolesModule,
     ClientsModule,
     EngagementsModule,
     DocumentsModule,

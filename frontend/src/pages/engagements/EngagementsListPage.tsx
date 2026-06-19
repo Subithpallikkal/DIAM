@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Form, Modal, message } from 'antd'
-import { EyeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { Form, message } from 'antd'
+import { EyeOutlined, PlusOutlined } from '@ant-design/icons'
 import { fetchClients } from '../../api/clients.api'
 import { createEngagement, fetchEngagements } from '../../api/engagements.api'
 import {
-  Alert,
   Button,
   EngagementStatusTag,
-  FilterBar,
-  Input,
+  ModalForm,
   PageBody,
   PageContainer,
   PageHeader,
   Table,
+  applyTableQuery,
+  enumFilters,
   type ColumnsType,
 } from '../../components/common'
 import { EngagementForm, type EngagementFormValues } from '../../components/forms'
@@ -21,8 +21,11 @@ import { invalidateEngagementOptionsCache } from '../../hooks/useEngagementOptio
 import { usePaginatedList } from '../../hooks/usePaginatedList'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
 import type { ClientListItem } from '../../types/client'
-import type { CreateEngagementPayload, EngagementListItem } from '../../types/engagement'
+import type { CreateEngagementPayload, EngagementListItem, EngagementStatus } from '../../types/engagement'
+import { API_MAX_PAGE_SIZE } from '../../types/api'
 import { getApiErrorMessage } from '../../utils/errors'
+
+const ENGAGEMENT_STATUS_OPTIONS: EngagementStatus[] = ['DRAFT', 'IN_PROGRESS', 'COMPLETED']
 
 export function EngagementsListPage() {
   const navigate = useNavigate()
@@ -32,14 +35,15 @@ export function EngagementsListPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [creating, setCreating] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
-  const createModalWidth = useResponsiveModalWidth(640)
+  const createModalWidth = useResponsiveModalWidth(900)
 
   const fetcher = useCallback(
     (params: Parameters<typeof fetchEngagements>[0]) => fetchEngagements(params),
     [],
   )
 
-  const { data: engagements, loading, search, setSearch, reload, pagination } = usePaginatedList({
+  const { data: engagements, loading, reload, pagination, tableSort, tableFilters, onTableChange } =
+    usePaginatedList({
     fetcher,
     initialPageSize: 10,
   })
@@ -53,7 +57,7 @@ export function EngagementsListPage() {
 
   useEffect(() => {
     if (!createOpen) return
-    fetchClients({ page: 1, limit: 200 })
+    fetchClients({ page: 1, limit: API_MAX_PAGE_SIZE })
       .then((response) => setClients(response.data))
       .catch(() => setClients([]))
   }, [createOpen])
@@ -89,26 +93,46 @@ export function EngagementsListPage() {
   }
 
   const columns: ColumnsType<EngagementListItem> = useMemo(
-    () => [
+    () =>
+      applyTableQuery<EngagementListItem>(
+        [
       {
         title: 'Title',
         dataIndex: 'title',
         key: 'title',
         fixed: 'left',
         width: 180,
+        sorter: true,
+        showSorterTooltip: true,
         render: (title, record) => (
           <Link to={`/engagements/${record.id}`} className="font-medium text-indigo-600 hover:text-indigo-700">
             {title}
           </Link>
         ),
       },
-      { title: 'Client Name', dataIndex: 'clientName', key: 'clientName', responsive: ['md'] },
-      { title: 'Audit Type', dataIndex: 'auditType', key: 'auditType', responsive: ['lg'] },
+      {
+        title: 'Client Name',
+        dataIndex: 'clientName',
+        key: 'clientName',
+        responsive: ['md'],
+        sorter: true,
+        showSorterTooltip: true,
+      },
+      {
+        title: 'Audit Type',
+        dataIndex: 'auditType',
+        key: 'auditType',
+        responsive: ['lg'],
+        sorter: true,
+        showSorterTooltip: true,
+      },
       {
         title: 'Year',
         dataIndex: 'financialYear',
         key: 'financialYear',
         responsive: ['xl'],
+        sorter: true,
+        showSorterTooltip: true,
         render: (v) => v || '—',
       },
       {
@@ -116,6 +140,10 @@ export function EngagementsListPage() {
         dataIndex: 'status',
         key: 'status',
         responsive: ['sm'],
+        sorter: true,
+        showSorterTooltip: true,
+        filters: enumFilters(ENGAGEMENT_STATUS_OPTIONS),
+        filterMultiple: false,
         render: (status) => <EngagementStatusTag status={status} />,
       },
       {
@@ -126,13 +154,18 @@ export function EngagementsListPage() {
         render: (_, record) => (
           <Button
             type="text"
+            size="small"
             icon={<EyeOutlined />}
+            aria-label="View"
             onClick={() => navigate(`/engagements/${record.id}`)}
           />
         ),
       },
-    ],
-    [navigate],
+        ],
+        tableSort,
+        tableFilters,
+      ),
+    [navigate, tableSort, tableFilters],
   )
 
   return (
@@ -147,52 +180,41 @@ export function EngagementsListPage() {
         }
       />
 
-      <FilterBar>
-        <Input
-          allowClear
-          prefix={<SearchOutlined className="text-slate-400" />}
-          placeholder="Search engagements..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="mobile-full-input"
-        />
-      </FilterBar>
-
-      <PageBody>
+      <PageBody variant="fill">
         <Table
           rowKey="id"
           columns={columns}
           dataSource={engagements}
           loading={loading}
           pagination={pagination}
+          onChange={onTableChange}
         />
       </PageBody>
 
-      <Modal
-        title="Create Engagement"
+      <ModalForm
         open={createOpen}
-        onCancel={() => {
+        title="Create Engagement"
+        subtitle="Engagement Creation"
+        onClose={() => {
           setCreateOpen(false)
           setCreateError(null)
           form.resetFields()
         }}
-        onOk={() => form.submit()}
-        confirmLoading={creating}
-        okText="Create Engagement"
+        onSubmit={() => form.submit()}
+        submitText="Create Engagement"
+        loading={creating}
+        error={createError}
         width={createModalWidth}
-        destroyOnHidden
-        centered
-        className="[&_.ant-modal-body]:max-h-[calc(100vh-180px)] [&_.ant-modal-body]:overflow-y-auto"
       >
-        {createError && <Alert type="error" message={createError} className="mb-4" />}
         <EngagementForm
           form={form}
           clients={clients}
           hideActions
+          inModal
           onCancel={() => setCreateOpen(false)}
           onFinish={handleCreate}
         />
-      </Modal>
+      </ModalForm>
     </PageContainer>
   )
 }

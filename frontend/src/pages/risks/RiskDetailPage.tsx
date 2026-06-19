@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Checkbox, Form, List, Modal, Select, Typography, message } from 'antd'
+import { Checkbox, Form, List, Select, Typography, message } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import {
   createChecklistItem,
@@ -13,11 +13,15 @@ import {
   Button,
   Input,
   Loader,
+  ModalForm,
+  ModalFormField,
+  modalFormClassName,
   PageBody,
   PageContainer,
   PageHeader,
   PriorityTag,
   ResponsiveCard,
+  stackListItemClass,
 } from '../../components/common'
 import { useAuth } from '../../context/AuthContext'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
@@ -108,7 +112,7 @@ export function RiskDetailPage() {
         breadcrumbs={[{ title: 'Risks', href: '/risks' }, { title: risk.title }]}
       />
 
-      <PageBody className="space-y-4 sm:space-y-5">
+      <PageBody variant="fill" className="gap-3 overflow-y-auto pr-0.5 md:gap-4">
       <ResponsiveCard className="mb-0">
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
@@ -158,7 +162,7 @@ export function RiskDetailPage() {
           dataSource={checklists}
           locale={{ emptyText: 'No checklist items yet' }}
           renderItem={(item) => (
-            <List.Item className="stack-list-item">
+            <List.Item className={stackListItemClass}>
               <Checkbox
                 checked={item.isCompleted}
                 onChange={(e) => handleToggleChecklist(item, e.target.checked)}
@@ -176,29 +180,29 @@ export function RiskDetailPage() {
       </ResponsiveCard>
       </PageBody>
 
-      <Modal
-        title="Add Checklist Item"
+      <ModalForm
         open={checklistOpen}
-        onCancel={() => {
+        title="Add Checklist Item"
+        subtitle="Risk Checklist"
+        onClose={() => {
           setChecklistOpen(false)
           form.resetFields()
         }}
-        onOk={handleAddChecklist}
-        okText="Add"
+        onSubmit={handleAddChecklist}
+        submitText="Add Item"
         width={modalWidth}
-        centered
-        destroyOnClose
       >
-        <Form form={form} layout="vertical" className="mt-2">
-          <Form.Item
+        <Form form={form} layout="vertical" requiredMark="optional" className={modalFormClassName}>
+          <ModalFormField
             name="title"
             label="Title"
+            requiredMark
             rules={[{ required: true, message: 'Title is required' }]}
           >
             <Input placeholder="Verify cash register" />
-          </Form.Item>
+          </ModalFormField>
         </Form>
-      </Modal>
+      </ModalForm>
     </PageContainer>
   )
 }

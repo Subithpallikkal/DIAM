@@ -31,11 +31,11 @@ let ClientsService = class ClientsService {
     }
     async findAll(query) {
         const { page, limit, skip, take } = (0, pagination_util_1.resolvePagination)(query);
-        const where = this.buildWhere(query.search);
+        const where = this.buildWhere(query);
         const [clients, total] = await Promise.all([
             this.prisma.client.findMany({
                 where,
-                orderBy: { createdAt: "desc" },
+                orderBy: this.buildOrderBy(query),
                 skip,
                 take,
             }),
@@ -70,18 +70,40 @@ let ClientsService = class ClientsService {
         this.cache.invalidatePrefix("dashboard:");
         return this.toDetail(client);
     }
-    buildWhere(search) {
-        if (!search?.trim())
-            return {};
-        const term = search.trim();
-        return {
-            OR: [
+    buildWhere(query) {
+        const where = {};
+        if (query.isActive !== undefined) {
+            where.isActive = query.isActive;
+        }
+        if (query.search?.trim()) {
+            const term = query.search.trim();
+            where.OR = [
                 { name: { contains: term, mode: "insensitive" } },
                 { email: { contains: term, mode: "insensitive" } },
                 { phone: { contains: term, mode: "insensitive" } },
                 { gstNumber: { contains: term, mode: "insensitive" } },
-            ],
-        };
+            ];
+        }
+        return where;
+    }
+    buildOrderBy(query) {
+        const direction = (0, pagination_util_1.resolveSortDirection)(query);
+        switch (query.sortBy) {
+            case "name":
+                return { name: direction };
+            case "email":
+                return { email: direction };
+            case "phone":
+                return { phone: direction };
+            case "gstNumber":
+                return { gstNumber: direction };
+            case "isActive":
+                return { isActive: direction };
+            case "createdAt":
+                return { createdAt: direction };
+            default:
+                return { createdAt: "desc" };
+        }
     }
     async ensureExists(id) {
         const client = await this.prisma.client.findUnique({

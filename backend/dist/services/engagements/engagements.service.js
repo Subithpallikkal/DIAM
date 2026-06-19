@@ -40,12 +40,12 @@ let EngagementsService = class EngagementsService {
     }
     async findAll(query) {
         const { page, limit, skip, take } = (0, pagination_util_1.resolvePagination)(query);
-        const where = this.buildWhere(query.search);
+        const where = this.buildWhere(query);
         const [engagements, total] = await Promise.all([
             this.prisma.auditEngagement.findMany({
                 where,
                 include: { client: true },
-                orderBy: { createdAt: "desc" },
+                orderBy: this.buildOrderBy(query),
                 skip,
                 take,
             }),
@@ -89,17 +89,39 @@ let EngagementsService = class EngagementsService {
         await this.prisma.auditEngagement.delete({ where: { uid: id } });
         this.cache.invalidatePrefix("dashboard:");
     }
-    buildWhere(search) {
-        if (!search?.trim())
-            return {};
-        const term = search.trim();
-        return {
-            OR: [
+    buildWhere(query) {
+        const where = {};
+        if (query.status) {
+            where.status = query.status;
+        }
+        if (query.search?.trim()) {
+            const term = query.search.trim();
+            where.OR = [
                 { title: { contains: term, mode: "insensitive" } },
                 { auditType: { contains: term, mode: "insensitive" } },
                 { client: { name: { contains: term, mode: "insensitive" } } },
-            ],
-        };
+            ];
+        }
+        return where;
+    }
+    buildOrderBy(query) {
+        const direction = (0, pagination_util_1.resolveSortDirection)(query);
+        switch (query.sortBy) {
+            case "title":
+                return { title: direction };
+            case "clientName":
+                return { client: { name: direction } };
+            case "auditType":
+                return { auditType: direction };
+            case "financialYear":
+                return { financialYear: direction };
+            case "status":
+                return { status: direction };
+            case "createdAt":
+                return { createdAt: direction };
+            default:
+                return { createdAt: "desc" };
+        }
     }
     async ensureExists(id) {
         const engagement = await this.prisma.auditEngagement.findUnique({

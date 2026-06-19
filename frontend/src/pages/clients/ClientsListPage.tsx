@@ -1,72 +1,147 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Form, Modal, Space, message } from 'antd'
+import { Form, Modal, message } from 'antd'
 import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
   PlusOutlined,
-  SearchOutlined,
 } from '@ant-design/icons'
-import { createClient, deactivateClient, fetchClients } from '../../api/clients.api'
 import {
-  Alert,
+  createClient,
+  deactivateClient,
+  fetchClient,
+  fetchClients,
+  updateClient,
+} from '../../api/clients.api'
+import {
   Button,
   ClientStatusTag,
-  FilterBar,
-  Input,
+  ModalForm,
   PageBody,
   PageContainer,
   PageHeader,
   Table,
+  applyTableQuery,
+  BOOL_FILTERS,
   type ColumnsType,
 } from '../../components/common'
 import { ClientForm, type ClientFormValues } from '../../components/forms'
 import { usePaginatedList } from '../../hooks/usePaginatedList'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
-import type { ClientListItem, CreateClientPayload } from '../../types/client'
+import type { ClientDetail, ClientListItem, CreateClientPayload, UpdateClientPayload } from '../../types/client'
 import { getApiErrorMessage } from '../../utils/errors'
+
+type ClientModalMode = 'create' | 'edit'
 
 export function ClientsListPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const [form] = Form.useForm<ClientFormValues>()
-  const [createOpen, setCreateOpen] = useState(false)
-  const [creating, setCreating] = useState(false)
-  const [createError, setCreateError] = useState<string | null>(null)
-  const createModalWidth = useResponsiveModalWidth(560)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState<ClientModalMode>('create')
+  const [editingClientId, setEditingClientId] = useState<number | null>(null)
+  const [editingClient, setEditingClient] = useState<ClientDetail | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [loadingClient, setLoadingClient] = useState(false)
+  const [modalError, setModalError] = useState<string | null>(null)
+  const modalWidth = useResponsiveModalWidth(900)
 
   const fetcher = useCallback(
     (params: Parameters<typeof fetchClients>[0]) => fetchClients(params),
     [],
   )
 
-  const { data: clients, loading, search, setSearch, reload, pagination } = usePaginatedList({
+  const { data: clients, loading, reload, pagination, tableSort, tableFilters, onTableChange } =
+    usePaginatedList({
     fetcher,
     initialPageSize: 10,
   })
 
+  const closeModal = useCallback(() => {
+    setModalOpen(false)
+    setModalError(null)
+    setEditingClientId(null)
+    setEditingClient(null)
+    form.resetFields()
+  }, [form])
+
+  const openCreateModal = useCallback(() => {
+    setModalMode('create')
+    setEditingClientId(null)
+    setEditingClient(null)
+    setModalError(null)
+    form.resetFields()
+    setModalOpen(true)
+  }, [form])
+
+  const openEditModal = useCallback(
+    async (clientId: number) => {
+      setModalMode('edit')
+      setEditingClientId(clientId)
+      setModalError(null)
+      setModalOpen(true)
+      setLoadingClient(true)
+      form.resetFields()
+
+      try {
+        const client = await fetchClient(clientId)
+        setEditingClient(client)
+        form.setFieldsValue({
+          name: client.name,
+          email: client.email ?? undefined,
+          phone: client.phone ?? undefined,
+          address: client.address ?? undefined,
+          gstNumber: client.gstNumber ?? undefined,
+          code: client.code ?? undefined,
+        })
+      } catch (err) {
+        message.error(getApiErrorMessage(err, 'Failed to load client'))
+        closeModal()
+      } finally {
+        setLoadingClient(false)
+      }
+    },
+    [closeModal, form],
+  )
+
   useEffect(() => {
     if (location.state?.openCreate) {
-      setCreateOpen(true)
+      openCreateModal()
+      navigate('/clients', { replace: true, state: {} })
+      return
+    }
+
+    if (location.state?.openEdit) {
+      openEditModal(location.state.openEdit as number)
       navigate('/clients', { replace: true, state: {} })
     }
-  }, [location.state, navigate])
+  }, [location.state, navigate, openCreateModal, openEditModal])
 
-  const handleCreate = async (values: ClientFormValues) => {
-    setCreating(true)
-    setCreateError(null)
+  const handleSubmit = async (values: ClientFormValues) => {
+    setSubmitting(true)
+    setModalError(null)
 
     try {
-      await createClient(values as CreateClientPayload)
-      message.success('Client created')
-      setCreateOpen(false)
-      form.resetFields()
+      if (modalMode === 'create') {
+        await createClient(values as CreateClientPayload)
+        message.success('Client created')
+      } else if (editingClientId) {
+        await updateClient(editingClientId, values as UpdateClientPayload)
+        message.success('Client updated')
+      }
+
+      closeModal()
       reload()
     } catch (err) {
-      setCreateError(getApiErrorMessage(err, 'Failed to create client'))
+      setModalError(
+        getApiErrorMessage(
+          err,
+          modalMode === 'create' ? 'Failed to create client' : 'Failed to update client',
+        ),
+      )
     } finally {
-      setCreating(false)
+      setSubmitting(false)
     }
   }
 
@@ -86,15 +161,19 @@ export function ClientsListPage() {
   }
 
   const columns: ColumnsType<ClientListItem> = useMemo(
-    () => [
+    () =>
+      applyTableQuery<ClientListItem>(
+        [
       {
         title: 'Name',
         dataIndex: 'name',
         key: 'name',
         fixed: 'left',
         width: 160,
+        sorter: true,
+        showSorterTooltip: true,
         render: (name: string, record) => (
-          <Link to={`/clients/${record.id}`} className="font-medium text-indigo-600 hover:text-indigo-700">
+          <Link to={`/clients/${record.id}`} className="font-medium text-[#2D46B9] hover:text-[#243a9a]">
             {name}
           </Link>
         ),
@@ -104,6 +183,8 @@ export function ClientsListPage() {
         dataIndex: 'email',
         key: 'email',
         responsive: ['md'],
+        sorter: true,
+        showSorterTooltip: true,
         render: (v: string | null) => v || '—',
       },
       {
@@ -111,6 +192,8 @@ export function ClientsListPage() {
         dataIndex: 'phone',
         key: 'phone',
         responsive: ['lg'],
+        sorter: true,
+        showSorterTooltip: true,
         render: (v: string | null) => v || '—',
       },
       {
@@ -118,6 +201,8 @@ export function ClientsListPage() {
         dataIndex: 'gstNumber',
         key: 'gstNumber',
         responsive: ['xl'],
+        sorter: true,
+        showSorterTooltip: true,
         render: (v: string | null) => v || '—',
       },
       {
@@ -125,36 +210,50 @@ export function ClientsListPage() {
         dataIndex: 'isActive',
         key: 'isActive',
         responsive: ['sm'],
+        sorter: true,
+        showSorterTooltip: true,
+        filters: BOOL_FILTERS,
+        filterMultiple: false,
         render: (isActive: boolean) => <ClientStatusTag isActive={isActive} />,
       },
       {
         title: 'Actions',
         key: 'actions',
-        width: 120,
+        width: 96,
         fixed: 'right',
         render: (_, record) => (
-          <Space wrap size="small">
+          <div className="flex items-center gap-0.5">
             <Link to={`/clients/${record.id}`}>
-              <Button type="text" size="small" icon={<EyeOutlined />} />
+              <Button type="text" size="small" icon={<EyeOutlined />} aria-label="View" />
             </Link>
-            <Link to={`/clients/${record.id}/edit`}>
-              <Button type="text" size="small" icon={<EditOutlined />} />
-            </Link>
+            <Button
+              type="text"
+              size="small"
+              icon={<EditOutlined />}
+              aria-label="Edit"
+              onClick={() => openEditModal(record.id)}
+            />
             {record.isActive && (
               <Button
                 type="text"
                 danger
                 size="small"
                 icon={<DeleteOutlined />}
+                aria-label="Deactivate"
                 onClick={() => handleDeactivate(record)}
               />
             )}
-          </Space>
+          </div>
         ),
       },
-    ],
-    [],
+        ],
+        tableSort,
+        tableFilters,
+      ),
+    [openEditModal, tableSort, tableFilters],
   )
+
+  const isEdit = modalMode === 'edit'
 
   return (
     <PageContainer>
@@ -162,57 +261,57 @@ export function ClientsListPage() {
         title="Clients"
         subtitle="Manage audit client organizations"
         extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)} block className="sm:!inline-flex">
+          <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal} block className="sm:!inline-flex">
             Add Client
           </Button>
         }
       />
 
-      <FilterBar>
-        <Input
-          allowClear
-          prefix={<SearchOutlined className="text-slate-400" />}
-          placeholder="Search clients..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="mobile-full-input"
-        />
-      </FilterBar>
-
-      <PageBody>
+      <PageBody variant="fill">
         <Table
           rowKey="id"
           loading={loading}
           columns={columns}
           dataSource={clients}
           pagination={pagination}
+          onChange={onTableChange}
         />
       </PageBody>
 
-      <Modal
-        title="Add Client"
-        open={createOpen}
-        onCancel={() => {
-          setCreateOpen(false)
-          setCreateError(null)
-          form.resetFields()
-        }}
-        footer={null}
-        width={createModalWidth}
-        centered
-        destroyOnClose
-        className="[&_.ant-modal-body]:max-h-[calc(100vh-8rem)] [&_.ant-modal-body]:overflow-y-auto"
+      <ModalForm
+        open={modalOpen}
+        title={isEdit ? 'Update Client Info' : 'Add Client'}
+        subtitle={isEdit ? 'Client Update' : 'Client Creation'}
+        meta={
+          isEdit && editingClient
+            ? [
+                { label: 'Client ID', value: editingClient.id },
+                {
+                  label: 'Created Date',
+                  value: new Date(editingClient.createdAt).toLocaleDateString(),
+                },
+              ]
+            : undefined
+        }
+        onClose={closeModal}
+        onSubmit={() => form.submit()}
+        submitText={isEdit ? 'Update Client' : 'Create Client'}
+        loading={submitting}
+        submitDisabled={loadingClient}
+        error={modalError}
+        width={modalWidth}
+        loadingContent={loadingClient}
       >
-        {createError && <Alert type="error" message={createError} className="mb-4" />}
         <ClientForm
           form={form}
-          mode="create"
-          onCancel={() => setCreateOpen(false)}
-          onFinish={handleCreate}
-          loading={creating}
+          mode={modalMode}
+          onCancel={closeModal}
+          onFinish={handleSubmit}
+          loading={submitting}
           hideActions
+          inModal
         />
-      </Modal>
+      </ModalForm>
     </PageContainer>
   )
 }

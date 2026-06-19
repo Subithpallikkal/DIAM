@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsInt, IsOptional, IsString, Max, Min } from "class-validator";
+import { Transform, Type } from "class-transformer";
+import { IsBoolean, IsIn, IsInt, IsOptional, IsString, Max, Min } from "class-validator";
 
 export class PaginationQueryDto {
   @ApiPropertyOptional({ example: 1, default: 1 })
@@ -22,6 +22,46 @@ export class PaginationQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({ example: "name" })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
+  @ApiPropertyOptional({ enum: ["asc", "desc"], example: "asc" })
+  @IsOptional()
+  @IsIn(["asc", "desc"])
+  sortOrder?: "asc" | "desc";
+
+  @ApiPropertyOptional({ example: "IN_PROGRESS" })
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @ApiPropertyOptional({ example: "HIGH" })
+  @IsOptional()
+  @IsString()
+  priority?: string;
+
+  @ApiPropertyOptional({ example: "HIGH" })
+  @IsOptional()
+  @IsString()
+  severity?: string;
+
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === true || value === "true") return true;
+    if (value === false || value === "false") return false;
+    return undefined;
+  })
+  @IsBoolean()
+  isActive?: boolean;
+
+  @ApiPropertyOptional({ example: "ADMIN" })
+  @IsOptional()
+  @IsString()
+  role?: string;
 }
 
 export class PaginatedMetaDto {

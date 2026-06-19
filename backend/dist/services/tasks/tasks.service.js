@@ -24,7 +24,7 @@ let TasksService = class TasksService {
         const { page, limit, skip, take } = (0, pagination_util_1.resolvePagination)(query);
         const where = {
             engagementUid: filters?.engagementId,
-            status: filters?.status,
+            status: filters?.status ?? query.status,
             assignments: filters?.assigneeId
                 ? { some: { assignedToUid: filters.assigneeId } }
                 : undefined,
@@ -48,13 +48,30 @@ let TasksService = class TasksService {
                         take: 1,
                     },
                 },
-                orderBy: { createdAt: "desc" },
+                orderBy: this.buildOrderBy(query),
                 skip,
                 take,
             }),
             this.prisma.task.count({ where }),
         ]);
         return (0, pagination_util_1.buildPaginatedResponse)(tasks.map((task) => this.toListItem(task)), total, page, limit);
+    }
+    buildOrderBy(query) {
+        const direction = (0, pagination_util_1.resolveSortDirection)(query);
+        switch (query.sortBy) {
+            case "title":
+                return { title: direction };
+            case "engagementTitle":
+                return { engagement: { title: direction } };
+            case "status":
+                return { status: direction };
+            case "assigneeName":
+                return { createdAt: direction };
+            case "createdAt":
+                return { createdAt: direction };
+            default:
+                return { createdAt: "desc" };
+        }
     }
     async findOne(id) {
         const task = await this.prisma.task.findUnique({

@@ -7,6 +7,7 @@ export declare class RisksService {
     private cache;
     constructor(prisma: PrismaService, cache: CacheService);
     findAll(query: PaginationQueryDto, engagementId?: number): Promise<PaginatedResponseDto<RiskListItemDto>>;
+    private buildOrderBy;
     findOne(id: number): Promise<RiskListItemDto>;
     create(engagementId: number, dto: CreateRiskDto, createdByUid: number): Promise<RiskListItemDto>;
     update(id: number, dto: UpdateRiskDto): Promise<RiskListItemDto>;

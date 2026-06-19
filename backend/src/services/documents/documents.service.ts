@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CacheService } from "../../common/cache/cache.service";
 import {
   buildPaginatedResponse,
   resolvePagination,
+  resolveSortDirection,
 } from "../../common/prisma/pagination.util";
 import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
 import {
@@ -89,7 +91,7 @@ export class DocumentsService {
           category: true,
           uploadedBy: true,
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: this.buildOrderBy(query),
         skip,
         take,
       }),
@@ -102,6 +104,27 @@ export class DocumentsService {
       page,
       limit,
     );
+  }
+
+  private buildOrderBy(query: PaginationQueryDto): Prisma.DocumentOrderByWithRelationInput {
+    const direction = resolveSortDirection(query);
+
+    switch (query.sortBy) {
+      case "originalName":
+        return { originalName: direction };
+      case "clientName":
+        return { client: { name: direction } };
+      case "engagementTitle":
+        return { engagement: { title: direction } };
+      case "categoryName":
+        return { category: { name: direction } };
+      case "fileSize":
+        return { fileSize: direction };
+      case "createdAt":
+        return { createdAt: direction };
+      default:
+        return { createdAt: "desc" };
+    }
   }
 
   async findOne(id: number): Promise<DocumentListItemDto> {

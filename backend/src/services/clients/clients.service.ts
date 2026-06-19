@@ -5,6 +5,7 @@ import { CacheService } from "../../common/cache/cache.service";
 import {
   buildPaginatedResponse,
   resolvePagination,
+  resolveSortDirection,
 } from "../../common/prisma/pagination.util";
 import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
 import {
@@ -40,12 +41,12 @@ export class ClientsService {
     query: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<ClientListItemDto>> {
     const { page, limit, skip, take } = resolvePagination(query);
-    const where = this.buildWhere(query.search);
+    const where = this.buildWhere(query);
 
     const [clients, total] = await Promise.all([
       this.prisma.client.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: this.buildOrderBy(query),
         skip,
         take,
       }),
@@ -96,18 +97,45 @@ export class ClientsService {
     return this.toDetail(client);
   }
 
-  private buildWhere(search?: string): Prisma.ClientWhereInput {
-    if (!search?.trim()) return {};
+  private buildWhere(query: PaginationQueryDto): Prisma.ClientWhereInput {
+    const where: Prisma.ClientWhereInput = {};
 
-    const term = search.trim();
-    return {
-      OR: [
+    if (query.isActive !== undefined) {
+      where.isActive = query.isActive;
+    }
+
+    if (query.search?.trim()) {
+      const term = query.search.trim();
+      where.OR = [
         { name: { contains: term, mode: "insensitive" } },
         { email: { contains: term, mode: "insensitive" } },
         { phone: { contains: term, mode: "insensitive" } },
         { gstNumber: { contains: term, mode: "insensitive" } },
-      ],
-    };
+      ];
+    }
+
+    return where;
+  }
+
+  private buildOrderBy(query: PaginationQueryDto): Prisma.ClientOrderByWithRelationInput {
+    const direction = resolveSortDirection(query);
+
+    switch (query.sortBy) {
+      case "name":
+        return { name: direction };
+      case "email":
+        return { email: direction };
+      case "phone":
+        return { phone: direction };
+      case "gstNumber":
+        return { gstNumber: direction };
+      case "isActive":
+        return { isActive: direction };
+      case "createdAt":
+        return { createdAt: direction };
+      default:
+        return { createdAt: "desc" };
+    }
   }
 
   private async ensureExists(id: number) {

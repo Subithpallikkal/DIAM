@@ -59,4 +59,16 @@ export type {
   RiskReport,
   RiskReportItem,
 } from './report'
-export type { UserListItem } from './user'
+export type { RoleDefinition } from './role'
+export type {
+  PermissionGrid,
+  PermissionGridState,
+  PermissionGroup,
+  UpdatePermissionGridPayload,
+} from './permission'
+export type {
+  CreateUserPayload,
+  UpdateUserPayload,
+  UserDetail,
+  UserListItem,
+} from './user'

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchEngagements } from '../api/engagements.api'
+import { API_MAX_PAGE_SIZE } from '../types/api'
 import type { EngagementListItem } from '../types/engagement'
 
 const CACHE_TTL_MS = 5 * 60 * 1000
@@ -22,7 +23,7 @@ export function useEngagementOptions() {
 
       setLoading(true)
       try {
-        const response = await fetchEngagements({ page: 1, limit: 200 })
+        const response = await fetchEngagements({ page: 1, limit: API_MAX_PAGE_SIZE })
         cachedEngagements = response.data
         cacheExpiresAt = Date.now() + CACHE_TTL_MS
         if (active) setEngagements(response.data)

@@ -1,10 +1,12 @@
 import "dotenv/config";
-import { ValidationPipe } from "@nestjs/common";
+import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ValidationError } from "class-validator";
 import { AppModule } from "./app.module";
 import { ValidationException } from "./common/exceptions/api.exceptions";
+
+const bootstrapLogger = new Logger("Bootstrap");
 
 function formatValidationErrors(errors: ValidationError[]): string[] {
   return errors.flatMap((error) => {
@@ -17,7 +19,9 @@ function formatValidationErrors(errors: ValidationError[]): string[] {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ["error", "warn", "log"],
+  });
 
   app.enableCors({ origin: true, credentials: true });
 
@@ -52,6 +56,7 @@ async function bootstrap() {
     )
     .addTag("Auth", "Authentication endpoints")
     .addTag("Users", "User management")
+    .addTag("Roles", "Roles and permissions")
     .addTag("Clients", "Client management")
     .addTag("Engagements", "Audit engagement management")
     .addTag("Engagement Scopes", "Audit scope items per engagement")
@@ -67,10 +72,18 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.PORT ?? 3000;
+  const port = Number(process.env.PORT ?? 3000);
   await app.listen(port);
-  console.log(`Application running on http://localhost:${port}`);
-  console.log(`Swagger docs available at http://localhost:${port}/docs`);
+
+  const baseUrl = `http://localhost:${port}`;
+  bootstrapLogger.log("------------------------------------------");
+  bootstrapLogger.log(`Application running on ${baseUrl}`);
+  bootstrapLogger.log(`Swagger docs available at ${baseUrl}/docs`);
+  bootstrapLogger.log("------------------------------------------");
 }
 
-bootstrap();
+bootstrap().catch((error: unknown) => {
+  const message = error instanceof Error ? error.stack ?? error.message : String(error);
+  bootstrapLogger.error("Failed to start application", message);
+  process.exit(1);
+});

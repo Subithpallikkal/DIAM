@@ -24,6 +24,8 @@ let RisksService = class RisksService {
         const { page, limit, skip, take } = (0, pagination_util_1.resolvePagination)(query);
         const where = {
             engagementUid: engagementId,
+            ...(query.status ? { status: query.status } : {}),
+            ...(query.priority ? { priority: query.priority } : {}),
             ...(query.search?.trim()
                 ? {
                     OR: [
@@ -39,13 +41,28 @@ let RisksService = class RisksService {
                 include: {
                     checklists: { select: { isCompleted: true } },
                 },
-                orderBy: { createdAt: "desc" },
+                orderBy: this.buildOrderBy(query),
                 skip,
                 take,
             }),
             this.prisma.risk.count({ where }),
         ]);
         return (0, pagination_util_1.buildPaginatedResponse)(risks.map((risk) => this.toListItem(risk)), total, page, limit);
+    }
+    buildOrderBy(query) {
+        const direction = (0, pagination_util_1.resolveSortDirection)(query);
+        switch (query.sortBy) {
+            case "title":
+                return { title: direction };
+            case "priority":
+                return { priority: direction };
+            case "status":
+                return { status: direction };
+            case "createdAt":
+                return { createdAt: direction };
+            default:
+                return { createdAt: "desc" };
+        }
     }
     async findOne(id) {
         const risk = await this.prisma.risk.findUnique({

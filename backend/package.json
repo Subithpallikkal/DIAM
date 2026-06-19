@@ -3,7 +3,7 @@
     "build": "nest build",
     "render:build": "prisma generate && prisma migrate deploy && nest build",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start:dev": "nest build && nest start --watch",
     "start:prod": "node dist/main",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --name init_day1_models",

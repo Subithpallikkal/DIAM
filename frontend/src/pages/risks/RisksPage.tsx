@@ -1,17 +1,22 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Form, Modal, Select, message } from 'antd'
+import { Form, Select, message } from 'antd'
 import { EyeOutlined, PlusOutlined } from '@ant-design/icons'
-import { createRisk, fetchRisks, PRIORITY_OPTIONS } from '../../api/risks.api'
+import { createRisk, fetchRisks, PRIORITY_OPTIONS, RISK_STATUS_OPTIONS } from '../../api/risks.api'
 import {
   Button,
-  FilterBar,
   Input,
+  ModalForm,
+  ModalFormField,
+  ModalFormGrid,
+  modalFormClassName,
   PageBody,
   PageContainer,
   PageHeader,
   PriorityTag,
   Table,
+  applyTableQuery,
+  enumFilters,
   type ColumnsType,
 } from '../../components/common'
 import { useAuth } from '../../context/AuthContext'
@@ -27,7 +32,6 @@ export function RisksPage() {
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER'
   const { engagements } = useEngagementOptions()
   const [createOpen, setCreateOpen] = useState(false)
-  const [engagementFilter, setEngagementFilter] = useState<number | undefined>()
   const [form] = Form.useForm()
   const modalWidth = useResponsiveModalWidth(560)
 
@@ -36,23 +40,45 @@ export function RisksPage() {
     [],
   )
 
-  const { data: risks, loading, pagination } = usePaginatedList({
+  const { data: risks, loading, pagination, tableSort, tableFilters, onTableChange } = usePaginatedList({
     fetcher,
     initialPageSize: 10,
-    extraParams: { engagementId: engagementFilter },
   })
 
   const columns: ColumnsType<RiskListItem> = useMemo(
-    () => [
-      { title: 'Risk', dataIndex: 'title', key: 'title', fixed: 'left', width: 180 },
+    () =>
+      applyTableQuery<RiskListItem>(
+        [
+      {
+        title: 'Risk',
+        dataIndex: 'title',
+        key: 'title',
+        fixed: 'left',
+        width: 180,
+        sorter: true,
+        showSorterTooltip: true,
+      },
       {
         title: 'Priority',
         dataIndex: 'priority',
         key: 'priority',
         responsive: ['sm'],
+        sorter: true,
+        showSorterTooltip: true,
+        filters: enumFilters(PRIORITY_OPTIONS),
+        filterMultiple: false,
         render: (value: string) => <PriorityTag value={value} />,
       },
-      { title: 'Status', dataIndex: 'status', key: 'status', responsive: ['md'] },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        responsive: ['md'],
+        sorter: true,
+        showSorterTooltip: true,
+        filters: enumFilters(RISK_STATUS_OPTIONS),
+        filterMultiple: false,
+      },
       {
         title: 'Checklist',
         key: 'checklist',
@@ -66,12 +92,15 @@ export function RisksPage() {
         fixed: 'right',
         render: (_, record) => (
           <Link to={`/risks/${record.id}`}>
-            <Button type="text" size="small" icon={<EyeOutlined />} />
+            <Button type="text" size="small" icon={<EyeOutlined />} aria-label="View" />
           </Link>
         ),
       },
-    ],
-    [],
+        ],
+        tableSort,
+        tableFilters,
+      ),
+    [tableSort, tableFilters],
   )
 
   const handleCreate = async () => {
@@ -106,56 +135,62 @@ export function RisksPage() {
         }
       />
 
-      <FilterBar>
-        <Select
-          allowClear
-          placeholder="Filter by engagement"
-          className="mobile-full-select"
-          value={engagementFilter}
-          onChange={setEngagementFilter}
-          options={engagements.map((item) => ({ label: item.title, value: item.id }))}
+      <PageBody variant="fill">
+        <Table
+          rowKey="id"
+          loading={loading}
+          columns={columns}
+          dataSource={risks}
+          pagination={pagination}
+          onChange={onTableChange}
         />
-      </FilterBar>
-
-      <PageBody>
-        <Table rowKey="id" loading={loading} columns={columns} dataSource={risks} pagination={pagination} />
       </PageBody>
 
-      <Modal
-        title="Add Risk"
+      <ModalForm
         open={createOpen}
-        onCancel={() => {
+        title="Add Risk"
+        subtitle="Risk Creation"
+        onClose={() => {
           setCreateOpen(false)
           form.resetFields()
         }}
-        onOk={handleCreate}
-        okText="Create"
+        onSubmit={handleCreate}
+        submitText="Create Risk"
         width={modalWidth}
-        centered
-        destroyOnClose
-        className="[&_.ant-modal-body]:max-h-[calc(100vh-8rem)] [&_.ant-modal-body]:overflow-y-auto"
       >
-        <Form form={form} layout="vertical" initialValues={{ priority: 'MEDIUM' }} className="mt-2">
-          <Form.Item name="engagementId" label="Engagement" rules={[{ required: true }]}>
-            <Select
-              placeholder="Select engagement"
-              options={engagements.map((item) => ({
-                label: `${item.title} (${item.clientName})`,
-                value: item.id,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-            <Input placeholder="Cash handling control weak" />
-          </Form.Item>
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={3} />
-          </Form.Item>
-          <Form.Item name="priority" label="Priority">
-            <Select options={PRIORITY_OPTIONS.map((value) => ({ label: value, value }))} />
-          </Form.Item>
+        <Form
+          form={form}
+          layout="vertical"
+          requiredMark="optional"
+          initialValues={{ priority: 'MEDIUM' }}
+          className={modalFormClassName}
+        >
+          <ModalFormGrid>
+            <ModalFormField name="engagementId" label="Engagement" requiredMark rules={[{ required: true }]}>
+              <Select
+                className="w-full"
+                placeholder="Select engagement"
+                options={engagements.map((item) => ({
+                  label: `${item.title} (${item.clientName})`,
+                  value: item.id,
+                }))}
+              />
+            </ModalFormField>
+            <ModalFormField name="priority" label="Priority">
+              <Select
+                className="w-full"
+                options={PRIORITY_OPTIONS.map((value) => ({ label: value, value }))}
+              />
+            </ModalFormField>
+            <ModalFormField name="title" label="Title" requiredMark rules={[{ required: true }]}>
+              <Input placeholder="Cash handling control weak" />
+            </ModalFormField>
+            <ModalFormField name="description" label="Description" className="ant-form-item-full">
+              <Input.TextArea rows={3} />
+            </ModalFormField>
+          </ModalFormGrid>
         </Form>
-      </Modal>
+      </ModalForm>
     </PageContainer>
   )
 }

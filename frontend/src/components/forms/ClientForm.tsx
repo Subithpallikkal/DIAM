@@ -1,7 +1,7 @@
 import { Form } from 'antd'
 import type { FormInstance } from 'antd/es/form'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '../common/Button'
+import { Button, ModalFormField, ModalFormGrid, modalFormClassName } from '../common'
 import { Input } from '../common/Input'
 
 export interface ClientFormValues {
@@ -18,6 +18,7 @@ interface ClientFormProps {
   mode: 'create' | 'edit'
   loading?: boolean
   hideActions?: boolean
+  inModal?: boolean
   onCancel: () => void
   onFinish: (values: ClientFormValues) => void
 }
@@ -27,52 +28,65 @@ export function ClientForm({
   mode,
   loading = false,
   hideActions = false,
+  inModal = false,
   onCancel,
   onFinish,
 }: ClientFormProps) {
+  const Field = inModal ? ModalFormField : Form.Item
+
   return (
     <Form
       form={form}
       layout="vertical"
       requiredMark="optional"
+      className={inModal ? modalFormClassName : undefined}
       onFinish={onFinish}
     >
-      <Form.Item
-        name="name"
-        label="Client Name"
-        rules={[{ required: true, message: 'Client name is required' }]}
-      >
-        <Input placeholder={mode === 'create' ? 'ABC Pvt Ltd' : undefined} />
-      </Form.Item>
+      <ModalFormGrid>
+        <Field
+          name="name"
+          label="Client Name"
+          requiredMark
+          rules={[{ required: true, message: 'Client name is required' }]}
+        >
+          <Input placeholder={mode === 'create' ? 'ABC Pvt Ltd' : undefined} />
+        </Field>
 
-      <Form.Item
-        name="email"
-        label="Email"
-        rules={[{ type: 'email', message: 'Enter a valid email' }]}
-      >
-        <Input placeholder={mode === 'create' ? 'contact@abc.com' : undefined} />
-      </Form.Item>
+        {mode === 'edit' ? (
+          <Field name="code" label="Client Code">
+            <Input />
+          </Field>
+        ) : (
+          <Field name="gstNumber" label="GST Number">
+            <Input placeholder="27AABCU9603R1ZM" />
+          </Field>
+        )}
 
-      <Form.Item name="phone" label="Phone">
-        <Input placeholder={mode === 'create' ? '+91-9876543210' : undefined} />
-      </Form.Item>
+        <Field
+          name="email"
+          label="Email"
+          rules={[{ type: 'email', message: 'Enter a valid email' }]}
+        >
+          <Input placeholder={mode === 'create' ? 'contact@abc.com' : undefined} />
+        </Field>
 
-      <Form.Item name="address" label="Address">
-        <Input.TextArea
-          rows={3}
-          placeholder={mode === 'create' ? '123 Business Park, Mumbai' : undefined}
-        />
-      </Form.Item>
+        <Field name="phone" label="Phone">
+          <Input placeholder={mode === 'create' ? '+91-9876543210' : undefined} />
+        </Field>
 
-      <Form.Item name="gstNumber" label="GST Number">
-        <Input placeholder={mode === 'create' ? '27AABCU9603R1ZM' : undefined} />
-      </Form.Item>
+        {mode === 'edit' && (
+          <Field name="gstNumber" label="GST Number">
+            <Input />
+          </Field>
+        )}
 
-      {mode === 'edit' && (
-        <Form.Item name="code" label="Client Code">
-          <Input />
-        </Form.Item>
-      )}
+        <Field name="address" label="Address" className="ant-form-item-full">
+          <Input.TextArea
+            rows={3}
+            placeholder={mode === 'create' ? '123 Business Park, Mumbai' : undefined}
+          />
+        </Field>
+      </ModalFormGrid>
 
       {!hideActions && (
         <Form.Item className="!mb-0 !mt-2">

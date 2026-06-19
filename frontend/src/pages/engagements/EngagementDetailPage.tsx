@@ -26,7 +26,7 @@ import {
   fetchScopes,
   updateRequiredDocument,
 } from '../../api/engagements.api'
-import { Button, EngagementStatusTag, Input, Loader, PageBody, PageContainer, PageHeader, ResponsiveCard } from '../../components/common'
+import { Button, EngagementStatusTag, Input, Loader, ModalForm, ModalFormField, modalFormClassName, PageBody, PageContainer, PageHeader, ResponsiveCard, responsiveDescriptionsClass, stackListItemClass } from '../../components/common'
 import { useResponsiveModalWidth } from '../../hooks/useResponsive'
 import type {
   EngagementDetail,
@@ -157,9 +157,9 @@ export function EngagementDetailPage() {
         ]}
       />
 
-      <PageBody className="space-y-4 sm:space-y-5">
+      <PageBody variant="fill" className="gap-3 overflow-y-auto pr-0.5 md:gap-4">
       <ResponsiveCard>
-        <Descriptions column={{ xs: 1, sm: 2 }} bordered size="middle" className="responsive-descriptions">
+        <Descriptions column={{ xs: 1, sm: 2 }} bordered size="middle" className={responsiveDescriptionsClass}>
           <Descriptions.Item label="Client">
             <Link to={`/clients/${engagement.clientId}`}>{engagement.clientName}</Link>
           </Descriptions.Item>
@@ -212,7 +212,7 @@ export function EngagementDetailPage() {
               dataSource={scopes}
               renderItem={(item) => (
                 <List.Item
-                  className="stack-list-item"
+                  className={stackListItemClass}
                   actions={[
                     <Button
                       key="delete"
@@ -258,7 +258,7 @@ export function EngagementDetailPage() {
             <List
               dataSource={documents}
               renderItem={(item) => (
-                <List.Item className="stack-list-item">
+                <List.Item className={stackListItemClass}>
                   <Checkbox
                     checked={item.isReceived}
                     onChange={(e) => handleToggleReceived(item, e.target.checked)}
@@ -278,64 +278,65 @@ export function EngagementDetailPage() {
       </div>
       </PageBody>
 
-      <Modal
-        title="Add Scope Item"
+      <ModalForm
         open={scopeModalOpen}
-        onCancel={() => {
+        title="Add Scope Item"
+        subtitle="Engagement Scope"
+        onClose={() => {
           setScopeModalOpen(false)
           scopeForm.resetFields()
         }}
-        onOk={handleAddScope}
-        okText="Add Scope"
+        onSubmit={handleAddScope}
+        submitText="Add Scope"
         width={modalWidth}
-        centered
-        destroyOnClose
       >
-        <Form form={scopeForm} layout="vertical" className="mt-2">
-          <Form.Item
+        <Form form={scopeForm} layout="vertical" requiredMark="optional" className={modalFormClassName}>
+          <ModalFormField
             name="name"
             label="Name"
+            requiredMark
             rules={[{ required: true, message: 'Scope name is required' }]}
           >
             <Input placeholder="Sales" />
-          </Form.Item>
-          <Form.Item name="description" label="Description">
+          </ModalFormField>
+          <ModalFormField name="description" label="Description">
             <Input.TextArea rows={3} placeholder="Review sales invoices and revenue" />
-          </Form.Item>
+          </ModalFormField>
         </Form>
-      </Modal>
+      </ModalForm>
 
-      <Modal
-        title="Add Required Document"
+      <ModalForm
         open={docModalOpen}
-        onCancel={() => {
+        title="Add Required Document"
+        subtitle="Document Requirements"
+        onClose={() => {
           setDocModalOpen(false)
           docForm.resetFields()
         }}
-        onOk={handleAddDocument}
-        okText="Add Document"
+        onSubmit={handleAddDocument}
+        submitText="Add Document"
         width={modalWidth}
-        centered
-        destroyOnClose
       >
         <Form
           form={docForm}
           layout="vertical"
+          requiredMark="optional"
           initialValues={{ isRequired: true }}
-          className="mt-2"
+          className={modalFormClassName}
         >
-          <Form.Item
+          <ModalFormField
             name="documentName"
             label="Document Name"
+            requiredMark
             rules={[{ required: true, message: 'Document name is required' }]}
           >
             <Input placeholder="Bank Statement" />
-          </Form.Item>
+          </ModalFormField>
           <Form.Item name="isRequired" valuePropName="checked">
             <Checkbox>Required document</Checkbox>
           </Form.Item>
         </Form>
-      </Modal>
+      </ModalForm>
     </PageContainer>
   )
 }

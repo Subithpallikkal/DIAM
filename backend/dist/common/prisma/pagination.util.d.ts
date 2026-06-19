@@ -5,4 +5,5 @@ export declare function resolvePagination(query: PaginationQueryDto): {
     skip: number;
     take: number;
 };
+export declare function resolveSortDirection(query: PaginationQueryDto): "asc" | "desc";
 export declare function buildPaginatedResponse<T>(data: T[], total: number, page: number, limit: number): PaginatedResponseDto<T>;

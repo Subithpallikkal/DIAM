@@ -10,7 +10,6 @@ import {
 } from '../../api/reports.api'
 import {
   Button,
-  FilterBar,
   PageBody,
   PageContainer,
   PageHeader,
@@ -75,22 +74,21 @@ export function ReportsPage() {
       <PageHeader
         title="Reports"
         subtitle="Audit summary, risk analysis, and findings reports"
+        extra={
+          <Select
+            placeholder="Select engagement to generate reports"
+            className="w-full sm:max-w-md"
+            value={engagementId}
+            onChange={handleEngagementChange}
+            options={engagements.map((item) => ({
+              label: `${item.title} (${item.clientName})`,
+              value: item.id,
+            }))}
+          />
+        }
       />
 
-      <FilterBar>
-        <Select
-          placeholder="Select engagement to generate reports"
-          className="mobile-full-select sm:max-w-md"
-          value={engagementId}
-          onChange={handleEngagementChange}
-          options={engagements.map((item) => ({
-            label: `${item.title} (${item.clientName})`,
-            value: item.id,
-          }))}
-        />
-      </FilterBar>
-
-      <PageBody className="space-y-5">
+      <PageBody variant="fill" className="gap-3 overflow-y-auto pr-0.5 md:gap-4">
       {!engagementId ? (
         <ResponsiveCard>
           <Text type="secondary">Select an engagement to view and export reports.</Text>

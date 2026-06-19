@@ -24,6 +24,7 @@ const risks_module_1 = require("./modules/risks/risks.module");
 const tasks_module_1 = require("./modules/tasks/tasks.module");
 const issues_module_1 = require("./modules/issues/issues.module");
 const reports_module_1 = require("./modules/reports/reports.module");
+const roles_module_1 = require("./modules/roles/roles.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -34,6 +35,7 @@ exports.AppModule = AppModule = __decorate([
             cache_module_1.CacheModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
+            roles_module_1.RolesModule,
             clients_module_1.ClientsModule,
             engagements_module_1.EngagementsModule,
             documents_module_1.DocumentsModule,

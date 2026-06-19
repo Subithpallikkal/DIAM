@@ -1,2 +1,2 @@
 export { AppLayout } from './AppLayout'
-export { ProtectedRoute, PublicRoute } from './ProtectedRoute'
+export { ProtectedRoute, PublicRoute, RoleRoute } from './ProtectedRoute'
