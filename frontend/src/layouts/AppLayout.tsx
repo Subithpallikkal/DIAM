@@ -40,6 +40,14 @@ const sidebarMenuClass = cn(
   '[&_.ant-menu-item-selected_.ant-menu-item-icon]:text-[#2ecc71]! [&_.ant-menu-item-selected_a]:text-white!',
 )
 
+const collapsedMenuClass = cn(
+  'flex flex-col items-center!',
+  '[&_.ant-menu-item]:mx-auto! [&_.ant-menu-item]:mb-1! [&_.ant-menu-item]:flex! [&_.ant-menu-item]:h-10! [&_.ant-menu-item]:w-10! [&_.ant-menu-item]:items-center! [&_.ant-menu-item]:justify-center! [&_.ant-menu-item]:px-0!',
+  '[&_.ant-menu-item-icon]:m-0! [&_.ant-menu-item-icon]:inline-flex! [&_.ant-menu-item-icon]:items-center! [&_.ant-menu-item-icon]:justify-center! [&_.ant-menu-item-icon]:text-base! [&_.ant-menu-item-icon]:text-white/80!',
+  '[&_.ant-menu-item-selected_.ant-menu-item-icon]:text-[#2ecc71]!',
+  '[&_.ant-menu-title-content]:hidden!',
+)
+
 const menuItems = [
   { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
   { key: '/clients', icon: <TeamOutlined />, label: 'Clients' },
@@ -117,10 +125,7 @@ export function AppLayout() {
         ...item,
         label: <Link to={item.key}>{item.label}</Link>,
       }))}
-      className={cn(
-        sidebarMenuClass,
-        collapsed && '[&_.ant-menu-item]:mx-2! [&_.ant-menu-item]:w-[calc(100%-16px)]! [&_.ant-menu-item]:px-0! [&_.ant-menu-item]:text-center!',
-      )}
+      className={cn(sidebarMenuClass, collapsed && collapsedMenuClass)}
       inlineCollapsed={collapsed}
       onClick={() => setDrawerOpen(false)}
     />
@@ -156,7 +161,10 @@ export function AppLayout() {
   )
 
   const profileBlock = (compact = false) => (
-    <div className="border-t px-3 py-3" style={{ borderColor: UI.sidebarBorder }}>
+    <div
+      className={cn('border-t py-3', compact ? 'px-2' : 'px-3')}
+      style={{ borderColor: UI.sidebarBorder }}
+    >
       {!compact && sectionLabel('User Account')}
       <Dropdown menu={{ items: userMenu }} placement="topRight" trigger={['click']}>
         <button
@@ -188,10 +196,14 @@ export function AppLayout() {
         <button
           type="button"
           onClick={toggleCollapsed}
-          className="mt-1 flex w-full items-center justify-center rounded-xl py-2 text-white/50 transition hover:bg-white/10 hover:text-white"
+          className="mt-2 flex w-full items-center justify-center rounded-xl py-2.5 text-white transition hover:bg-white/15"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <MenuUnfoldOutlined className="text-lg" /> : <MenuFoldOutlined className="text-lg" />}
+          {collapsed ? (
+            <MenuUnfoldOutlined className="text-lg text-white!" />
+          ) : (
+            <MenuFoldOutlined className="text-lg text-white!" />
+          )}
         </button>
       )}
     </div>
@@ -201,7 +213,7 @@ export function AppLayout() {
     <>
       {brandBlock(compact)}
       {!compact && sectionLabel('Navigation')}
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-2">
+      <div className="sidebar-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-2 pr-0.5">
         {navigationMenu}
       </div>
       {profileBlock(compact)}

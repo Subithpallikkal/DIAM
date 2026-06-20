@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { List, Select, Typography, message } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import {
@@ -24,6 +24,7 @@ import {
   stackListItemClass,
 } from '../../components/common'
 import { useAuth } from '../../context/AuthContext'
+import { canManage } from '../../lib/roles'
 import { cn } from '../../utils/cn'
 import type { IssueDetail } from '../../types/issue'
 import type { ClientListItem } from '../../types/client'
@@ -41,114 +42,69 @@ export interface IssueDetailPanelProps {
 
 export function IssueDetailPanel({ issueId, onLoaded, onError, onMutated }: IssueDetailPanelProps) {
   const { user } = useAuth()
-  const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER'
+  const manager = canManage(user?.role)
 
   const [issue, setIssue] = useState<IssueDetail | null>(null)
   const [users, setUsers] = useState<UserListItem[]>([])
   const [clients, setClients] = useState<ClientListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [findingTitle, setFindingTitle] = useState('')
-  const [findingSeverity, setFindingSeverity] = useState<string>('MEDIUM')
-  const [assigneeId, setAssigneeId] = useState<number | undefined>()
-  const [clientId, setClientId] = useState<number | undefined>()
+  const [findingSeverity, setFindingSeverity] = useState('MEDIUM')
+  const [assigneeId, setAssigneeId] = useState<number>()
+  const [clientId, setClientId] = useState<number>()
+
   const onLoadedRef = useRef(onLoaded)
   const onErrorRef = useRef(onError)
   const onMutatedRef = useRef(onMutated)
-
   useEffect(() => {
     onLoadedRef.current = onLoaded
     onErrorRef.current = onError
     onMutatedRef.current = onMutated
   })
 
-  const notifyMutated = useCallback(() => {
-    onMutatedRef.current?.()
-  }, [])
+  const reload = async () => {
+    const data = await fetchIssue(issueId)
+    setIssue(data)
+    onLoadedRef.current?.(data)
+    return data
+  }
 
-  const loadData = useCallback(async () => {
+  useEffect(() => {
+    let active = true
     setLoading(true)
-    try {
-      const data = await fetchIssue(issueId)
-      setIssue(data)
-      onLoadedRef.current?.(data)
-      if (canManage) {
-        Promise.all([
+
+    reload()
+      .then(() => {
+        if (!active || !manager) return
+        return Promise.all([
           fetchUsers({ page: 1, limit: 100 }),
           fetchClients({ page: 1, limit: 100 }),
         ])
-          .then(([usersResponse, clientsResponse]) => {
-            setUsers(usersResponse.data)
-            setClients(clientsResponse.data)
-          })
-          .catch(() => {
-            setUsers([])
-            setClients([])
-          })
-      }
-    } catch (err) {
-      message.error(getApiErrorMessage(err, 'Failed to load issue'))
-      onErrorRef.current?.()
-    } finally {
-      setLoading(false)
-    }
-  }, [issueId, canManage])
-
-  useEffect(() => {
-    loadData()
-  }, [loadData])
-
-  const handleStatusChange = async (status: string) => {
-    if (!issue) return
-    try {
-      await upsertIssue(issue.engagementId, {
-        id: issueId,
-        status: status as IssueDetail['status'],
       })
-      message.success('Status updated')
-      await loadData()
-      notifyMutated()
-    } catch (err) {
-      message.error(getApiErrorMessage(err, 'Failed to update status'))
-    }
-  }
-
-  const handleAssign = async () => {
-    if (!assigneeId) return
-    try {
-      await assignIssue(issueId, assigneeId)
-      message.success('Issue assigned')
-      await loadData()
-      notifyMutated()
-    } catch (err) {
-      message.error(getApiErrorMessage(err, 'Failed to assign issue'))
-    }
-  }
-
-  const handleAssignClient = async () => {
-    if (!clientId) return
-    try {
-      await assignIssueClient(issueId, clientId)
-      message.success('Issue assigned to client')
-      await loadData()
-      notifyMutated()
-    } catch (err) {
-      message.error(getApiErrorMessage(err, 'Failed to assign client'))
-    }
-  }
-
-  const handleAddFinding = async () => {
-    if (!findingTitle.trim()) return
-    try {
-      await addFinding(issueId, {
-        title: findingTitle.trim(),
-        severity: findingSeverity as IssueDetail['severity'],
+      .then((result) => {
+        if (!result) return
+        setUsers(result[0].data)
+        setClients(result[1].data)
       })
-      setFindingTitle('')
-      message.success('Finding added')
-      await loadData()
-      notifyMutated()
+      .catch((err) => {
+        message.error(getApiErrorMessage(err, 'Failed to load issue'))
+        onErrorRef.current?.()
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [issueId, manager])
+
+  const refresh = async () => {
+    try {
+      await reload()
+      onMutatedRef.current?.()
     } catch (err) {
-      message.error(getApiErrorMessage(err, 'Failed to add finding'))
+      message.error(getApiErrorMessage(err, 'Failed to refresh issue'))
     }
   }
 
@@ -162,6 +118,11 @@ export function IssueDetailPanel({ issueId, onLoaded, onError, onMutated }: Issu
 
   if (!issue) return null
 
+  const statusOptions = ISSUE_STATUS_OPTIONS.map((v) => ({
+    label: v.replace('_', ' '),
+    value: v,
+  }))
+
   return (
     <div className="flex flex-col gap-3">
       <ResponsiveCard bodyStyle={{ padding: 12 }}>
@@ -172,65 +133,73 @@ export function IssueDetailPanel({ issueId, onLoaded, onError, onMutated }: Issu
           <DetailFieldRow label="Status">
             <Select
               value={issue.status}
-              onChange={handleStatusChange}
+              onChange={async (status) => {
+                try {
+                  await upsertIssue(issue.engagementId, { id: issueId, status })
+                  message.success('Status updated')
+                  await refresh()
+                } catch (err) {
+                  message.error(getApiErrorMessage(err, 'Failed to update status'))
+                }
+              }}
               className={cn('w-full', selectFieldClass)}
-              options={ISSUE_STATUS_OPTIONS.map((value) => ({
-                label: value.replace('_', ' '),
-                value,
-              }))}
+              options={statusOptions}
             />
           </DetailFieldRow>
-          <DetailFieldRow label="Assignee">
-            {issue.assigneeName ? (
-              <Text>{issue.assigneeName}</Text>
-            ) : (
-              <Text type="secondary">Unassigned</Text>
-            )}
-          </DetailFieldRow>
-          <DetailFieldRow label="Assigned Client">
-            {issue.assignedClientName ? (
-              <Text>{issue.assignedClientName}</Text>
-            ) : (
-              <Text type="secondary">Unassigned</Text>
-            )}
-          </DetailFieldRow>
-          {canManage && (
-            <DetailFieldRow label="Assign to user">
-              <div className="flex flex-col gap-2">
+          <DetailFieldRow label="Assignee">{issue.assigneeName ?? '—'}</DetailFieldRow>
+          <DetailFieldRow label="Client">{issue.assignedClientName ?? '—'}</DetailFieldRow>
+          <DetailFieldRow label="Responsible">{issue.responsiblePerson ?? '—'}</DetailFieldRow>
+          {issue.description && <DetailFieldRow label="Description">{issue.description}</DetailFieldRow>}
+
+          {manager && (
+            <DetailFieldRow label="Assignment">
+              <div className="flex flex-col gap-3">
                 <Select
-                  placeholder="Select user"
+                  placeholder="Assign user"
                   className={cn('w-full', selectFieldClass)}
                   value={assigneeId}
                   onChange={setAssigneeId}
-                  options={users.map((item) => ({ label: item.name, value: item.id }))}
+                  options={users.map((u) => ({ label: u.name, value: u.id }))}
                 />
-                <Button type="primary" onClick={handleAssign} className="w-full sm:w-auto">
-                  Assign user
+                <Button
+                  size="small"
+                  onClick={async () => {
+                    if (!assigneeId) return
+                    try {
+                      await assignIssue(issueId, assigneeId)
+                      message.success('User assigned')
+                      await refresh()
+                    } catch (err) {
+                      message.error(getApiErrorMessage(err, 'Assign failed'))
+                    }
+                  }}
+                >
+                  Save user
                 </Button>
-              </div>
-            </DetailFieldRow>
-          )}
-          {canManage && (
-            <DetailFieldRow label="Assign to client">
-              <div className="flex flex-col gap-2">
                 <Select
-                  placeholder="Select client"
+                  placeholder="Assign client"
                   className={cn('w-full', selectFieldClass)}
                   value={clientId}
                   onChange={setClientId}
-                  options={clients.map((item) => ({ label: item.name, value: item.id }))}
+                  options={clients.map((c) => ({ label: c.name, value: c.id }))}
                 />
-                <Button type="primary" onClick={handleAssignClient} className="w-full sm:w-auto">
-                  Assign client
+                <Button
+                  size="small"
+                  onClick={async () => {
+                    if (!clientId) return
+                    try {
+                      await assignIssueClient(issueId, clientId)
+                      message.success('Client assigned')
+                      await refresh()
+                    } catch (err) {
+                      message.error(getApiErrorMessage(err, 'Assign failed'))
+                    }
+                  }}
+                >
+                  Save client
                 </Button>
               </div>
             </DetailFieldRow>
-          )}
-          <DetailFieldRow label="Responsible Person">
-            {issue.responsiblePerson || '—'}
-          </DetailFieldRow>
-          {issue.description && (
-            <DetailFieldRow label="Description">{issue.description}</DetailFieldRow>
           )}
         </DetailFieldList>
       </ResponsiveCard>
@@ -238,12 +207,12 @@ export function IssueDetailPanel({ issueId, onLoaded, onError, onMutated }: Issu
       <ResponsiveCard title="Findings">
         <List
           dataSource={issue.findings}
-          locale={{ emptyText: 'No findings recorded yet' }}
+          locale={{ emptyText: 'No findings yet' }}
           renderItem={(item) => (
             <List.Item className={stackListItemClass}>
               <List.Item.Meta
                 title={
-                  <span className="flex flex-wrap items-center gap-2">
+                  <span className="flex items-center gap-2">
                     {item.title}
                     <PriorityTag value={item.severity} />
                   </span>
@@ -260,37 +229,51 @@ export function IssueDetailPanel({ issueId, onLoaded, onError, onMutated }: Issu
             </List.Item>
           )}
         />
-
-        <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4">
+        <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-4 sm:flex-row">
           <Input
             placeholder="Finding title"
             value={findingTitle}
             onChange={(e) => setFindingTitle(e.target.value)}
           />
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Select
-              value={findingSeverity}
-              onChange={setFindingSeverity}
-              className={cn('w-full sm:w-36', selectFieldClass)}
-              options={SEVERITY_OPTIONS.map((value) => ({ label: value, value }))}
-            />
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleAddFinding} className="sm:shrink-0">
-              Add Finding
-            </Button>
-          </div>
+          <Select
+            value={findingSeverity}
+            onChange={setFindingSeverity}
+            className={cn('w-full sm:w-32', selectFieldClass)}
+            options={SEVERITY_OPTIONS.map((v) => ({ label: v, value: v }))}
+          />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={async () => {
+              if (!findingTitle.trim()) return
+              try {
+                await addFinding(issueId, {
+                  title: findingTitle.trim(),
+                  severity: findingSeverity as IssueDetail['severity'],
+                })
+                setFindingTitle('')
+                message.success('Finding added')
+                await refresh()
+              } catch (err) {
+                message.error(getApiErrorMessage(err, 'Failed to add finding'))
+              }
+            }}
+          >
+            Add
+          </Button>
         </div>
       </ResponsiveCard>
 
-      <ResponsiveCard title="Status History">
+      <ResponsiveCard title="Status history">
         <List
           dataSource={issue.statusLogs}
-          locale={{ emptyText: 'No status changes yet' }}
+          locale={{ emptyText: 'No changes yet' }}
           renderItem={(item) => (
             <List.Item className={stackListItemClass}>
-              <Text className="min-w-0 wrap-break-word">
-                {item.oldStatus} → {item.newStatus} by {item.changedByName}
+              <Text>
+                {item.oldStatus} → {item.newStatus} ({item.changedByName})
               </Text>
-              <Text type="secondary" className="shrink-0 text-xs">
+              <Text type="secondary" className="text-xs">
                 {new Date(item.createdAt).toLocaleString()}
               </Text>
             </List.Item>

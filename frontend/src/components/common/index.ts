@@ -39,7 +39,7 @@ export {
 export { ClientStatusTag, EngagementStatusTag, IssueStatusTag, PriorityTag, RoleTag, TaskStatusTag } from './StatusTag'
 export { DocumentPreviewModal } from './DocumentPreviewModal'
 export { DetailDrawer, type DetailDrawerProps } from './DetailDrawer'
-export { DetailFieldList, DetailFieldRow, type DetailFieldRowProps } from './DetailFieldList'
+export { DetailFieldList, DetailFieldRow } from './DetailFieldList'
 export {
   MobileCardBadge,
   MobileListActionButton,

@@ -1,42 +1,21 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { Divider, Empty, Skeleton } from 'antd'
+import { Skeleton, Table } from 'antd'
+import { BarChartOutlined, PlusOutlined } from '@ant-design/icons'
+import { fetchDashboardStats, fetchMyDashboardStats } from '../../api/reports.api'
 import {
-  BarChartOutlined,
-  CheckCircleOutlined,
-  PlusOutlined,
-  WarningOutlined,
-} from '@ant-design/icons'
-import { fetchDashboardStats } from '../../api/reports.api'
-import { Button, PageBody, PageContainer, PageHeader } from '../../components/common'
+  Button,
+  IssueStatusTag,
+  PageBody,
+  PageContainer,
+  PageHeader,
+  PriorityTag,
+} from '../../components/common'
 import { useAuth } from '../../context/AuthContext'
-import { cn } from '../../utils/cn'
-import { AuditorDashboard } from './AuditorDashboard'
+import { canManage } from '../../lib/roles'
+import type { DashboardStats, MyDashboardStats } from '../../types/report'
 
-interface DashboardStatsState {
-  totalClients: number
-  totalAudits: number
-  completedAudits: number
-  openRisks: number
-  pendingTasks: number
-  openIssues: number
-  resolvedIssues: number
-  workload: {
-    tasksByAssignee: Array<{
-      userId: number
-      userName: string
-      pending: number
-      inProgress: number
-    }>
-    openChecklistsByAssignee: Array<{
-      userId: number
-      userName: string
-      openCount: number
-    }>
-  }
-}
-
-const EMPTY_STATS: DashboardStatsState = {
+const emptyOrgStats: DashboardStats = {
   totalClients: 0,
   totalAudits: 0,
   completedAudits: 0,
@@ -47,187 +26,117 @@ const EMPTY_STATS: DashboardStatsState = {
   workload: { tasksByAssignee: [], openChecklistsByAssignee: [] },
 }
 
-const KPI_LINKS = [
-  { label: 'Clients', href: '/clients', key: 'totalClients' as const },
-  { label: 'Engagements', href: '/engagements', key: 'totalAudits' as const },
-  { label: 'Open issues', href: '/issues', key: 'openIssues' as const },
-  { label: 'Pending tasks', href: '/tasks', key: 'pendingTasks' as const },
-] as const
-
-const SECONDARY_STATS = [
-  { label: 'Completed audits', href: '/engagements', key: 'completedAudits' as const, icon: CheckCircleOutlined },
-  { label: 'Open risks', href: '/risks', key: 'openRisks' as const, icon: WarningOutlined },
-  { label: 'Resolved issues', href: '/issues', key: 'resolvedIssues' as const, icon: CheckCircleOutlined },
-] as const
-
-function KpiValue({
-  label,
-  value,
-  href,
-  loading,
-}: {
-  label: string
-  value: number
-  href: string
-  loading: boolean
-}) {
-  return (
-    <Link
-      to={href}
-      className="group flex min-w-[120px] flex-1 flex-col gap-1 px-3 py-1 transition first:pl-0 last:pr-0 hover:opacity-80 md:px-5"
-    >
-      <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</span>
-      {loading ? (
-        <Skeleton active paragraph={false} title={{ width: 56 }} />
-      ) : (
-        <span className="text-2xl font-bold tabular-nums text-slate-900 md:text-3xl">{value}</span>
-      )}
-      <span className="text-[11px] font-medium text-brand opacity-0 transition group-hover:opacity-100">
-        View details →
-      </span>
-    </Link>
-  )
-}
-
-function SpotlightCard({
-  title,
-  description,
-  value,
-  loading,
-  tone,
-}: {
-  title: string
-  description: string
-  value: string
-  loading: boolean
-  tone: 'brand' | 'warning' | 'success'
-}) {
-  const toneClass = {
-    brand: 'border-brand/20 bg-brand/5',
-    warning: 'border-amber-200 bg-amber-50/80',
-    success: 'border-emerald-200 bg-emerald-50/80',
-  }[tone]
-
-  return (
-    <div className={cn('rounded-2xl border p-4 md:p-5', toneClass)}>
-      <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</p>
-      {loading ? (
-        <Skeleton active paragraph={{ rows: 1 }} className="mt-2" />
-      ) : (
-        <>
-          <p className="m-0 mt-2 text-2xl font-bold text-slate-900">{value}</p>
-          <p className="m-0 mt-1 text-sm text-slate-600">{description}</p>
-        </>
-      )}
-    </div>
-  )
-}
-
-function WorkloadTable({
-  title,
-  columns,
-  rows,
-  loading,
-  emptyText,
-}: {
-  title: string
-  columns: [string, string, string?]
-  rows: Array<{ id: number; cells: [ReactNode, ReactNode, ReactNode?] }>
-  loading: boolean
-  emptyText: string
-}) {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-      <div className="border-b border-slate-100 px-4 py-3 md:px-5">
-        <h3 className="m-0 text-sm font-semibold text-slate-800 md:text-base">{title}</h3>
-      </div>
-      {loading ? (
-        <div className="p-4 md:p-5">
-          <Skeleton active paragraph={{ rows: 4 }} />
-        </div>
-      ) : rows.length === 0 ? (
-        <Empty description={emptyText} image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-8" />
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[280px] border-collapse text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-surface text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-2.5 md:px-5">{columns[0]}</th>
-                <th className="px-4 py-2.5 md:px-5">{columns[1]}</th>
-                {columns[2] && <th className="px-4 py-2.5 md:px-5">{columns[2]}</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.id} className="border-b border-slate-50 last:border-0">
-                  <td className="px-4 py-3 font-medium text-slate-800 md:px-5">{row.cells[0]}</td>
-                  <td className="px-4 py-3 text-slate-600 md:px-5">{row.cells[1]}</td>
-                  {columns[2] && (
-                    <td className="px-4 py-3 text-slate-600 md:px-5">{row.cells[2]}</td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  )
+const emptyMyStats: MyDashboardStats = {
+  pendingTasks: 0,
+  inProgressTasks: 0,
+  openChecklists: 0,
+  openIssues: 0,
+  myTasks: [],
+  myChecklists: [],
+  myIssues: [],
 }
 
 export function DashboardPage() {
   const { user } = useAuth()
-
-  if (user?.role === 'AUDITOR') {
-    return <AuditorDashboard />
-  }
-
-  return <AdminManagerDashboard />
+  if (user?.role === 'AUDITOR') return <AuditorDashboard />
+  return <ManagerDashboard />
 }
 
-function AdminManagerDashboard() {
+function AuditorDashboard() {
   const { user } = useAuth()
-  const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER'
   const [loading, setLoading] = useState(true)
-  const [stats, setStats] = useState<DashboardStatsState>(EMPTY_STATS)
+  const [stats, setStats] = useState<MyDashboardStats>(emptyMyStats)
 
-  const firstName = user?.name?.split(' ')[0] ?? 'there'
+  useEffect(() => {
+    fetchMyDashboardStats()
+      .then(setStats)
+      .catch(() => setStats(emptyMyStats))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const name = user?.name?.split(' ')[0] ?? 'there'
+
+  return (
+    <PageContainer>
+      <PageHeader title="My Dashboard" subtitle={`Hi ${name}`} />
+
+      <PageBody variant="fill" className="gap-4 overflow-y-auto">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatCard label="Pending tasks" value={stats.pendingTasks} loading={loading} href="/tasks" />
+          <StatCard label="In progress" value={stats.inProgressTasks} loading={loading} href="/tasks" />
+          <StatCard label="Open checklists" value={stats.openChecklists} loading={loading} href="/risks" />
+          <StatCard label="Open issues" value={stats.openIssues} loading={loading} href="/issues" />
+        </div>
+
+        <WorkPanel title="My tasks" loading={loading} empty="Nothing assigned" hasItems={stats.myTasks.length > 0}>
+          {stats.myTasks.map((task) => (
+            <Link key={task.id} to={`/tasks/${task.id}`} className="block border-b border-slate-100 px-4 py-3 last:border-0 hover:bg-surface">
+              <div className="font-medium text-brand-dark">{task.title}</div>
+              <div className="text-xs text-slate-500">
+                {task.engagementTitle} · {task.status.replace('_', ' ')}
+              </div>
+            </Link>
+          ))}
+        </WorkPanel>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <WorkPanel title="My checklists" loading={loading} empty="Nothing assigned" hasItems={stats.myChecklists.length > 0}>
+            {stats.myChecklists.map((item) => (
+              <Link key={item.id} to={`/risks/${item.riskId}`} className="block border-b border-slate-100 px-4 py-3 last:border-0 hover:bg-surface">
+                <div className="font-medium text-brand-dark">{item.title}</div>
+                <div className="text-xs text-slate-500">
+                  {item.riskTitle} · {item.engagementTitle}
+                </div>
+              </Link>
+            ))}
+          </WorkPanel>
+
+          <WorkPanel title="My issues" loading={loading} empty="Nothing assigned" hasItems={stats.myIssues.length > 0}>
+            {stats.myIssues.map((issue) => (
+              <Link key={issue.id} to={`/issues/${issue.id}`} className="block border-b border-slate-100 px-4 py-3 last:border-0 hover:bg-surface">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-medium text-brand-dark">{issue.title}</div>
+                    <div className="text-xs text-slate-500">{issue.engagementTitle}</div>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <PriorityTag value={issue.severity} />
+                    <IssueStatusTag status={issue.status} />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </WorkPanel>
+        </div>
+      </PageBody>
+    </PageContainer>
+  )
+}
+
+function ManagerDashboard() {
+  const { user } = useAuth()
+  const isManager = canManage(user?.role)
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState<DashboardStats>(emptyOrgStats)
 
   useEffect(() => {
     fetchDashboardStats()
       .then(setStats)
-      .catch(() => setStats(EMPTY_STATS))
+      .catch(() => setStats(emptyOrgStats))
       .finally(() => setLoading(false))
   }, [])
 
-  const workload = stats.workload
-
-  const completionRate = useMemo(
-    () => (stats.totalAudits > 0 ? Math.round((stats.completedAudits / stats.totalAudits) * 100) : 0),
-    [stats.completedAudits, stats.totalAudits],
-  )
-
-  const taskRows = workload.tasksByAssignee.map((row) => ({
-    id: row.userId,
-    cells: [
-      row.userName,
-      row.pending,
-      row.inProgress,
-    ] as [ReactNode, ReactNode, ReactNode],
-  }))
-
-  const checklistRows = workload.openChecklistsByAssignee.map((row) => ({
-    id: row.userId,
-    cells: [row.userName, row.openCount] as [ReactNode, ReactNode],
-  }))
+  const name = user?.name?.split(' ')[0] ?? 'there'
+  const completion =
+    stats.totalAudits > 0 ? Math.round((stats.completedAudits / stats.totalAudits) * 100) : 0
 
   return (
     <PageContainer>
       <PageHeader
-        title={`Dashboard`}
-        subtitle={`Hi ${firstName}, here is your audit overview for today.`}
+        title="Dashboard"
+        subtitle={`Hi ${name}`}
         extra={
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2">
             <Link to="/engagements" state={{ openCreate: true }}>
               <Button type="primary" icon={<PlusOutlined />} size="small">
                 New engagement
@@ -242,141 +151,122 @@ function AdminManagerDashboard() {
         }
       />
 
-      <PageBody variant="fill" className="gap-4 overflow-y-auto pb-2 md:gap-5">
-        {/* Primary KPI strip */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
-          <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
-            <div className="flex flex-1 overflow-x-auto pb-1">
-              <div className="flex min-w-max flex-1 divide-x divide-slate-200">
-                {KPI_LINKS.map((kpi) => (
-                  <KpiValue
-                    key={kpi.key}
-                    label={kpi.label}
-                    value={stats[kpi.key]}
-                    href={kpi.href}
-                    loading={loading}
-                  />
-                ))}
-              </div>
-            </div>
-            <Divider type="vertical" className="hidden! h-auto! md:block!" />
-            <div className="flex shrink-0 flex-col justify-center md:min-w-[140px] md:pl-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Audit progress
-              </span>
-              {loading ? (
-                <Skeleton active paragraph={false} title={{ width: 72 }} className="mt-2" />
-              ) : (
-                <>
-                  <span className="mt-1 text-3xl font-bold tabular-nums text-brand">{completionRate}%</span>
-                  <span className="mt-0.5 text-xs text-slate-500">engagements complete</span>
-                </>
-              )}
-            </div>
-          </div>
-        </section>
+      <PageBody variant="fill" className="gap-4 overflow-y-auto">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <StatCard label="Clients" value={stats.totalClients} loading={loading} href="/clients" />
+          <StatCard label="Engagements" value={stats.totalAudits} loading={loading} href="/engagements" />
+          <StatCard label="Open issues" value={stats.openIssues} loading={loading} href="/issues" />
+          <StatCard label="Pending tasks" value={stats.pendingTasks} loading={loading} href="/tasks" />
+          <StatCard label="Completion" value={completion} loading={loading} suffix="%" />
+        </div>
 
-        {/* Spotlight row */}
-        <section className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
-          <SpotlightCard
-            title="Attention needed"
-            value={`${stats.openIssues + stats.openRisks}`}
-            description={`${stats.openIssues} issues and ${stats.openRisks} risks currently open.`}
-            loading={loading}
-            tone="warning"
-          />
-          <SpotlightCard
-            title="Team capacity"
-            value={`${stats.pendingTasks}`}
-            description="Tasks waiting to be picked up or completed."
-            loading={loading}
-            tone="brand"
-          />
-          <SpotlightCard
-            title="Closed this cycle"
-            value={`${stats.resolvedIssues}`}
-            description="Issues marked resolved or closed."
-            loading={loading}
-            tone="success"
-          />
-        </section>
+        <div className="grid gap-3 md:grid-cols-3">
+          <StatCard label="Open risks" value={stats.openRisks} loading={loading} href="/risks" />
+          <StatCard label="Resolved issues" value={stats.resolvedIssues} loading={loading} href="/issues" />
+          <StatCard label="Completed audits" value={stats.completedAudits} loading={loading} href="/engagements" />
+        </div>
 
-        {/* Secondary stats + shortcuts */}
-        <section className="grid gap-3 lg:grid-cols-[1fr_240px] lg:gap-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
-            <h2 className="m-0 mb-3 text-sm font-semibold text-slate-800">More metrics</h2>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              {SECONDARY_STATS.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link
-                    key={item.key}
-                    to={item.href}
-                    className="flex items-center gap-3 rounded-xl border border-slate-100 bg-surface px-3 py-3 transition hover:border-brand/30 hover:bg-white"
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-brand shadow-sm">
-                      <Icon />
-                    </span>
-                    <div className="min-w-0">
-                      {loading ? (
-                        <Skeleton active paragraph={false} title={{ width: 40 }} />
-                      ) : (
-                        <>
-                          <p className="m-0 text-lg font-bold tabular-nums text-slate-900">
-                            {stats[item.key]}
-                          </p>
-                          <p className="m-0 truncate text-xs text-slate-500">{item.label}</p>
-                        </>
-                      )}
-                    </div>
-                  </Link>
-                )
-              })}
+        {isManager && (
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <h3 className="mb-3 text-sm font-semibold">Tasks by assignee</h3>
+              <Table
+                size="small"
+                pagination={false}
+                loading={loading}
+                rowKey="userId"
+                dataSource={stats.workload.tasksByAssignee}
+                locale={{ emptyText: 'No data' }}
+                columns={[
+                  { title: 'User', dataIndex: 'userName' },
+                  { title: 'Pending', dataIndex: 'pending', width: 80 },
+                  { title: 'In progress', dataIndex: 'inProgress', width: 90 },
+                ]}
+              />
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <h3 className="mb-3 text-sm font-semibold">Open checklists</h3>
+              <Table
+                size="small"
+                pagination={false}
+                loading={loading}
+                rowKey="userId"
+                dataSource={stats.workload.openChecklistsByAssignee}
+                locale={{ emptyText: 'No data' }}
+                columns={[
+                  { title: 'User', dataIndex: 'userName' },
+                  { title: 'Open', dataIndex: 'openCount', width: 80 },
+                ]}
+              />
             </div>
           </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
-            <h2 className="m-0 mb-3 text-sm font-semibold text-slate-800">Shortcuts</h2>
-            <nav className="flex flex-col gap-1">
-              {[
-                { label: 'Add client', href: '/clients', state: { openCreate: true } },
-                { label: 'Upload document', href: '/documents' },
-                { label: 'Review risks', href: '/risks' },
-                { label: 'Manage users', href: '/users' },
-              ].map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.href}
-                  state={link.state}
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-surface hover:text-brand"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </section>
-
-        {/* Workload tables */}
-        {canManage && (
-          <section className="grid gap-3 md:grid-cols-2 md:gap-4">
-            <WorkloadTable
-              title="Tasks by assignee"
-              columns={['Assignee', 'Pending', 'In progress']}
-              rows={taskRows}
-              loading={loading}
-              emptyText="No active task assignments"
-            />
-            <WorkloadTable
-              title="Open checklists"
-              columns={['Assignee', 'Open items']}
-              rows={checklistRows}
-              loading={loading}
-              emptyText="No open checklist assignments"
-            />
-          </section>
         )}
       </PageBody>
     </PageContainer>
+  )
+}
+
+function StatCard({
+  label,
+  value,
+  loading,
+  href,
+  suffix,
+}: {
+  label: string
+  value: number
+  loading: boolean
+  href?: string
+  suffix?: string
+}) {
+  const content = (
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <div className="text-xs text-slate-500">{label}</div>
+      {loading ? (
+        <Skeleton active paragraph={false} title={{ width: 48 }} className="mt-2" />
+      ) : (
+        <div className="mt-1 text-2xl font-semibold text-slate-900">
+          {value}
+          {suffix}
+        </div>
+      )}
+    </div>
+  )
+
+  return href ? (
+    <Link to={href} className="block transition hover:opacity-80">
+      {content}
+    </Link>
+  ) : (
+    content
+  )
+}
+
+function WorkPanel({
+  title,
+  loading,
+  empty,
+  hasItems,
+  children,
+}: {
+  title: string
+  loading: boolean
+  empty: string
+  hasItems: boolean
+  children: ReactNode
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="border-b border-slate-100 px-4 py-3 text-sm font-semibold">{title}</div>
+      {loading ? (
+        <div className="p-4">
+          <Skeleton active paragraph={{ rows: 3 }} />
+        </div>
+      ) : hasItems ? (
+        <div>{children}</div>
+      ) : (
+        <p className="px-4 py-6 text-center text-sm text-slate-500">{empty}</p>
+      )}
+    </div>
   )
 }

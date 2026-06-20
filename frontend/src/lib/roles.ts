@@ -10,6 +10,10 @@ export function canManageUsers(role: RoleName | undefined): boolean {
   return !!role && ['ADMIN', 'MANAGER'].includes(role)
 }
 
+export function canManage(role: RoleName | undefined): boolean {
+  return canManageUsers(role)
+}
+
 export function canCreateUsers(role: RoleName | undefined): boolean {
   return role === 'ADMIN'
 }
