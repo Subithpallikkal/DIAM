@@ -88,10 +88,30 @@ export async function downloadDocument(documentId: number, fileName: string): Pr
   window.URL.revokeObjectURL(url)
 }
 
-export async function viewDocument(documentId: number): Promise<void> {
+export interface DocumentPreview {
+  documentId: number
+  url: string
+  mimeType: string
+  fileName: string
+}
+
+export async function fetchDocumentPreview(
+  documentId: number,
+  fileName?: string,
+): Promise<DocumentPreview> {
   const response = await api.get(`/documents/${documentId}/view`, {
     responseType: 'blob',
   })
-  const url = window.URL.createObjectURL(new Blob([response.data]))
-  window.open(url, '_blank')
+  const mimeType =
+    (response.headers['content-type'] as string | undefined)?.split(';')[0]?.trim() ||
+    'application/octet-stream'
+  const contentDisposition = response.headers['content-disposition'] as string | undefined
+  const fileNameMatch = contentDisposition?.match(/filename="?([^"]+)"?/i)
+
+  return {
+    documentId,
+    url: window.URL.createObjectURL(new Blob([response.data], { type: mimeType })),
+    mimeType,
+    fileName: fileName ?? fileNameMatch?.[1] ?? 'document',
+  }
 }

@@ -112,7 +112,7 @@ export function EngagementForm({
       </ModalFormGrid>
 
       <ModalFormSection title="Engagement Period" className="mt-1 mb-4">
-        <ModalFormGrid className="md:items-stretch [&>*]:mb-0!">
+        <ModalFormGrid className="md:items-stretch *:mb-0!">
           <Field name="startDate" label="Start Date">
             <DatePicker className={cn('w-full', !inModal && datePickerFieldClass)} format="YYYY-MM-DD" />
           </Field>

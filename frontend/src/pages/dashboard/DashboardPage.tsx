@@ -111,6 +111,8 @@ export function DashboardPage() {
       .finally(() => setLoading(false))
   }, [])
 
+  const workload = stats.workload
+
   return (
     <PageContainer>
       <PageHeader
@@ -192,14 +194,14 @@ export function DashboardPage() {
             >
               {loading ? (
                 <Skeleton active paragraph={{ rows: 4 }} />
-              ) : stats.workload.tasksByAssignee.length === 0 ? (
+              ) : workload.tasksByAssignee.length === 0 ? (
                 <Empty description="No active task assignments" image={Empty.PRESENTED_IMAGE_SIMPLE} />
               ) : (
                 <Table
                   size="small"
                   pagination={false}
                   rowKey="userId"
-                  dataSource={stats.workload.tasksByAssignee}
+                  dataSource={workload.tasksByAssignee}
                   columns={[
                     { title: 'Assignee', dataIndex: 'userName', key: 'userName' },
                     { title: 'Pending', dataIndex: 'pending', key: 'pending', width: 90 },
@@ -224,14 +226,14 @@ export function DashboardPage() {
             >
               {loading ? (
                 <Skeleton active paragraph={{ rows: 4 }} />
-              ) : stats.workload.openChecklistsByAssignee.length === 0 ? (
+              ) : workload.openChecklistsByAssignee.length === 0 ? (
                 <Empty description="No open checklist assignments" image={Empty.PRESENTED_IMAGE_SIMPLE} />
               ) : (
                 <Table
                   size="small"
                   pagination={false}
                   rowKey="userId"
-                  dataSource={stats.workload.openChecklistsByAssignee}
+                  dataSource={workload.openChecklistsByAssignee}
                   columns={[
                     { title: 'Assignee', dataIndex: 'userName', key: 'userName' },
                     { title: 'Open Items', dataIndex: 'openCount', key: 'openCount', width: 110 },

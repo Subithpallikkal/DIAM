@@ -55,6 +55,8 @@ export const modalOutlinedControlClass = cn(
   '[&_.ant-input-affix-wrapper]:px-3! [&_.ant-input-affix-wrapper]:shadow-none!',
 )
 
+export const btnBaseClass = 'rounded-lg! font-medium! shadow-none!'
+
 export const btnPrimaryClass =
   'border-brand! bg-brand! shadow-none! hover:border-[#16a085]! hover:bg-[#16a085]!'
 

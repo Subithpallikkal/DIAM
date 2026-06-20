@@ -66,7 +66,7 @@ export function ResponsiveDataList<T extends object>({
         )}
 
         {showPagination && paginationConfig && (
-          <div className="sticky bottom-0 mt-3 border-t border-slate-100 bg-[#f8f9fa] py-3">
+          <div className="sticky bottom-0 mt-3 border-t border-slate-100 bg-surface py-3">
             <Pagination
               simple
               size="small"

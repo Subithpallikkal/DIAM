@@ -44,7 +44,7 @@ export function MobileListRow({ icon, children }: MobileListRowProps) {
   return (
     <div className="flex items-start gap-2.5 text-sm text-slate-600">
       <span className="mt-0.5 shrink-0 text-base text-slate-400">{icon}</span>
-      <span className="min-w-0 break-words">{children}</span>
+      <span className="min-w-0 wrap-break-word">{children}</span>
     </div>
   )
 }

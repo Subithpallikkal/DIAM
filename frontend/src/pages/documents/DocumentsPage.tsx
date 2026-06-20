@@ -15,15 +15,17 @@ import {
   downloadDocument,
   fetchDocumentCategories,
   fetchDocumentLogs,
+  fetchDocumentPreview,
   fetchDocumentVersions,
   fetchDocuments,
   uploadDocument,
   uploadDocumentVersion,
-  viewDocument,
+  type DocumentPreview,
 } from '../../api/documents.api'
 import { fetchClients } from '../../api/clients.api'
 import {
   Button,
+  DocumentPreviewModal,
   ModalForm,
   ModalFormField,
   ModalFormGrid,
@@ -76,9 +78,38 @@ export function DocumentsPage() {
   const [versionsOpen, setVersionsOpen] = useState(false)
   const [versions, setVersions] = useState<DocumentListItem[]>([])
   const [logs, setLogs] = useState<DocumentLog[]>([])
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [preview, setPreview] = useState<DocumentPreview | null>(null)
   const [form] = Form.useForm()
   const [versionForm] = Form.useForm()
   const modalWidth = useResponsiveModalWidth(480)
+  const previewModalWidth = useResponsiveModalWidth(960)
+
+  const closePreview = useCallback(() => {
+    setPreviewOpen(false)
+    setPreview((current) => {
+      if (current?.url) window.URL.revokeObjectURL(current.url)
+      return null
+    })
+  }, [])
+
+  const handleView = useCallback(
+    async (documentId: number, fileName: string) => {
+      setPreviewOpen(true)
+      setPreviewLoading(true)
+      setPreview(null)
+      try {
+        setPreview(await fetchDocumentPreview(documentId, fileName))
+      } catch (err) {
+        message.error(getApiErrorMessage(err, 'Failed to load document'))
+        setPreviewOpen(false)
+      } finally {
+        setPreviewLoading(false)
+      }
+    },
+    [],
+  )
 
   const fetcher = useCallback(
     (params: Parameters<typeof fetchDocuments>[0]) => fetchDocuments(params),
@@ -192,7 +223,7 @@ export function DocumentsPage() {
               size="small"
               icon={<EyeOutlined />}
               aria-label="View"
-              onClick={() => viewDocument(record.id)}
+              onClick={() => handleView(record.id, record.originalName)}
             />
             <Button
               type="text"
@@ -249,7 +280,7 @@ export function DocumentsPage() {
         tableSort,
         tableFilters,
       ),
-    [canManage, categories, clients, reload, tableSort, tableFilters],
+    [canManage, categories, clients, handleView, reload, tableSort, tableFilters],
   )
 
   const handleUpload = async () => {
@@ -336,7 +367,7 @@ export function DocumentsPage() {
                 <>
                   <MobileListActionButton
                     label="View"
-                    onClick={() => viewDocument(doc.id)}
+                    onClick={() => handleView(doc.id, doc.originalName)}
                   />
                   <MobileListActionButton
                     label="Download"
@@ -464,7 +495,7 @@ export function DocumentsPage() {
                       size="small"
                       icon={<EyeOutlined />}
                       aria-label="View version"
-                      onClick={() => viewDocument(item.id)}
+                      onClick={() => handleView(item.id, item.originalName)}
                     />
                     <Button
                       type="text"
@@ -503,6 +534,19 @@ export function DocumentsPage() {
           </ul>
         )}
       </ModalForm>
+
+      <DocumentPreviewModal
+        open={previewOpen}
+        preview={preview}
+        loading={previewLoading}
+        onClose={closePreview}
+        width={previewModalWidth}
+        onDownload={
+          preview
+            ? () => downloadDocument(preview.documentId, preview.fileName)
+            : undefined
+        }
+      />
     </PageContainer>
   )
 }

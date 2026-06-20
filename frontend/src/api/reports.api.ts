@@ -10,7 +10,23 @@ import type {
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
   const { data } = await api.get<DashboardStats>('/reports/dashboard')
-  return data
+  return normalizeDashboardStats(data)
+}
+
+function normalizeDashboardStats(data: Partial<DashboardStats>): DashboardStats {
+  return {
+    totalClients: data.totalClients ?? 0,
+    totalAudits: data.totalAudits ?? 0,
+    completedAudits: data.completedAudits ?? 0,
+    openRisks: data.openRisks ?? 0,
+    pendingTasks: data.pendingTasks ?? 0,
+    openIssues: data.openIssues ?? 0,
+    resolvedIssues: data.resolvedIssues ?? 0,
+    workload: {
+      tasksByAssignee: data.workload?.tasksByAssignee ?? [],
+      openChecklistsByAssignee: data.workload?.openChecklistsByAssignee ?? [],
+    },
+  }
 }
 
 export async function fetchAuditSummary(engagementId: number): Promise<AuditSummaryReport> {

@@ -124,7 +124,7 @@ export function RolePermissionsPage() {
             <div className="mt-0.5 flex flex-wrap items-center gap-2">
               <Select
                 size="small"
-                className="min-w-[160px] md:min-w-45"
+                className="min-w-40 md:min-w-45"
                 value={selectedRole}
                 onChange={setSelectedRole}
                 options={roles.map((role) => ({
