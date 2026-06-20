@@ -27,18 +27,18 @@ export class CreateTaskDto {
 }
 
 export class UpdateTaskDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: "Perform revenue substantive testing" })
   @IsOptional()
   @IsString()
   @MinLength(1)
   title?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: "Sample 25 invoices across Q3 and Q4" })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional({ enum: TaskStatus })
+  @ApiPropertyOptional({ enum: TaskStatus, example: TaskStatus.IN_PROGRESS })
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus;
@@ -79,16 +79,16 @@ export class TaskListItemDto {
   @ApiProperty({ example: "Risk Review" })
   title!: string;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ example: "Sample 25 invoices across Q3 and Q4", nullable: true })
   description!: string | null;
 
-  @ApiProperty({ enum: TaskStatus })
+  @ApiProperty({ enum: TaskStatus, example: TaskStatus.IN_PROGRESS })
   status!: string;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ example: "Auditor", nullable: true })
   assigneeName!: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   createdAt!: Date;
 }
 
@@ -96,13 +96,13 @@ export class TaskCommentDto {
   @ApiProperty({ example: 1 })
   id!: number;
 
-  @ApiProperty({ example: "Demo Auditor" })
+  @ApiProperty({ example: "Auditor" })
   authorName!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "Started reviewing Q4 sales invoices" })
   content!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   createdAt!: Date;
 }
 
@@ -110,6 +110,6 @@ export class TaskDetailDto extends TaskListItemDto {
   @ApiProperty({ type: [TaskCommentDto] })
   comments!: TaskCommentDto[];
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   updatedAt!: Date;
 }

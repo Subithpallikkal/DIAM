@@ -22,7 +22,9 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const roles_constants_1 = require("../../common/constants/roles.constants");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const api_error_decorator_1 = require("../../common/swagger/api-error.decorator");
+const api_examples_1 = require("../../common/swagger/api-examples");
 const pagination_dto_1 = require("../../dtos/common/pagination.dto");
+const paginated_responses_dto_1 = require("../../dtos/common/paginated-responses.dto");
 let RisksController = class RisksController {
     constructor(risksService) {
         this.risksService = risksService;
@@ -55,7 +57,11 @@ __decorate([
     (0, common_1.Get)("risks"),
     (0, swagger_1.ApiOperation)({ summary: "List risks" }),
     (0, swagger_1.ApiQuery)({ name: "engagementId", required: false, type: Number }),
-    (0, swagger_1.ApiOkResponse)({ type: [risk_dto_1.RiskListItemDto] }),
+    (0, swagger_1.ApiOkResponse)({
+        description: "Paginated risk list",
+        type: paginated_responses_dto_1.PaginatedRisksResponseDto,
+        schema: { example: api_examples_1.SwaggerExamples.risks.paginated },
+    }),
     __param(0, (0, common_1.Query)()),
     __param(1, (0, common_1.Query)("engagementId")),
     __metadata("design:type", Function),
@@ -67,7 +73,10 @@ __decorate([
     (0, common_1.Get)("risks/:id"),
     (0, swagger_1.ApiOperation)({ summary: "Get risk details" }),
     (0, swagger_1.ApiParam)({ name: "id", type: Number }),
-    (0, swagger_1.ApiOkResponse)({ type: risk_dto_1.RiskListItemDto }),
+    (0, swagger_1.ApiOkResponse)({
+        type: risk_dto_1.RiskListItemDto,
+        schema: { example: api_examples_1.SwaggerExamples.risks.listItem },
+    }),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -78,7 +87,17 @@ __decorate([
     (0, common_1.Post)("engagements/:engagementId/risks"),
     (0, swagger_1.ApiOperation)({ summary: "Create or update risk for engagement" }),
     (0, swagger_1.ApiParam)({ name: "engagementId", type: Number }),
-    (0, swagger_1.ApiCreatedResponse)({ type: risk_dto_1.RiskListItemDto }),
+    (0, swagger_1.ApiBody)({
+        type: risk_dto_1.UpsertRiskDto,
+        examples: {
+            create: api_examples_1.SwaggerExamples.risks.create,
+            update: api_examples_1.SwaggerExamples.risks.update,
+        },
+    }),
+    (0, swagger_1.ApiCreatedResponse)({
+        type: risk_dto_1.RiskListItemDto,
+        schema: { example: api_examples_1.SwaggerExamples.risks.listItem },
+    }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("engagementId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
@@ -101,7 +120,10 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)("risks/:id/checklists"),
     (0, swagger_1.ApiOperation)({ summary: "List checklist items for risk" }),
-    (0, swagger_1.ApiOkResponse)({ type: [risk_dto_1.ChecklistItemDto] }),
+    (0, swagger_1.ApiOkResponse)({
+        type: [risk_dto_1.ChecklistItemDto],
+        schema: { example: api_examples_1.SwaggerExamples.risks.checklistList },
+    }),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -111,7 +133,18 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("risks/:id/checklists"),
     (0, swagger_1.ApiOperation)({ summary: "Create or update checklist item" }),
-    (0, swagger_1.ApiCreatedResponse)({ type: risk_dto_1.ChecklistItemDto }),
+    (0, swagger_1.ApiBody)({
+        type: risk_dto_1.UpsertChecklistItemDto,
+        examples: {
+            create: api_examples_1.SwaggerExamples.risks.checklistCreate,
+            update: api_examples_1.SwaggerExamples.risks.checklistUpdate,
+        },
+    }),
+    (0, swagger_1.ApiCreatedResponse)({
+        type: risk_dto_1.ChecklistItemDto,
+        schema: { example: api_examples_1.SwaggerExamples.risks.checklistItem },
+    }),
+    (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -122,7 +155,15 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("risks/:id/checklists/:checklistId/assign"),
     (0, swagger_1.ApiOperation)({ summary: "Assign checklist item to user" }),
-    openapi.ApiResponse({ status: 201, type: require("../../dtos/risks/risk.dto").ChecklistItemDto }),
+    (0, swagger_1.ApiBody)({
+        type: risk_dto_1.AssignChecklistDto,
+        examples: { default: api_examples_1.SwaggerExamples.risks.assignChecklist },
+    }),
+    (0, swagger_1.ApiOkResponse)({
+        type: risk_dto_1.ChecklistItemDto,
+        schema: { example: api_examples_1.SwaggerExamples.risks.checklistItem },
+    }),
+    (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Param)("checklistId", common_1.ParseIntPipe)),
     __param(2, (0, common_1.Body)()),

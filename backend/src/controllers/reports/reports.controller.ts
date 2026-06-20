@@ -29,6 +29,7 @@ import { RequireRoles } from "../../common/decorators/roles.decorator";
 import { Roles } from "../../common/constants/roles.constants";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { JwtPayload } from "../../common/interfaces/jwt-payload.interface";
+import { SwaggerExamples } from "../../common/swagger/api-examples";
 
 @ApiTags("Reports")
 @ApiBearerAuth("JWT")
@@ -42,7 +43,10 @@ export class ReportsController {
   @RequireRoles(...Roles.ALL)
   @Get("dashboard")
   @ApiOperation({ summary: "Get dashboard statistics" })
-  @ApiOkResponse({ type: DashboardStatsDto })
+  @ApiOkResponse({
+    type: DashboardStatsDto,
+    schema: { example: SwaggerExamples.reports.dashboard },
+  })
   getDashboardStats() {
     return this.reportsService.getDashboardStats();
   }
@@ -50,7 +54,10 @@ export class ReportsController {
   @RequireRoles(...Roles.ALL)
   @Get("my-dashboard")
   @ApiOperation({ summary: "Get personal dashboard for current user" })
-  @ApiOkResponse({ type: MyDashboardStatsDto })
+  @ApiOkResponse({
+    type: MyDashboardStatsDto,
+    schema: { example: SwaggerExamples.reports.myDashboard },
+  })
   getMyDashboardStats(@CurrentUser() user: JwtPayload) {
     return this.reportsService.getMyDashboardStats(user.sub);
   }
@@ -59,7 +66,10 @@ export class ReportsController {
   @Get("audit-summary")
   @ApiOperation({ summary: "Get audit summary report" })
   @ApiQuery({ name: "engagementId", type: Number, required: true })
-  @ApiOkResponse({ type: AuditSummaryReportDto })
+  @ApiOkResponse({
+    type: AuditSummaryReportDto,
+    schema: { example: SwaggerExamples.reports.auditSummary },
+  })
   getAuditSummary(@Query("engagementId") engagementId: string) {
     return this.reportsService.getAuditSummary(Number(engagementId));
   }
@@ -68,7 +78,10 @@ export class ReportsController {
   @Get("risk-report")
   @ApiOperation({ summary: "Get risk report" })
   @ApiQuery({ name: "engagementId", type: Number, required: true })
-  @ApiOkResponse({ type: RiskReportDto })
+  @ApiOkResponse({
+    type: RiskReportDto,
+    schema: { example: SwaggerExamples.reports.riskReport },
+  })
   getRiskReport(@Query("engagementId") engagementId: string) {
     return this.reportsService.getRiskReport(Number(engagementId));
   }
@@ -77,7 +90,10 @@ export class ReportsController {
   @Get("findings-report")
   @ApiOperation({ summary: "Get findings report" })
   @ApiQuery({ name: "engagementId", type: Number, required: true })
-  @ApiOkResponse({ type: FindingsReportDto })
+  @ApiOkResponse({
+    type: FindingsReportDto,
+    schema: { example: SwaggerExamples.reports.findingsReport },
+  })
   getFindingsReport(@Query("engagementId") engagementId: string) {
     return this.reportsService.getFindingsReport(Number(engagementId));
   }

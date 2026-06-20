@@ -22,6 +22,7 @@ const report_dto_1 = require("../../dtos/reports/report.dto");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const roles_constants_1 = require("../../common/constants/roles.constants");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
+const api_examples_1 = require("../../common/swagger/api-examples");
 let ReportsController = class ReportsController {
     constructor(reportsService, exportService) {
         this.reportsService = reportsService;
@@ -93,7 +94,10 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)("dashboard"),
     (0, swagger_1.ApiOperation)({ summary: "Get dashboard statistics" }),
-    (0, swagger_1.ApiOkResponse)({ type: report_dto_1.DashboardStatsDto }),
+    (0, swagger_1.ApiOkResponse)({
+        type: report_dto_1.DashboardStatsDto,
+        schema: { example: api_examples_1.SwaggerExamples.reports.dashboard },
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
@@ -102,7 +106,10 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)("my-dashboard"),
     (0, swagger_1.ApiOperation)({ summary: "Get personal dashboard for current user" }),
-    (0, swagger_1.ApiOkResponse)({ type: report_dto_1.MyDashboardStatsDto }),
+    (0, swagger_1.ApiOkResponse)({
+        type: report_dto_1.MyDashboardStatsDto,
+        schema: { example: api_examples_1.SwaggerExamples.reports.myDashboard },
+    }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -113,7 +120,10 @@ __decorate([
     (0, common_1.Get)("audit-summary"),
     (0, swagger_1.ApiOperation)({ summary: "Get audit summary report" }),
     (0, swagger_1.ApiQuery)({ name: "engagementId", type: Number, required: true }),
-    (0, swagger_1.ApiOkResponse)({ type: report_dto_1.AuditSummaryReportDto }),
+    (0, swagger_1.ApiOkResponse)({
+        type: report_dto_1.AuditSummaryReportDto,
+        schema: { example: api_examples_1.SwaggerExamples.reports.auditSummary },
+    }),
     __param(0, (0, common_1.Query)("engagementId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -124,7 +134,10 @@ __decorate([
     (0, common_1.Get)("risk-report"),
     (0, swagger_1.ApiOperation)({ summary: "Get risk report" }),
     (0, swagger_1.ApiQuery)({ name: "engagementId", type: Number, required: true }),
-    (0, swagger_1.ApiOkResponse)({ type: report_dto_1.RiskReportDto }),
+    (0, swagger_1.ApiOkResponse)({
+        type: report_dto_1.RiskReportDto,
+        schema: { example: api_examples_1.SwaggerExamples.reports.riskReport },
+    }),
     __param(0, (0, common_1.Query)("engagementId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -135,7 +148,10 @@ __decorate([
     (0, common_1.Get)("findings-report"),
     (0, swagger_1.ApiOperation)({ summary: "Get findings report" }),
     (0, swagger_1.ApiQuery)({ name: "engagementId", type: Number, required: true }),
-    (0, swagger_1.ApiOkResponse)({ type: report_dto_1.FindingsReportDto }),
+    (0, swagger_1.ApiOkResponse)({
+        type: report_dto_1.FindingsReportDto,
+        schema: { example: api_examples_1.SwaggerExamples.reports.findingsReport },
+    }),
     __param(0, (0, common_1.Query)("engagementId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

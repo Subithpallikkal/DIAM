@@ -23,6 +23,7 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const roles_constants_1 = require("../../common/constants/roles.constants");
 const role_dto_2 = require("../../dtos/common/role.dto");
 const api_error_decorator_1 = require("../../common/swagger/api-error.decorator");
+const api_examples_1 = require("../../common/swagger/api-examples");
 let RolesController = class RolesController {
     constructor(rolesService) {
         this.rolesService = rolesService;
@@ -42,7 +43,12 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: "List roles with permissions (Admin/Manager)" }),
-    (0, swagger_1.ApiOkResponse)({ description: "Roles and permissions", type: [role_dto_1.RoleDto] }),
+    (0, swagger_1.ApiOkResponse)({
+        description: "Roles and permissions",
+        type: [role_dto_1.RoleDto],
+        schema: { example: api_examples_1.SwaggerExamples.roles.list },
+    }),
+    (0, api_error_decorator_1.ApiStandardErrors)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
@@ -52,7 +58,11 @@ __decorate([
     (0, common_1.Get)(":role/permissions"),
     (0, swagger_1.ApiOperation)({ summary: "Get permission grid for a role" }),
     (0, swagger_1.ApiParam)({ name: "role", enum: role_dto_2.RoleName, example: role_dto_2.RoleName.MANAGER }),
-    (0, swagger_1.ApiOkResponse)({ description: "Permission grid", type: permission_grid_dto_1.PermissionGridDto }),
+    (0, swagger_1.ApiOkResponse)({
+        description: "Permission grid",
+        type: permission_grid_dto_1.PermissionGridDto,
+        schema: { example: api_examples_1.SwaggerExamples.roles.permissionGrid },
+    }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("role")),
     __metadata("design:type", Function),
@@ -64,7 +74,15 @@ __decorate([
     (0, common_1.Patch)(":role/permissions"),
     (0, swagger_1.ApiOperation)({ summary: "Update permission grid for a role (Admin only)" }),
     (0, swagger_1.ApiParam)({ name: "role", enum: role_dto_2.RoleName, example: role_dto_2.RoleName.MANAGER }),
-    (0, swagger_1.ApiOkResponse)({ description: "Updated permission grid", type: permission_grid_dto_1.PermissionGridDto }),
+    (0, swagger_1.ApiBody)({
+        type: permission_grid_dto_1.UpdatePermissionGridDto,
+        examples: { default: api_examples_1.SwaggerExamples.roles.updatePermissions },
+    }),
+    (0, swagger_1.ApiOkResponse)({
+        description: "Updated permission grid",
+        type: permission_grid_dto_1.PermissionGridDto,
+        schema: { example: api_examples_1.SwaggerExamples.roles.permissionGrid },
+    }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("role")),
     __param(1, (0, common_1.Body)()),

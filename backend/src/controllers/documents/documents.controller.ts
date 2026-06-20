@@ -37,7 +37,9 @@ import { Roles } from "../../common/constants/roles.constants";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { JwtPayload } from "../../common/interfaces/jwt-payload.interface";
 import { ApiStandardErrors } from "../../common/swagger/api-error.decorator";
+import { SwaggerExamples } from "../../common/swagger/api-examples";
 import { PaginationQueryDto } from "../../dtos/common/pagination.dto";
+import { PaginatedDocumentsResponseDto } from "../../dtos/common/paginated-responses.dto";
 
 @ApiTags("Documents")
 @ApiBearerAuth("JWT")
@@ -51,7 +53,10 @@ export class DocumentsController {
   @RequireRoles(...Roles.ALL)
   @Get("categories")
   @ApiOperation({ summary: "List document categories" })
-  @ApiOkResponse({ type: [DocumentCategoryDto] })
+  @ApiOkResponse({
+    type: [DocumentCategoryDto],
+    schema: { example: SwaggerExamples.documents.categories },
+  })
   findCategories() {
     return this.documentsService.findCategories();
   }
@@ -59,7 +64,14 @@ export class DocumentsController {
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post("categories")
   @ApiOperation({ summary: "Create document category" })
-  @ApiCreatedResponse({ type: DocumentCategoryDto })
+  @ApiBody({
+    type: CreateDocumentCategoryDto,
+    examples: { default: SwaggerExamples.documents.categoryCreate },
+  })
+  @ApiCreatedResponse({
+    type: DocumentCategoryDto,
+    schema: { example: SwaggerExamples.documents.category },
+  })
   createCategory(@Body() dto: CreateDocumentCategoryDto) {
     return this.documentsService.createCategory(dto);
   }
@@ -70,7 +82,11 @@ export class DocumentsController {
   @ApiQuery({ name: "clientId", required: false, type: Number })
   @ApiQuery({ name: "engagementId", required: false, type: Number })
   @ApiQuery({ name: "categoryId", required: false, type: Number })
-  @ApiOkResponse({ type: [DocumentListItemDto] })
+  @ApiOkResponse({
+    description: "Paginated document list",
+    type: PaginatedDocumentsResponseDto,
+    schema: { example: SwaggerExamples.documents.paginated },
+  })
   findAll(
     @Query() query: PaginationQueryDto,
     @Query("clientId") clientId?: string,
@@ -106,7 +122,10 @@ export class DocumentsController {
       limits: { fileSize: 10 * 1024 * 1024 },
     }),
   )
-  @ApiCreatedResponse({ type: DocumentListItemDto })
+  @ApiCreatedResponse({
+    type: DocumentListItemDto,
+    schema: { example: SwaggerExamples.documents.listItem },
+  })
   @ApiStandardErrors()
   upload(
     @UploadedFile() file: Express.Multer.File,
@@ -126,7 +145,10 @@ export class DocumentsController {
   @RequireRoles(...Roles.ALL)
   @Get(":id/versions")
   @ApiOperation({ summary: "List all versions of a document" })
-  @ApiOkResponse({ type: [DocumentListItemDto] })
+  @ApiOkResponse({
+    type: [DocumentListItemDto],
+    schema: { example: [SwaggerExamples.documents.listItem] },
+  })
   findVersions(@Param("id", ParseIntPipe) id: number) {
     return this.documentsService.findVersions(id);
   }
@@ -150,7 +172,10 @@ export class DocumentsController {
       limits: { fileSize: 10 * 1024 * 1024 },
     }),
   )
-  @ApiCreatedResponse({ type: DocumentListItemDto })
+  @ApiCreatedResponse({
+    type: DocumentListItemDto,
+    schema: { example: SwaggerExamples.documents.listItem },
+  })
   @ApiStandardErrors()
   uploadVersion(
     @Param("id", ParseIntPipe) id: number,
@@ -164,7 +189,10 @@ export class DocumentsController {
   @Get(":id")
   @ApiOperation({ summary: "Get document metadata" })
   @ApiParam({ name: "id", type: Number })
-  @ApiOkResponse({ type: DocumentListItemDto })
+  @ApiOkResponse({
+    type: DocumentListItemDto,
+    schema: { example: SwaggerExamples.documents.listItem },
+  })
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.documentsService.findOne(id);
   }
@@ -192,7 +220,10 @@ export class DocumentsController {
   @RequireRoles(...Roles.ALL)
   @Get(":id/logs")
   @ApiOperation({ summary: "Get document audit trail" })
-  @ApiOkResponse({ type: [DocumentLogDto] })
+  @ApiOkResponse({
+    type: [DocumentLogDto],
+    schema: { example: SwaggerExamples.documents.logs },
+  })
   getLogs(@Param("id", ParseIntPipe) id: number) {
     return this.documentsService.getLogs(id);
   }

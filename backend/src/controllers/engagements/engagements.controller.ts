@@ -31,6 +31,7 @@ import { JwtPayload } from "../../common/interfaces/jwt-payload.interface";
 import { SwaggerExamples } from "../../common/swagger/api-examples";
 import { ApiStandardErrors } from "../../common/swagger/api-error.decorator";
 import { PaginationQueryDto } from "../../dtos/common/pagination.dto";
+import { PaginatedEngagementsResponseDto } from "../../dtos/common/paginated-responses.dto";
 
 @ApiTags("Engagements")
 @ApiBearerAuth("JWT")
@@ -62,6 +63,11 @@ export class EngagementsController {
   @RequireRoles(...Roles.ALL)
   @Get()
   @ApiOperation({ summary: "List audit engagements (paginated)" })
+  @ApiOkResponse({
+    description: "Paginated engagement list",
+    type: PaginatedEngagementsResponseDto,
+    schema: { example: SwaggerExamples.engagements.paginated },
+  })
   findAll(@Query() query: PaginationQueryDto) {
     return this.engagementsService.findAll(query);
   }

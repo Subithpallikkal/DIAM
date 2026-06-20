@@ -5,10 +5,10 @@ export class AuthUserDto {
   @ApiProperty({ example: 1 })
   uid!: number;
 
-  @ApiProperty({ example: "Demo Admin" })
+  @ApiProperty({ example: "Admin" })
   name!: string;
 
-  @ApiProperty({ example: "admin@demo.com" })
+  @ApiProperty({ example: "admin@gmail.com" })
   email!: string;
 
   @ApiProperty({ enum: RoleName, example: RoleName.ADMIN })
@@ -29,10 +29,10 @@ export class MeResponseDto {
   @ApiProperty({ example: 1 })
   uid!: number;
 
-  @ApiProperty({ example: "Demo Admin" })
+  @ApiProperty({ example: "Admin" })
   name!: string;
 
-  @ApiProperty({ example: "admin@demo.com" })
+  @ApiProperty({ example: "admin@gmail.com" })
   email!: string;
 
   @ApiProperty({ enum: RoleName, example: RoleName.ADMIN })

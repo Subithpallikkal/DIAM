@@ -32,28 +32,28 @@ export class CreateIssueDto {
 }
 
 export class UpdateIssueDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: "Unrecorded sales invoices in December" })
   @IsOptional()
   @IsString()
   @MinLength(1)
   title?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: "Q4 invoices not posted to ERP" })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional({ enum: Priority })
+  @ApiPropertyOptional({ enum: Priority, example: Priority.HIGH })
   @IsOptional()
   @IsEnum(Priority)
   severity?: Priority;
 
-  @ApiPropertyOptional({ enum: IssueStatus })
+  @ApiPropertyOptional({ enum: IssueStatus, example: IssueStatus.IN_PROGRESS })
   @IsOptional()
   @IsEnum(IssueStatus)
   status?: IssueStatus;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: "CFO — Acme Industries" })
   @IsOptional()
   @IsString()
   responsiblePerson?: string;
@@ -87,7 +87,7 @@ export class CreateFindingDto {
   @MinLength(1)
   title!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: "Invoices dated 28–31 Dec posted in January" })
   @IsOptional()
   @IsString()
   description?: string;
@@ -111,13 +111,13 @@ export class IssueListItemDto {
   @ApiProperty({ example: "GST filing delayed" })
   title!: string;
 
-  @ApiProperty({ enum: Priority })
+  @ApiProperty({ enum: Priority, example: Priority.HIGH })
   severity!: string;
 
-  @ApiProperty({ enum: IssueStatus })
+  @ApiProperty({ enum: IssueStatus, example: IssueStatus.IN_PROGRESS })
   status!: string;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ example: "CFO — Acme Industries", nullable: true })
   responsiblePerson!: string | null;
 
   @ApiProperty({ example: "ABC Pvt Ltd", nullable: true })
@@ -126,7 +126,7 @@ export class IssueListItemDto {
   @ApiProperty({ example: 2 })
   findingsCount!: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   createdAt!: Date;
 }
 
@@ -134,19 +134,19 @@ export class FindingDto {
   @ApiProperty({ example: 1 })
   id!: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: "₹12.4L revenue not recorded in ERP" })
   title!: string;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ example: "Invoices dated 28–31 Dec posted in January", nullable: true })
   description!: string | null;
 
-  @ApiProperty({ enum: Priority })
+  @ApiProperty({ enum: Priority, example: Priority.HIGH })
   severity!: string;
 
   @ApiProperty({ example: "Demo Auditor" })
   createdByName!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   createdAt!: Date;
 }
 
@@ -154,21 +154,21 @@ export class IssueStatusLogDto {
   @ApiProperty({ example: 1 })
   id!: number;
 
-  @ApiProperty()
+  @ApiProperty({ enum: IssueStatus, example: IssueStatus.OPEN })
   oldStatus!: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: IssueStatus, example: IssueStatus.IN_PROGRESS })
   newStatus!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "Manager" })
   changedByName!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   createdAt!: Date;
 }
 
 export class IssueDetailDto extends IssueListItemDto {
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ example: "Q4 invoices not posted to ERP", nullable: true })
   description!: string | null;
 
   @ApiProperty({ example: "Demo Auditor", nullable: true })
@@ -183,6 +183,6 @@ export class IssueDetailDto extends IssueListItemDto {
   @ApiProperty({ type: [IssueStatusLogDto] })
   statusLogs!: IssueStatusLogDto[];
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   updatedAt!: Date;
 }

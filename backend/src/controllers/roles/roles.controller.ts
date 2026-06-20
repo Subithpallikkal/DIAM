@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Patch } from "@nestjs/common";
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -16,6 +17,7 @@ import { RequireRoles } from "../../common/decorators/roles.decorator";
 import { Roles } from "../../common/constants/roles.constants";
 import { RoleName } from "../../dtos/common/role.dto";
 import { ApiStandardErrors } from "../../common/swagger/api-error.decorator";
+import { SwaggerExamples } from "../../common/swagger/api-examples";
 
 @ApiTags("Roles")
 @ApiBearerAuth("JWT")
@@ -26,7 +28,12 @@ export class RolesController {
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Get()
   @ApiOperation({ summary: "List roles with permissions (Admin/Manager)" })
-  @ApiOkResponse({ description: "Roles and permissions", type: [RoleDto] })
+  @ApiOkResponse({
+    description: "Roles and permissions",
+    type: [RoleDto],
+    schema: { example: SwaggerExamples.roles.list },
+  })
+  @ApiStandardErrors()
   findAll() {
     return this.rolesService.findAll();
   }
@@ -35,7 +42,11 @@ export class RolesController {
   @Get(":role/permissions")
   @ApiOperation({ summary: "Get permission grid for a role" })
   @ApiParam({ name: "role", enum: RoleName, example: RoleName.MANAGER })
-  @ApiOkResponse({ description: "Permission grid", type: PermissionGridDto })
+  @ApiOkResponse({
+    description: "Permission grid",
+    type: PermissionGridDto,
+    schema: { example: SwaggerExamples.roles.permissionGrid },
+  })
   @ApiStandardErrors()
   getPermissionGrid(@Param("role") role: RoleName) {
     return this.rolesService.getPermissionGrid(role);
@@ -45,7 +56,15 @@ export class RolesController {
   @Patch(":role/permissions")
   @ApiOperation({ summary: "Update permission grid for a role (Admin only)" })
   @ApiParam({ name: "role", enum: RoleName, example: RoleName.MANAGER })
-  @ApiOkResponse({ description: "Updated permission grid", type: PermissionGridDto })
+  @ApiBody({
+    type: UpdatePermissionGridDto,
+    examples: { default: SwaggerExamples.roles.updatePermissions },
+  })
+  @ApiOkResponse({
+    description: "Updated permission grid",
+    type: PermissionGridDto,
+    schema: { example: SwaggerExamples.roles.permissionGrid },
+  })
   @ApiStandardErrors()
   updatePermissionGrid(
     @Param("role") role: RoleName,

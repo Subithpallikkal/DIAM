@@ -31,6 +31,7 @@ import { JwtPayload } from "../../common/interfaces/jwt-payload.interface";
 import { SwaggerExamples } from "../../common/swagger/api-examples";
 import { ApiStandardErrors } from "../../common/swagger/api-error.decorator";
 import { PaginationQueryDto } from "../../dtos/common/pagination.dto";
+import { PaginatedClientsResponseDto } from "../../dtos/common/paginated-responses.dto";
 
 @ApiTags("Clients")
 @ApiBearerAuth("JWT")
@@ -62,6 +63,11 @@ export class ClientsController {
   @RequireRoles(...Roles.ALL)
   @Get()
   @ApiOperation({ summary: "List clients (paginated)" })
+  @ApiOkResponse({
+    description: "Paginated client list",
+    type: PaginatedClientsResponseDto,
+    schema: { example: SwaggerExamples.clients.paginated },
+  })
   findAll(@Query() query: PaginationQueryDto) {
     return this.clientsService.findAll(query);
   }

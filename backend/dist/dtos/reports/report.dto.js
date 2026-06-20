@@ -149,19 +149,19 @@ class RiskReportItemDto {
 }
 exports.RiskReportItemDto = RiskReportItemDto;
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "Revenue recognition cutoff errors" }),
     __metadata("design:type", String)
 ], RiskReportItemDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "HIGH" }),
     __metadata("design:type", String)
 ], RiskReportItemDto.prototype, "priority", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "OPEN" }),
     __metadata("design:type", String)
 ], RiskReportItemDto.prototype, "status", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "1/3" }),
     __metadata("design:type", String)
 ], RiskReportItemDto.prototype, "checklistProgress", void 0);
 class RiskReportDto {
@@ -171,7 +171,7 @@ class RiskReportDto {
 }
 exports.RiskReportDto = RiskReportDto;
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "FY 2025 Internal Audit — Acme" }),
     __metadata("design:type", String)
 ], RiskReportDto.prototype, "engagementTitle", void 0);
 __decorate([
@@ -197,19 +197,19 @@ class FindingsReportItemDto {
 }
 exports.FindingsReportItemDto = FindingsReportItemDto;
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "Unrecorded sales invoices in December" }),
     __metadata("design:type", String)
 ], FindingsReportItemDto.prototype, "issueName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "₹12.4L revenue not recorded in ERP" }),
     __metadata("design:type", String)
 ], FindingsReportItemDto.prototype, "findingTitle", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "HIGH" }),
     __metadata("design:type", String)
 ], FindingsReportItemDto.prototype, "severity", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "IN_PROGRESS" }),
     __metadata("design:type", String)
 ], FindingsReportItemDto.prototype, "status", void 0);
 class FindingsReportDto {
@@ -219,7 +219,7 @@ class FindingsReportDto {
 }
 exports.FindingsReportDto = FindingsReportDto;
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "FY 2025 Internal Audit — Acme" }),
     __metadata("design:type", String)
 ], FindingsReportDto.prototype, "engagementTitle", void 0);
 __decorate([

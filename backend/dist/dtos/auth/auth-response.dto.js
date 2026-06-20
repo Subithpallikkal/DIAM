@@ -24,11 +24,11 @@ __decorate([
     __metadata("design:type", Number)
 ], AuthUserDto.prototype, "uid", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "Demo Admin" }),
+    (0, swagger_1.ApiProperty)({ example: "Admin" }),
     __metadata("design:type", String)
 ], AuthUserDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "admin@demo.com" }),
+    (0, swagger_1.ApiProperty)({ example: "admin@gmail.com" }),
     __metadata("design:type", String)
 ], AuthUserDto.prototype, "email", void 0);
 __decorate([
@@ -62,11 +62,11 @@ __decorate([
     __metadata("design:type", Number)
 ], MeResponseDto.prototype, "uid", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "Demo Admin" }),
+    (0, swagger_1.ApiProperty)({ example: "Admin" }),
     __metadata("design:type", String)
 ], MeResponseDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "admin@demo.com" }),
+    (0, swagger_1.ApiProperty)({ example: "admin@gmail.com" }),
     __metadata("design:type", String)
 ], MeResponseDto.prototype, "email", void 0);
 __decorate([

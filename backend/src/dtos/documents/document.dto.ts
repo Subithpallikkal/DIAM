@@ -24,7 +24,7 @@ export class DocumentCategoryDto {
   @ApiProperty({ example: "Financial statements", nullable: true })
   description!: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   createdAt!: Date;
 }
 
@@ -74,7 +74,7 @@ export class DocumentListItemDto {
   @ApiProperty({ example: 1 })
   versionCount!: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   createdAt!: Date;
 }
 
@@ -85,12 +85,12 @@ export class DocumentLogDto {
   @ApiProperty({ example: "DOWNLOAD" })
   action!: string;
 
-  @ApiProperty({ example: "Demo Admin" })
+  @ApiProperty({ example: "Auditor" })
   performedByName!: string;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ example: "Downloaded for review", nullable: true })
   details!: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   createdAt!: Date;
 }

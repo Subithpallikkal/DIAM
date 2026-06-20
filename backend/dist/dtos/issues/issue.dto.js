@@ -52,32 +52,32 @@ class UpdateIssueDto {
 }
 exports.UpdateIssueDto = UpdateIssueDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: "Unrecorded sales invoices in December" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(1),
     __metadata("design:type", String)
 ], UpdateIssueDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: "Q4 invoices not posted to ERP" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateIssueDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ enum: enums_dto_1.Priority }),
+    (0, swagger_1.ApiPropertyOptional)({ enum: enums_dto_1.Priority, example: enums_dto_1.Priority.HIGH }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(enums_dto_1.Priority),
     __metadata("design:type", String)
 ], UpdateIssueDto.prototype, "severity", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ enum: enums_dto_1.IssueStatus }),
+    (0, swagger_1.ApiPropertyOptional)({ enum: enums_dto_1.IssueStatus, example: enums_dto_1.IssueStatus.IN_PROGRESS }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(enums_dto_1.IssueStatus),
     __metadata("design:type", String)
 ], UpdateIssueDto.prototype, "status", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: "CFO — Acme Industries" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
@@ -132,7 +132,7 @@ __decorate([
     __metadata("design:type", String)
 ], CreateFindingDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: "Invoices dated 28–31 Dec posted in January" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
@@ -166,15 +166,15 @@ __decorate([
     __metadata("design:type", String)
 ], IssueListItemDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.Priority }),
+    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.Priority, example: enums_dto_1.Priority.HIGH }),
     __metadata("design:type", String)
 ], IssueListItemDto.prototype, "severity", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.IssueStatus }),
+    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.IssueStatus, example: enums_dto_1.IssueStatus.IN_PROGRESS }),
     __metadata("design:type", String)
 ], IssueListItemDto.prototype, "status", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ nullable: true }),
+    (0, swagger_1.ApiProperty)({ example: "CFO — Acme Industries", nullable: true }),
     __metadata("design:type", Object)
 ], IssueListItemDto.prototype, "responsiblePerson", void 0);
 __decorate([
@@ -186,7 +186,7 @@ __decorate([
     __metadata("design:type", Number)
 ], IssueListItemDto.prototype, "findingsCount", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], IssueListItemDto.prototype, "createdAt", void 0);
 class FindingDto {
@@ -200,15 +200,15 @@ __decorate([
     __metadata("design:type", Number)
 ], FindingDto.prototype, "id", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "₹12.4L revenue not recorded in ERP" }),
     __metadata("design:type", String)
 ], FindingDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ nullable: true }),
+    (0, swagger_1.ApiProperty)({ example: "Invoices dated 28–31 Dec posted in January", nullable: true }),
     __metadata("design:type", Object)
 ], FindingDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.Priority }),
+    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.Priority, example: enums_dto_1.Priority.HIGH }),
     __metadata("design:type", String)
 ], FindingDto.prototype, "severity", void 0);
 __decorate([
@@ -216,7 +216,7 @@ __decorate([
     __metadata("design:type", String)
 ], FindingDto.prototype, "createdByName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], FindingDto.prototype, "createdAt", void 0);
 class IssueStatusLogDto {
@@ -230,19 +230,19 @@ __decorate([
     __metadata("design:type", Number)
 ], IssueStatusLogDto.prototype, "id", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.IssueStatus, example: enums_dto_1.IssueStatus.OPEN }),
     __metadata("design:type", String)
 ], IssueStatusLogDto.prototype, "oldStatus", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.IssueStatus, example: enums_dto_1.IssueStatus.IN_PROGRESS }),
     __metadata("design:type", String)
 ], IssueStatusLogDto.prototype, "newStatus", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "Manager" }),
     __metadata("design:type", String)
 ], IssueStatusLogDto.prototype, "changedByName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], IssueStatusLogDto.prototype, "createdAt", void 0);
 class IssueDetailDto extends IssueListItemDto {
@@ -252,7 +252,7 @@ class IssueDetailDto extends IssueListItemDto {
 }
 exports.IssueDetailDto = IssueDetailDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ nullable: true }),
+    (0, swagger_1.ApiProperty)({ example: "Q4 invoices not posted to ERP", nullable: true }),
     __metadata("design:type", Object)
 ], IssueDetailDto.prototype, "description", void 0);
 __decorate([
@@ -272,7 +272,7 @@ __decorate([
     __metadata("design:type", Array)
 ], IssueDetailDto.prototype, "statusLogs", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], IssueDetailDto.prototype, "updatedAt", void 0);
 //# sourceMappingURL=issue.dto.js.map

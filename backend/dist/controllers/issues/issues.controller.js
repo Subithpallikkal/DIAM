@@ -22,7 +22,9 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const roles_constants_1 = require("../../common/constants/roles.constants");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const api_error_decorator_1 = require("../../common/swagger/api-error.decorator");
+const api_examples_1 = require("../../common/swagger/api-examples");
 const pagination_dto_1 = require("../../dtos/common/pagination.dto");
+const paginated_responses_dto_1 = require("../../dtos/common/paginated-responses.dto");
 let IssuesController = class IssuesController {
     constructor(issuesService) {
         this.issuesService = issuesService;
@@ -59,7 +61,11 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: "List issues" }),
     (0, swagger_1.ApiQuery)({ name: "engagementId", required: false, type: Number }),
     (0, swagger_1.ApiQuery)({ name: "status", required: false, type: String }),
-    (0, swagger_1.ApiOkResponse)({ type: [issue_dto_1.IssueListItemDto] }),
+    (0, swagger_1.ApiOkResponse)({
+        description: "Paginated issue list",
+        type: paginated_responses_dto_1.PaginatedIssuesResponseDto,
+        schema: { example: api_examples_1.SwaggerExamples.issues.paginated },
+    }),
     __param(0, (0, common_1.Query)()),
     __param(1, (0, common_1.Query)("engagementId")),
     __param(2, (0, common_1.Query)("status")),
@@ -71,7 +77,10 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)("issues/:id"),
     (0, swagger_1.ApiOperation)({ summary: "Get issue details" }),
-    (0, swagger_1.ApiOkResponse)({ type: issue_dto_1.IssueDetailDto }),
+    (0, swagger_1.ApiOkResponse)({
+        type: issue_dto_1.IssueDetailDto,
+        schema: { example: api_examples_1.SwaggerExamples.issues.detail },
+    }),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -81,7 +90,17 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Post)("engagements/:engagementId/issues"),
     (0, swagger_1.ApiOperation)({ summary: "Create or update issue for engagement" }),
-    (0, swagger_1.ApiCreatedResponse)({ type: issue_dto_1.IssueListItemDto }),
+    (0, swagger_1.ApiBody)({
+        type: issue_dto_1.UpsertIssueDto,
+        examples: {
+            create: api_examples_1.SwaggerExamples.issues.create,
+            update: api_examples_1.SwaggerExamples.issues.update,
+        },
+    }),
+    (0, swagger_1.ApiCreatedResponse)({
+        type: issue_dto_1.IssueListItemDto,
+        schema: { example: api_examples_1.SwaggerExamples.issues.listItem },
+    }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("engagementId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
@@ -94,7 +113,12 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("issues/:id/assign"),
     (0, swagger_1.ApiOperation)({ summary: "Assign issue to user" }),
-    openapi.ApiResponse({ status: 201, type: require("../../dtos/issues/issue.dto").IssueDetailDto }),
+    (0, swagger_1.ApiBody)({ type: issue_dto_1.AssignIssueDto, examples: { default: api_examples_1.SwaggerExamples.issues.assign } }),
+    (0, swagger_1.ApiOkResponse)({
+        type: issue_dto_1.IssueDetailDto,
+        schema: { example: api_examples_1.SwaggerExamples.issues.detail },
+    }),
+    (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, current_user_decorator_1.CurrentUser)()),
@@ -106,7 +130,15 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("issues/:id/assign-client"),
     (0, swagger_1.ApiOperation)({ summary: "Assign issue to client" }),
-    openapi.ApiResponse({ status: 201, type: require("../../dtos/issues/issue.dto").IssueDetailDto }),
+    (0, swagger_1.ApiBody)({
+        type: issue_dto_1.AssignIssueClientDto,
+        examples: { default: api_examples_1.SwaggerExamples.issues.assignClient },
+    }),
+    (0, swagger_1.ApiOkResponse)({
+        type: issue_dto_1.IssueDetailDto,
+        schema: { example: api_examples_1.SwaggerExamples.issues.detail },
+    }),
+    (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -117,7 +149,12 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Post)("issues/:id/findings"),
     (0, swagger_1.ApiOperation)({ summary: "Add finding to issue" }),
-    (0, swagger_1.ApiCreatedResponse)({ type: issue_dto_1.FindingDto }),
+    (0, swagger_1.ApiBody)({ type: issue_dto_1.CreateFindingDto, examples: { default: api_examples_1.SwaggerExamples.issues.finding } }),
+    (0, swagger_1.ApiCreatedResponse)({
+        type: issue_dto_1.FindingDto,
+        schema: { example: api_examples_1.SwaggerExamples.issues.findingItem },
+    }),
+    (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, current_user_decorator_1.CurrentUser)()),

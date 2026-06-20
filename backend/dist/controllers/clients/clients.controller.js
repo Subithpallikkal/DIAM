@@ -24,6 +24,7 @@ const current_user_decorator_1 = require("../../common/decorators/current-user.d
 const api_examples_1 = require("../../common/swagger/api-examples");
 const api_error_decorator_1 = require("../../common/swagger/api-error.decorator");
 const pagination_dto_1 = require("../../dtos/common/pagination.dto");
+const paginated_responses_dto_1 = require("../../dtos/common/paginated-responses.dto");
 let ClientsController = class ClientsController {
     constructor(clientsService) {
         this.clientsService = clientsService;
@@ -70,7 +71,11 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: "List clients (paginated)" }),
-    openapi.ApiResponse({ status: 200 }),
+    (0, swagger_1.ApiOkResponse)({
+        description: "Paginated client list",
+        type: paginated_responses_dto_1.PaginatedClientsResponseDto,
+        schema: { example: api_examples_1.SwaggerExamples.clients.paginated },
+    }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [pagination_dto_1.PaginationQueryDto]),

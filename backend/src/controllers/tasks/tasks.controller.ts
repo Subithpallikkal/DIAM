@@ -10,6 +10,7 @@ import {
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -30,7 +31,9 @@ import { Roles } from "../../common/constants/roles.constants";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { JwtPayload } from "../../common/interfaces/jwt-payload.interface";
 import { ApiStandardErrors } from "../../common/swagger/api-error.decorator";
+import { SwaggerExamples } from "../../common/swagger/api-examples";
 import { PaginationQueryDto } from "../../dtos/common/pagination.dto";
+import { PaginatedTasksResponseDto } from "../../dtos/common/paginated-responses.dto";
 
 @ApiTags("Tasks")
 @ApiBearerAuth("JWT")
@@ -44,7 +47,11 @@ export class TasksController {
   @ApiQuery({ name: "engagementId", required: false, type: Number })
   @ApiQuery({ name: "assigneeId", required: false, type: Number })
   @ApiQuery({ name: "status", required: false, type: String })
-  @ApiOkResponse({ type: [TaskListItemDto] })
+  @ApiOkResponse({
+    description: "Paginated task list",
+    type: PaginatedTasksResponseDto,
+    schema: { example: SwaggerExamples.tasks.paginated },
+  })
   findAll(
     @Query() query: PaginationQueryDto,
     @Query("engagementId") engagementId?: string,
@@ -61,7 +68,10 @@ export class TasksController {
   @RequireRoles(...Roles.ALL)
   @Get("tasks/:id")
   @ApiOperation({ summary: "Get task details" })
-  @ApiOkResponse({ type: TaskDetailDto })
+  @ApiOkResponse({
+    type: TaskDetailDto,
+    schema: { example: SwaggerExamples.tasks.detail },
+  })
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.tasksService.findOne(id);
   }
@@ -69,7 +79,17 @@ export class TasksController {
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post("engagements/:engagementId/tasks")
   @ApiOperation({ summary: "Create or update task for engagement" })
-  @ApiCreatedResponse({ type: TaskListItemDto })
+  @ApiBody({
+    type: UpsertTaskDto,
+    examples: {
+      create: SwaggerExamples.tasks.create,
+      update: SwaggerExamples.tasks.update,
+    },
+  })
+  @ApiCreatedResponse({
+    type: TaskListItemDto,
+    schema: { example: SwaggerExamples.tasks.listItem },
+  })
   @ApiStandardErrors()
   upsert(
     @Param("engagementId", ParseIntPipe) engagementId: number,
@@ -82,6 +102,12 @@ export class TasksController {
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post("tasks/:id/assign")
   @ApiOperation({ summary: "Assign task to user" })
+  @ApiBody({ type: AssignTaskDto, examples: { default: SwaggerExamples.tasks.assign } })
+  @ApiOkResponse({
+    type: TaskDetailDto,
+    schema: { example: SwaggerExamples.tasks.detail },
+  })
+  @ApiStandardErrors()
   assign(
     @Param("id", ParseIntPipe) id: number,
     @Body() dto: AssignTaskDto,
@@ -93,6 +119,12 @@ export class TasksController {
   @RequireRoles(...Roles.ALL)
   @Post("tasks/:id/comments")
   @ApiOperation({ summary: "Add comment to task" })
+  @ApiBody({ type: CreateTaskCommentDto, examples: { default: SwaggerExamples.tasks.comment } })
+  @ApiOkResponse({
+    type: TaskDetailDto,
+    schema: { example: SwaggerExamples.tasks.detail },
+  })
+  @ApiStandardErrors()
   addComment(
     @Param("id", ParseIntPipe) id: number,
     @Body() dto: CreateTaskCommentDto,

@@ -72,10 +72,10 @@ export class UserListItemDto {
   @ApiProperty({ example: 1 })
   id!: number;
 
-  @ApiProperty({ example: "Demo Admin" })
+  @ApiProperty({ example: "Admin" })
   name!: string;
 
-  @ApiProperty({ example: "admin@demo.com" })
+  @ApiProperty({ example: "admin@gmail.com" })
   email!: string;
 
   @ApiProperty({ enum: RoleName, example: RoleName.ADMIN })
@@ -84,11 +84,11 @@ export class UserListItemDto {
   @ApiProperty({ example: true })
   isActive!: boolean;
 
-  @ApiProperty({ example: "2026-06-13T07:18:47.000Z" })
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   createdAt!: Date;
 }
 
 export class UserDetailDto extends UserListItemDto {
-  @ApiProperty({ example: "2026-06-13T07:18:47.000Z" })
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   updatedAt!: Date;
 }

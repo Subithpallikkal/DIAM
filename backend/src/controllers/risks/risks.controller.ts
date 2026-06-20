@@ -10,6 +10,7 @@ import {
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -30,7 +31,9 @@ import { Roles } from "../../common/constants/roles.constants";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { JwtPayload } from "../../common/interfaces/jwt-payload.interface";
 import { ApiStandardErrors } from "../../common/swagger/api-error.decorator";
+import { SwaggerExamples } from "../../common/swagger/api-examples";
 import { PaginationQueryDto } from "../../dtos/common/pagination.dto";
+import { PaginatedRisksResponseDto } from "../../dtos/common/paginated-responses.dto";
 
 @ApiTags("Risks")
 @ApiBearerAuth("JWT")
@@ -42,7 +45,11 @@ export class RisksController {
   @Get("risks")
   @ApiOperation({ summary: "List risks" })
   @ApiQuery({ name: "engagementId", required: false, type: Number })
-  @ApiOkResponse({ type: [RiskListItemDto] })
+  @ApiOkResponse({
+    description: "Paginated risk list",
+    type: PaginatedRisksResponseDto,
+    schema: { example: SwaggerExamples.risks.paginated },
+  })
   findAll(
     @Query() query: PaginationQueryDto,
     @Query("engagementId") engagementId?: string,
@@ -57,7 +64,10 @@ export class RisksController {
   @Get("risks/:id")
   @ApiOperation({ summary: "Get risk details" })
   @ApiParam({ name: "id", type: Number })
-  @ApiOkResponse({ type: RiskListItemDto })
+  @ApiOkResponse({
+    type: RiskListItemDto,
+    schema: { example: SwaggerExamples.risks.listItem },
+  })
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.risksService.findOne(id);
   }
@@ -66,7 +76,17 @@ export class RisksController {
   @Post("engagements/:engagementId/risks")
   @ApiOperation({ summary: "Create or update risk for engagement" })
   @ApiParam({ name: "engagementId", type: Number })
-  @ApiCreatedResponse({ type: RiskListItemDto })
+  @ApiBody({
+    type: UpsertRiskDto,
+    examples: {
+      create: SwaggerExamples.risks.create,
+      update: SwaggerExamples.risks.update,
+    },
+  })
+  @ApiCreatedResponse({
+    type: RiskListItemDto,
+    schema: { example: SwaggerExamples.risks.listItem },
+  })
   @ApiStandardErrors()
   upsert(
     @Param("engagementId", ParseIntPipe) engagementId: number,
@@ -86,7 +106,10 @@ export class RisksController {
   @RequireRoles(...Roles.ALL)
   @Get("risks/:id/checklists")
   @ApiOperation({ summary: "List checklist items for risk" })
-  @ApiOkResponse({ type: [ChecklistItemDto] })
+  @ApiOkResponse({
+    type: [ChecklistItemDto],
+    schema: { example: SwaggerExamples.risks.checklistList },
+  })
   findChecklists(@Param("id", ParseIntPipe) id: number) {
     return this.risksService.findChecklists(id);
   }
@@ -94,7 +117,18 @@ export class RisksController {
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post("risks/:id/checklists")
   @ApiOperation({ summary: "Create or update checklist item" })
-  @ApiCreatedResponse({ type: ChecklistItemDto })
+  @ApiBody({
+    type: UpsertChecklistItemDto,
+    examples: {
+      create: SwaggerExamples.risks.checklistCreate,
+      update: SwaggerExamples.risks.checklistUpdate,
+    },
+  })
+  @ApiCreatedResponse({
+    type: ChecklistItemDto,
+    schema: { example: SwaggerExamples.risks.checklistItem },
+  })
+  @ApiStandardErrors()
   upsertChecklist(
     @Param("id", ParseIntPipe) id: number,
     @Body() dto: UpsertChecklistItemDto,
@@ -105,6 +139,15 @@ export class RisksController {
   @RequireRoles(...Roles.ADMIN_MANAGER)
   @Post("risks/:id/checklists/:checklistId/assign")
   @ApiOperation({ summary: "Assign checklist item to user" })
+  @ApiBody({
+    type: AssignChecklistDto,
+    examples: { default: SwaggerExamples.risks.assignChecklist },
+  })
+  @ApiOkResponse({
+    type: ChecklistItemDto,
+    schema: { example: SwaggerExamples.risks.checklistItem },
+  })
+  @ApiStandardErrors()
   assignChecklist(
     @Param("id", ParseIntPipe) id: number,
     @Param("checklistId", ParseIntPipe) checklistId: number,

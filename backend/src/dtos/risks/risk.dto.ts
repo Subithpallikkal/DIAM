@@ -33,23 +33,23 @@ export class CreateRiskDto {
 }
 
 export class UpdateRiskDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: "Revenue recognition cutoff errors" })
   @IsOptional()
   @IsString()
   @MinLength(1)
   title?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: "Q4 sales may be recorded in wrong period" })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional({ enum: Priority })
+  @ApiPropertyOptional({ enum: Priority, example: Priority.HIGH })
   @IsOptional()
   @IsEnum(Priority)
   priority?: Priority;
 
-  @ApiPropertyOptional({ enum: RiskStatus })
+  @ApiPropertyOptional({ enum: RiskStatus, example: RiskStatus.OPEN })
   @IsOptional()
   @IsEnum(RiskStatus)
   status?: RiskStatus;
@@ -73,13 +73,13 @@ export class RiskListItemDto {
   @ApiProperty({ example: "Cash handling control weak" })
   title!: string;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ example: "Q4 sales may be recorded in wrong period", nullable: true })
   description!: string | null;
 
-  @ApiProperty({ enum: Priority })
+  @ApiProperty({ enum: Priority, example: Priority.HIGH })
   priority!: string;
 
-  @ApiProperty({ enum: RiskStatus })
+  @ApiProperty({ enum: RiskStatus, example: RiskStatus.OPEN })
   status!: string;
 
   @ApiProperty({ example: 3 })
@@ -88,7 +88,7 @@ export class RiskListItemDto {
   @ApiProperty({ example: 1 })
   completedChecklistCount!: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: "2026-06-19T10:00:00.000Z" })
   createdAt!: Date;
 }
 
@@ -106,18 +106,18 @@ export class CreateChecklistItemDto {
 }
 
 export class UpdateChecklistItemDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: "Review Q4 sales invoices" })
   @IsOptional()
   @IsString()
   @MinLength(1)
   title?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: true })
   @IsOptional()
   @IsBoolean()
   isCompleted?: boolean;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 1 })
   @IsOptional()
   @IsInt()
   @Type(() => Number)
@@ -145,7 +145,7 @@ export class ChecklistItemDto {
   @ApiProperty({ example: 0 })
   sortOrder!: number;
 
-  @ApiProperty({ nullable: true })
+  @ApiProperty({ example: "Auditor", nullable: true })
   assigneeName!: string | null;
 }
 

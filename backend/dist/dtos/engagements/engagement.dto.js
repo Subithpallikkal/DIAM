@@ -121,7 +121,7 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateEngagementDto.prototype, "status", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: "Fieldwork started on revenue testing" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

@@ -46,20 +46,20 @@ class UpdateTaskDto {
 }
 exports.UpdateTaskDto = UpdateTaskDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: "Perform revenue substantive testing" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(1),
     __metadata("design:type", String)
 ], UpdateTaskDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: "Sample 25 invoices across Q3 and Q4" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateTaskDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ enum: enums_dto_1.TaskStatus }),
+    (0, swagger_1.ApiPropertyOptional)({ enum: enums_dto_1.TaskStatus, example: enums_dto_1.TaskStatus.IN_PROGRESS }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(enums_dto_1.TaskStatus),
     __metadata("design:type", String)
@@ -124,19 +124,19 @@ __decorate([
     __metadata("design:type", String)
 ], TaskListItemDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ nullable: true }),
+    (0, swagger_1.ApiProperty)({ example: "Sample 25 invoices across Q3 and Q4", nullable: true }),
     __metadata("design:type", Object)
 ], TaskListItemDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.TaskStatus }),
+    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.TaskStatus, example: enums_dto_1.TaskStatus.IN_PROGRESS }),
     __metadata("design:type", String)
 ], TaskListItemDto.prototype, "status", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ nullable: true }),
+    (0, swagger_1.ApiProperty)({ example: "Auditor", nullable: true }),
     __metadata("design:type", Object)
 ], TaskListItemDto.prototype, "assigneeName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], TaskListItemDto.prototype, "createdAt", void 0);
 class TaskCommentDto {
@@ -150,15 +150,15 @@ __decorate([
     __metadata("design:type", Number)
 ], TaskCommentDto.prototype, "id", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "Demo Auditor" }),
+    (0, swagger_1.ApiProperty)({ example: "Auditor" }),
     __metadata("design:type", String)
 ], TaskCommentDto.prototype, "authorName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "Started reviewing Q4 sales invoices" }),
     __metadata("design:type", String)
 ], TaskCommentDto.prototype, "content", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], TaskCommentDto.prototype, "createdAt", void 0);
 class TaskDetailDto extends TaskListItemDto {
@@ -172,7 +172,7 @@ __decorate([
     __metadata("design:type", Array)
 ], TaskDetailDto.prototype, "comments", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], TaskDetailDto.prototype, "updatedAt", void 0);
 //# sourceMappingURL=task.dto.js.map

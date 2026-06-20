@@ -50,7 +50,7 @@ __decorate([
     __metadata("design:type", Object)
 ], DocumentCategoryDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], DocumentCategoryDto.prototype, "createdAt", void 0);
 class DocumentListItemDto {
@@ -120,7 +120,7 @@ __decorate([
     __metadata("design:type", Number)
 ], DocumentListItemDto.prototype, "versionCount", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], DocumentListItemDto.prototype, "createdAt", void 0);
 class DocumentLogDto {
@@ -138,15 +138,15 @@ __decorate([
     __metadata("design:type", String)
 ], DocumentLogDto.prototype, "action", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "Demo Admin" }),
+    (0, swagger_1.ApiProperty)({ example: "Auditor" }),
     __metadata("design:type", String)
 ], DocumentLogDto.prototype, "performedByName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ nullable: true }),
+    (0, swagger_1.ApiProperty)({ example: "Downloaded for review", nullable: true }),
     __metadata("design:type", Object)
 ], DocumentLogDto.prototype, "details", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], DocumentLogDto.prototype, "createdAt", void 0);
 //# sourceMappingURL=document.dto.js.map

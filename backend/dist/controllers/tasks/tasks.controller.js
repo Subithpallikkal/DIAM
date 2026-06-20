@@ -22,7 +22,9 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const roles_constants_1 = require("../../common/constants/roles.constants");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const api_error_decorator_1 = require("../../common/swagger/api-error.decorator");
+const api_examples_1 = require("../../common/swagger/api-examples");
 const pagination_dto_1 = require("../../dtos/common/pagination.dto");
+const paginated_responses_dto_1 = require("../../dtos/common/paginated-responses.dto");
 let TasksController = class TasksController {
     constructor(tasksService) {
         this.tasksService = tasksService;
@@ -58,7 +60,11 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: "engagementId", required: false, type: Number }),
     (0, swagger_1.ApiQuery)({ name: "assigneeId", required: false, type: Number }),
     (0, swagger_1.ApiQuery)({ name: "status", required: false, type: String }),
-    (0, swagger_1.ApiOkResponse)({ type: [task_dto_1.TaskListItemDto] }),
+    (0, swagger_1.ApiOkResponse)({
+        description: "Paginated task list",
+        type: paginated_responses_dto_1.PaginatedTasksResponseDto,
+        schema: { example: api_examples_1.SwaggerExamples.tasks.paginated },
+    }),
     __param(0, (0, common_1.Query)()),
     __param(1, (0, common_1.Query)("engagementId")),
     __param(2, (0, common_1.Query)("assigneeId")),
@@ -71,7 +77,10 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)("tasks/:id"),
     (0, swagger_1.ApiOperation)({ summary: "Get task details" }),
-    (0, swagger_1.ApiOkResponse)({ type: task_dto_1.TaskDetailDto }),
+    (0, swagger_1.ApiOkResponse)({
+        type: task_dto_1.TaskDetailDto,
+        schema: { example: api_examples_1.SwaggerExamples.tasks.detail },
+    }),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -81,7 +90,17 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("engagements/:engagementId/tasks"),
     (0, swagger_1.ApiOperation)({ summary: "Create or update task for engagement" }),
-    (0, swagger_1.ApiCreatedResponse)({ type: task_dto_1.TaskListItemDto }),
+    (0, swagger_1.ApiBody)({
+        type: task_dto_1.UpsertTaskDto,
+        examples: {
+            create: api_examples_1.SwaggerExamples.tasks.create,
+            update: api_examples_1.SwaggerExamples.tasks.update,
+        },
+    }),
+    (0, swagger_1.ApiCreatedResponse)({
+        type: task_dto_1.TaskListItemDto,
+        schema: { example: api_examples_1.SwaggerExamples.tasks.listItem },
+    }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("engagementId", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
@@ -94,7 +113,12 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("tasks/:id/assign"),
     (0, swagger_1.ApiOperation)({ summary: "Assign task to user" }),
-    openapi.ApiResponse({ status: 201, type: require("../../dtos/tasks/task.dto").TaskListItemDto }),
+    (0, swagger_1.ApiBody)({ type: task_dto_1.AssignTaskDto, examples: { default: api_examples_1.SwaggerExamples.tasks.assign } }),
+    (0, swagger_1.ApiOkResponse)({
+        type: task_dto_1.TaskDetailDto,
+        schema: { example: api_examples_1.SwaggerExamples.tasks.detail },
+    }),
+    (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, current_user_decorator_1.CurrentUser)()),
@@ -106,7 +130,12 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Post)("tasks/:id/comments"),
     (0, swagger_1.ApiOperation)({ summary: "Add comment to task" }),
-    openapi.ApiResponse({ status: 201, type: require("../../dtos/tasks/task.dto").TaskDetailDto }),
+    (0, swagger_1.ApiBody)({ type: task_dto_1.CreateTaskCommentDto, examples: { default: api_examples_1.SwaggerExamples.tasks.comment } }),
+    (0, swagger_1.ApiOkResponse)({
+        type: task_dto_1.TaskDetailDto,
+        schema: { example: api_examples_1.SwaggerExamples.tasks.detail },
+    }),
+    (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, current_user_decorator_1.CurrentUser)()),

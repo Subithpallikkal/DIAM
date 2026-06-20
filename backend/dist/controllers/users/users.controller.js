@@ -22,6 +22,8 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const roles_constants_1 = require("../../common/constants/roles.constants");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const pagination_dto_1 = require("../../dtos/common/pagination.dto");
+const paginated_responses_dto_1 = require("../../dtos/common/paginated-responses.dto");
+const api_examples_1 = require("../../common/swagger/api-examples");
 const api_error_decorator_1 = require("../../common/swagger/api-error.decorator");
 let UsersController = class UsersController {
     constructor(usersService) {
@@ -45,8 +47,18 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_ONLY),
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: "Create or update a user (Admin only)" }),
-    (0, swagger_1.ApiBody)({ type: user_dto_1.UpsertUserDto }),
-    (0, swagger_1.ApiCreatedResponse)({ description: "User saved", type: user_dto_1.UserDetailDto }),
+    (0, swagger_1.ApiBody)({
+        type: user_dto_1.UpsertUserDto,
+        examples: {
+            create: api_examples_1.SwaggerExamples.users.create,
+            update: api_examples_1.SwaggerExamples.users.update,
+        },
+    }),
+    (0, swagger_1.ApiCreatedResponse)({
+        description: "User saved",
+        type: user_dto_1.UserDetailDto,
+        schema: { example: api_examples_1.SwaggerExamples.users.detail },
+    }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -57,7 +69,11 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: "List all users (Admin/Manager)" }),
-    (0, swagger_1.ApiOkResponse)({ description: "List of users", type: [user_dto_1.UserListItemDto] }),
+    (0, swagger_1.ApiOkResponse)({
+        description: "Paginated user list",
+        type: paginated_responses_dto_1.PaginatedUsersResponseDto,
+        schema: { example: api_examples_1.SwaggerExamples.users.paginated },
+    }),
     (0, swagger_1.ApiResponse)({ status: 403, description: "Forbidden" }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
@@ -69,7 +85,11 @@ __decorate([
     (0, common_1.Get)(":id"),
     (0, swagger_1.ApiOperation)({ summary: "Get user details by id" }),
     (0, swagger_1.ApiParam)({ name: "id", type: Number, example: 1 }),
-    (0, swagger_1.ApiOkResponse)({ description: "User details", type: user_dto_1.UserDetailDto }),
+    (0, swagger_1.ApiOkResponse)({
+        description: "User details",
+        type: user_dto_1.UserDetailDto,
+        schema: { example: api_examples_1.SwaggerExamples.users.detail },
+    }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),

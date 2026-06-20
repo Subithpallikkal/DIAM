@@ -105,11 +105,11 @@ __decorate([
     __metadata("design:type", Number)
 ], UserListItemDto.prototype, "id", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "Demo Admin" }),
+    (0, swagger_1.ApiProperty)({ example: "Admin" }),
     __metadata("design:type", String)
 ], UserListItemDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "admin@demo.com" }),
+    (0, swagger_1.ApiProperty)({ example: "admin@gmail.com" }),
     __metadata("design:type", String)
 ], UserListItemDto.prototype, "email", void 0);
 __decorate([
@@ -121,7 +121,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], UserListItemDto.prototype, "isActive", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "2026-06-13T07:18:47.000Z" }),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], UserListItemDto.prototype, "createdAt", void 0);
 class UserDetailDto extends UserListItemDto {
@@ -131,7 +131,7 @@ class UserDetailDto extends UserListItemDto {
 }
 exports.UserDetailDto = UserDetailDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "2026-06-13T07:18:47.000Z" }),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], UserDetailDto.prototype, "updatedAt", void 0);
 //# sourceMappingURL=user.dto.js.map

@@ -25,7 +25,9 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const roles_constants_1 = require("../../common/constants/roles.constants");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const api_error_decorator_1 = require("../../common/swagger/api-error.decorator");
+const api_examples_1 = require("../../common/swagger/api-examples");
 const pagination_dto_1 = require("../../dtos/common/pagination.dto");
+const paginated_responses_dto_1 = require("../../dtos/common/paginated-responses.dto");
 let DocumentsController = class DocumentsController {
     constructor(documentsService, storageService) {
         this.documentsService = documentsService;
@@ -79,7 +81,10 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)("categories"),
     (0, swagger_1.ApiOperation)({ summary: "List document categories" }),
-    (0, swagger_1.ApiOkResponse)({ type: [document_dto_1.DocumentCategoryDto] }),
+    (0, swagger_1.ApiOkResponse)({
+        type: [document_dto_1.DocumentCategoryDto],
+        schema: { example: api_examples_1.SwaggerExamples.documents.categories },
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
@@ -88,7 +93,14 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
     (0, common_1.Post)("categories"),
     (0, swagger_1.ApiOperation)({ summary: "Create document category" }),
-    (0, swagger_1.ApiCreatedResponse)({ type: document_dto_1.DocumentCategoryDto }),
+    (0, swagger_1.ApiBody)({
+        type: document_dto_1.CreateDocumentCategoryDto,
+        examples: { default: api_examples_1.SwaggerExamples.documents.categoryCreate },
+    }),
+    (0, swagger_1.ApiCreatedResponse)({
+        type: document_dto_1.DocumentCategoryDto,
+        schema: { example: api_examples_1.SwaggerExamples.documents.category },
+    }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [document_dto_1.CreateDocumentCategoryDto]),
@@ -101,7 +113,11 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: "clientId", required: false, type: Number }),
     (0, swagger_1.ApiQuery)({ name: "engagementId", required: false, type: Number }),
     (0, swagger_1.ApiQuery)({ name: "categoryId", required: false, type: Number }),
-    (0, swagger_1.ApiOkResponse)({ type: [document_dto_1.DocumentListItemDto] }),
+    (0, swagger_1.ApiOkResponse)({
+        description: "Paginated document list",
+        type: paginated_responses_dto_1.PaginatedDocumentsResponseDto,
+        schema: { example: api_examples_1.SwaggerExamples.documents.paginated },
+    }),
     __param(0, (0, common_1.Query)()),
     __param(1, (0, common_1.Query)("clientId")),
     __param(2, (0, common_1.Query)("engagementId")),
@@ -131,7 +147,10 @@ __decorate([
         storage: (0, multer_1.memoryStorage)(),
         limits: { fileSize: 10 * 1024 * 1024 },
     })),
-    (0, swagger_1.ApiCreatedResponse)({ type: document_dto_1.DocumentListItemDto }),
+    (0, swagger_1.ApiCreatedResponse)({
+        type: document_dto_1.DocumentListItemDto,
+        schema: { example: api_examples_1.SwaggerExamples.documents.listItem },
+    }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.UploadedFile)()),
     __param(1, (0, common_1.Body)("clientId")),
@@ -146,7 +165,10 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)(":id/versions"),
     (0, swagger_1.ApiOperation)({ summary: "List all versions of a document" }),
-    (0, swagger_1.ApiOkResponse)({ type: [document_dto_1.DocumentListItemDto] }),
+    (0, swagger_1.ApiOkResponse)({
+        type: [document_dto_1.DocumentListItemDto],
+        schema: { example: [api_examples_1.SwaggerExamples.documents.listItem] },
+    }),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -170,7 +192,10 @@ __decorate([
         storage: (0, multer_1.memoryStorage)(),
         limits: { fileSize: 10 * 1024 * 1024 },
     })),
-    (0, swagger_1.ApiCreatedResponse)({ type: document_dto_1.DocumentListItemDto }),
+    (0, swagger_1.ApiCreatedResponse)({
+        type: document_dto_1.DocumentListItemDto,
+        schema: { example: api_examples_1.SwaggerExamples.documents.listItem },
+    }),
     (0, api_error_decorator_1.ApiStandardErrors)(),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.UploadedFile)()),
@@ -184,7 +209,10 @@ __decorate([
     (0, common_1.Get)(":id"),
     (0, swagger_1.ApiOperation)({ summary: "Get document metadata" }),
     (0, swagger_1.ApiParam)({ name: "id", type: Number }),
-    (0, swagger_1.ApiOkResponse)({ type: document_dto_1.DocumentListItemDto }),
+    (0, swagger_1.ApiOkResponse)({
+        type: document_dto_1.DocumentListItemDto,
+        schema: { example: api_examples_1.SwaggerExamples.documents.listItem },
+    }),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -216,7 +244,10 @@ __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)(":id/logs"),
     (0, swagger_1.ApiOperation)({ summary: "Get document audit trail" }),
-    (0, swagger_1.ApiOkResponse)({ type: [document_dto_1.DocumentLogDto] }),
+    (0, swagger_1.ApiOkResponse)({
+        type: [document_dto_1.DocumentLogDto],
+        schema: { example: api_examples_1.SwaggerExamples.documents.logs },
+    }),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),

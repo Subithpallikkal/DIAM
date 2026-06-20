@@ -43,12 +43,12 @@ export declare class DocumentsService {
         uid: number;
         createdAt: Date;
         updatedAt: Date;
-        clientUid: number;
-        engagementUid: number | null;
         originalName: string;
         mimeType: string;
         fileSize: number;
         version: number;
+        clientUid: number;
+        engagementUid: number | null;
         categoryUid: number | null;
         parentDocumentUid: number | null;
         storedName: string;

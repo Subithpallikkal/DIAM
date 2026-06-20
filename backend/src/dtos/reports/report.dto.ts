@@ -86,21 +86,21 @@ export class AuditSummaryReportDto {
 }
 
 export class RiskReportItemDto {
-  @ApiProperty()
+  @ApiProperty({ example: "Revenue recognition cutoff errors" })
   title!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "HIGH" })
   priority!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "OPEN" })
   status!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "1/3" })
   checklistProgress!: string;
 }
 
 export class RiskReportDto {
-  @ApiProperty()
+  @ApiProperty({ example: "FY 2025 Internal Audit — Acme" })
   engagementTitle!: string;
 
   @ApiProperty({ example: 4 })
@@ -117,21 +117,21 @@ export class RiskReportDto {
 }
 
 export class FindingsReportItemDto {
-  @ApiProperty()
+  @ApiProperty({ example: "Unrecorded sales invoices in December" })
   issueName!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "₹12.4L revenue not recorded in ERP" })
   findingTitle!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "HIGH" })
   severity!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: "IN_PROGRESS" })
   status!: string;
 }
 
 export class FindingsReportDto {
-  @ApiProperty()
+  @ApiProperty({ example: "FY 2025 Internal Audit — Acme" })
   engagementTitle!: string;
 
   @ApiProperty({ type: [FindingsReportItemDto] })

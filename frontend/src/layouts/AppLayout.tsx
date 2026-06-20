@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useScrollToTop } from '../hooks/useScrollToTop'
 import { Avatar, Badge, Drawer, Dropdown, Input, Layout, Menu, Typography } from 'antd'
 import {
@@ -34,10 +34,10 @@ const SIDEBAR_COLLAPSED_KEY = 'diam-sidebar-collapsed'
 
 const sidebarMenuClass = cn(
   'border-e-0! bg-transparent!',
-  '[&_.ant-menu-item]:mx-3! [&_.ant-menu-item]:mb-1! [&_.ant-menu-item]:h-10! [&_.ant-menu-item]:w-[calc(100%-24px)]! [&_.ant-menu-item]:rounded-xl! [&_.ant-menu-item]:text-white/75!',
+  '[&_.ant-menu-item]:mx-3! [&_.ant-menu-item]:mb-1! [&_.ant-menu-item]:h-10! [&_.ant-menu-item]:w-[calc(100%-24px)]! [&_.ant-menu-item]:cursor-pointer! [&_.ant-menu-item]:rounded-xl! [&_.ant-menu-item]:text-white/75!',
   '[&_.ant-menu-item:hover]:bg-white/10! [&_.ant-menu-item:hover]:text-white!',
   '[&_.ant-menu-item-selected]:bg-white/15! [&_.ant-menu-item-selected]:font-medium! [&_.ant-menu-item-selected]:text-white!',
-  '[&_.ant-menu-item-selected_.ant-menu-item-icon]:text-[#2ecc71]! [&_.ant-menu-item-selected_a]:text-white!',
+  '[&_.ant-menu-item-selected_.ant-menu-item-icon]:text-[#2ecc71]!',
 )
 
 const collapsedMenuClass = cn(
@@ -45,7 +45,7 @@ const collapsedMenuClass = cn(
   '[&_.ant-menu-item]:mx-auto! [&_.ant-menu-item]:mb-1! [&_.ant-menu-item]:flex! [&_.ant-menu-item]:h-10! [&_.ant-menu-item]:w-10! [&_.ant-menu-item]:items-center! [&_.ant-menu-item]:justify-center! [&_.ant-menu-item]:px-0!',
   '[&_.ant-menu-item-icon]:m-0! [&_.ant-menu-item-icon]:inline-flex! [&_.ant-menu-item-icon]:items-center! [&_.ant-menu-item-icon]:justify-center! [&_.ant-menu-item-icon]:text-base! [&_.ant-menu-item-icon]:text-white/80!',
   '[&_.ant-menu-item-selected_.ant-menu-item-icon]:text-[#2ecc71]!',
-  '[&_.ant-menu-title-content]:hidden!',
+  '[&_.ant-menu-inline-collapsed_.ant-menu-title-content]:hidden!',
 )
 
 const menuItems = [
@@ -116,18 +116,20 @@ export function AppLayout() {
 
   const userHandle = user?.email ? `#${user.email.split('@')[0]}` : undefined
 
+  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+    setDrawerOpen(false)
+    navigate(key)
+  }
+
   const navigationMenu = (
     <Menu
       theme="dark"
       mode="inline"
       selectedKeys={[selectedKey]}
-      items={visibleMenuItems.map((item) => ({
-        ...item,
-        label: <Link to={item.key}>{item.label}</Link>,
-      }))}
+      items={visibleMenuItems}
       className={cn(sidebarMenuClass, collapsed && collapsedMenuClass)}
       inlineCollapsed={collapsed}
-      onClick={() => setDrawerOpen(false)}
+      onClick={handleMenuClick}
     />
   )
 

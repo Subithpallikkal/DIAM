@@ -52,26 +52,26 @@ class UpdateRiskDto {
 }
 exports.UpdateRiskDto = UpdateRiskDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: "Revenue recognition cutoff errors" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(1),
     __metadata("design:type", String)
 ], UpdateRiskDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: "Q4 sales may be recorded in wrong period" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateRiskDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ enum: enums_dto_1.Priority }),
+    (0, swagger_1.ApiPropertyOptional)({ enum: enums_dto_1.Priority, example: enums_dto_1.Priority.HIGH }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(enums_dto_1.Priority),
     __metadata("design:type", String)
 ], UpdateRiskDto.prototype, "priority", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ enum: enums_dto_1.RiskStatus }),
+    (0, swagger_1.ApiPropertyOptional)({ enum: enums_dto_1.RiskStatus, example: enums_dto_1.RiskStatus.OPEN }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(enums_dto_1.RiskStatus),
     __metadata("design:type", String)
@@ -108,15 +108,15 @@ __decorate([
     __metadata("design:type", String)
 ], RiskListItemDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ nullable: true }),
+    (0, swagger_1.ApiProperty)({ example: "Q4 sales may be recorded in wrong period", nullable: true }),
     __metadata("design:type", Object)
 ], RiskListItemDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.Priority }),
+    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.Priority, example: enums_dto_1.Priority.HIGH }),
     __metadata("design:type", String)
 ], RiskListItemDto.prototype, "priority", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.RiskStatus }),
+    (0, swagger_1.ApiProperty)({ enum: enums_dto_1.RiskStatus, example: enums_dto_1.RiskStatus.OPEN }),
     __metadata("design:type", String)
 ], RiskListItemDto.prototype, "status", void 0);
 __decorate([
@@ -128,7 +128,7 @@ __decorate([
     __metadata("design:type", Number)
 ], RiskListItemDto.prototype, "completedChecklistCount", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: "2026-06-19T10:00:00.000Z" }),
     __metadata("design:type", Date)
 ], RiskListItemDto.prototype, "createdAt", void 0);
 class CreateChecklistItemDto {
@@ -157,20 +157,20 @@ class UpdateChecklistItemDto {
 }
 exports.UpdateChecklistItemDto = UpdateChecklistItemDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: "Review Q4 sales invoices" }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(1),
     __metadata("design:type", String)
 ], UpdateChecklistItemDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: true }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateChecklistItemDto.prototype, "isCompleted", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: 1 }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsInt)(),
     (0, class_transformer_1.Type)(() => Number),
@@ -212,7 +212,7 @@ __decorate([
     __metadata("design:type", Number)
 ], ChecklistItemDto.prototype, "sortOrder", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ nullable: true }),
+    (0, swagger_1.ApiProperty)({ example: "Auditor", nullable: true }),
     __metadata("design:type", Object)
 ], ChecklistItemDto.prototype, "assigneeName", void 0);
 class AssignChecklistDto {

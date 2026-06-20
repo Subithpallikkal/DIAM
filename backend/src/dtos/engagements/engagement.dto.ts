@@ -92,7 +92,7 @@ export class UpdateEngagementDto {
   @IsEnum(EngagementStatus)
   status?: EngagementStatus;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: "Fieldwork started on revenue testing" })
   @IsOptional()
   @IsString()
   description?: string;
