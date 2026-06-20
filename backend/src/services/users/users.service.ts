@@ -7,7 +7,6 @@ import {
 import { Prisma } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import { PrismaService } from "../../common/prisma/prisma.service";
-import { CacheService } from "../../common/cache/cache.service";
 import {
   buildPaginatedResponse,
   resolvePagination,
@@ -27,7 +26,6 @@ import { RoleName } from "../../dtos/common/role.dto";
 export class UsersService {
   constructor(
     private prisma: PrismaService,
-    private cache: CacheService,
   ) {}
 
   async create(dto: CreateUserDto): Promise<UserDetailDto> {

@@ -59,6 +59,7 @@ export function AppLayout() {
   const location = useLocation()
   const navigate = useNavigate()
   const isMobile = useIsMobile('md')
+  const isCompactShell = useIsMobile('lg')
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(() => {
     return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'
@@ -221,12 +222,18 @@ export function AppLayout() {
 
   return (
     <div
-      className="flex h-dvh w-full overflow-hidden p-2 md:p-3"
-      style={{ background: UI.sidebar }}
+      className={cn(
+        'flex h-dvh w-full overflow-hidden',
+        isCompactShell ? 'bg-surface' : 'p-2 md:p-3',
+      )}
+      style={isCompactShell ? undefined : { background: UI.sidebar }}
     >
       <div
-        className="flex h-full w-full min-w-0 overflow-hidden rounded-[28px] md:rounded-[44px]"
-        style={{ background: UI.sidebar }}
+        className={cn(
+          'flex h-full w-full min-w-0 overflow-hidden',
+          !isCompactShell && 'rounded-[28px] md:rounded-[44px]',
+        )}
+        style={isCompactShell ? undefined : { background: UI.sidebar }}
       >
         {!isMobile && desktopSidebar}
 
@@ -246,10 +253,20 @@ export function AppLayout() {
           </Drawer>
         )}
 
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col p-2 md:p-3 md:pl-2">
+        <div
+          className={cn(
+            'flex min-h-0 min-w-0 flex-1 flex-col',
+            !isCompactShell && 'p-2 md:p-3 md:pl-2',
+          )}
+        >
           <div
-            className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px] shadow-[0_4px_24px_rgba(0,0,0,0.12)] md:rounded-[36px]"
-            style={{ background: UI.contentSurface }}
+            className={cn(
+              'flex min-h-0 flex-1 flex-col overflow-hidden',
+              isCompactShell
+                ? 'bg-surface'
+                : 'rounded-[22px] shadow-[0_4px_24px_rgba(0,0,0,0.12)] md:rounded-[36px]',
+            )}
+            style={isCompactShell ? undefined : { background: UI.contentSurface }}
           >
             <Layout className="flex! h-full! min-h-0! flex-col! bg-transparent!">
               <Header className="flex! h-14! shrink-0! items-center! gap-2! border-b! border-[#e8ecf0]! bg-transparent! px-3! shadow-none! md:px-5!">

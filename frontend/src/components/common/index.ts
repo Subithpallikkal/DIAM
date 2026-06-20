@@ -9,7 +9,6 @@ export {
 export { Loader } from './Loader'
 export {
   ModalForm,
-  ModalFormColumns,
   ModalFormField,
   ModalFormGrid,
   ModalFormSection,
@@ -23,7 +22,6 @@ export { PageHeader } from './PageHeader'
 export { PageToolbar, type PageToolbarProps } from './PageToolbar'
 export { ResponsiveCard } from './ResponsiveCard'
 export {
-  mobileFullInputClass,
   mobileFullSelectClass,
   datePickerFieldClass,
   responsiveDescriptionsClass,

@@ -56,6 +56,3 @@ export declare class FindingsReportDto {
     engagementTitle: string;
     items: FindingsReportItemDto[];
 }
-export declare class ReportQueryDto {
-    engagementId?: number;
-}

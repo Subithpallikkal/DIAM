@@ -46,12 +46,10 @@ exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const bcrypt = __importStar(require("bcrypt"));
 const prisma_service_1 = require("../../common/prisma/prisma.service");
-const cache_service_1 = require("../../common/cache/cache.service");
 const pagination_util_1 = require("../../common/prisma/pagination.util");
 let UsersService = class UsersService {
-    constructor(prisma, cache) {
+    constructor(prisma) {
         this.prisma = prisma;
-        this.cache = cache;
     }
     async create(dto) {
         const role = await this.prisma.role.findUnique({ where: { name: dto.role } });
@@ -216,7 +214,6 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        cache_service_1.CacheService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

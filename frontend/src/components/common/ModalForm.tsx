@@ -238,19 +238,4 @@ export function ModalFormGrid({ children, className }: { children: ReactNode; cl
   )
 }
 
-interface ModalFormColumnsProps {
-  left: ReactNode
-  right?: ReactNode
-  className?: string
-}
-
-export function ModalFormColumns({ left, right, className }: ModalFormColumnsProps) {
-  return (
-    <div className={cn('grid grid-cols-1 gap-x-6 gap-y-0 lg:grid-cols-2', className)}>
-      <div className="min-w-0">{left}</div>
-      {right && <div className="min-w-0">{right}</div>}
-    </div>
-  )
-}
-
 export { modalFormClassName }

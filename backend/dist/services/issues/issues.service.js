@@ -12,13 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.IssuesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../common/prisma/prisma.service");
-const cache_service_1 = require("../../common/cache/cache.service");
 const pagination_util_1 = require("../../common/prisma/pagination.util");
 const enums_dto_1 = require("../../dtos/common/enums.dto");
 let IssuesService = class IssuesService {
-    constructor(prisma, cache) {
+    constructor(prisma) {
         this.prisma = prisma;
-        this.cache = cache;
     }
     async findAll(query, filters) {
         const { page, limit, skip, take } = (0, pagination_util_1.resolvePagination)(query);
@@ -246,7 +244,6 @@ let IssuesService = class IssuesService {
 exports.IssuesService = IssuesService;
 exports.IssuesService = IssuesService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        cache_service_1.CacheService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], IssuesService);
 //# sourceMappingURL=issues.service.js.map

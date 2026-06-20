@@ -1,6 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsInt, IsOptional } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class TaskWorkloadItemDto {
   @ApiProperty({ example: 3 })
@@ -138,12 +136,4 @@ export class FindingsReportDto {
 
   @ApiProperty({ type: [FindingsReportItemDto] })
   items!: FindingsReportItemDto[];
-}
-
-export class ReportQueryDto {
-  @ApiPropertyOptional({ example: 1 })
-  @IsOptional()
-  @IsInt()
-  @Type(() => Number)
-  engagementId?: number;
 }

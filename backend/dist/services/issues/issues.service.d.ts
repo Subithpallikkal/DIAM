@@ -1,11 +1,9 @@
 import { PrismaService } from "../../common/prisma/prisma.service";
-import { CacheService } from "../../common/cache/cache.service";
 import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
 import { AssignIssueDto, CreateFindingDto, CreateIssueDto, FindingDto, IssueDetailDto, IssueListItemDto, UpdateIssueDto, UpsertIssueDto } from "../../dtos/issues/issue.dto";
 export declare class IssuesService {
     private prisma;
-    private cache;
-    constructor(prisma: PrismaService, cache: CacheService);
+    constructor(prisma: PrismaService);
     findAll(query: PaginationQueryDto, filters?: {
         engagementId?: number;
         status?: string;

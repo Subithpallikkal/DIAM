@@ -5,4 +5,3 @@ export interface RolePermissionDefinition {
     permissions: string[];
 }
 export declare const ROLE_PERMISSIONS: RolePermissionDefinition[];
-export declare function getRolePermissions(role: RoleName): RolePermissionDefinition;

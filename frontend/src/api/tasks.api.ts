@@ -47,8 +47,4 @@ export async function addTaskComment(
   return data
 }
 
-export async function deleteTask(taskId: number): Promise<void> {
-  await api.delete(`/tasks/${taskId}`)
-}
-
 export const TASK_STATUS_OPTIONS: TaskStatus[] = ['PENDING', 'IN_PROGRESS', 'COMPLETED']

@@ -77,7 +77,6 @@ export const modalFormClassName = cn(
 )
 
 export const mobileFullSelectClass = 'w-full sm:max-w-xs'
-export const mobileFullInputClass = 'w-full max-w-full sm:max-w-md'
 export const stackListItemClass =
   'flex-col! items-start! gap-1 sm:flex-row! sm:items-center! sm:justify-between! [&_.ant-list-item-meta]:w-full! [&_.ant-list-item-meta]:min-w-0!'
 export const responsiveDescriptionsClass =

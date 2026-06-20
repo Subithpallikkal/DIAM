@@ -9,11 +9,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReportQueryDto = exports.FindingsReportDto = exports.FindingsReportItemDto = exports.RiskReportDto = exports.RiskReportItemDto = exports.AuditSummaryReportDto = exports.DashboardStatsDto = exports.WorkloadStatsDto = exports.ChecklistWorkloadItemDto = exports.TaskWorkloadItemDto = void 0;
+exports.FindingsReportDto = exports.FindingsReportItemDto = exports.RiskReportDto = exports.RiskReportItemDto = exports.AuditSummaryReportDto = exports.DashboardStatsDto = exports.WorkloadStatsDto = exports.ChecklistWorkloadItemDto = exports.TaskWorkloadItemDto = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
-const class_transformer_1 = require("class-transformer");
-const class_validator_1 = require("class-validator");
 class TaskWorkloadItemDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { userId: { required: true, type: () => Number }, userName: { required: true, type: () => String }, pending: { required: true, type: () => Number }, inProgress: { required: true, type: () => Number } };
@@ -228,17 +226,4 @@ __decorate([
     (0, swagger_1.ApiProperty)({ type: [FindingsReportItemDto] }),
     __metadata("design:type", Array)
 ], FindingsReportDto.prototype, "items", void 0);
-class ReportQueryDto {
-    static _OPENAPI_METADATA_FACTORY() {
-        return { engagementId: { required: false, type: () => Number } };
-    }
-}
-exports.ReportQueryDto = ReportQueryDto;
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 1 }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsInt)(),
-    (0, class_transformer_1.Type)(() => Number),
-    __metadata("design:type", Number)
-], ReportQueryDto.prototype, "engagementId", void 0);
 //# sourceMappingURL=report.dto.js.map

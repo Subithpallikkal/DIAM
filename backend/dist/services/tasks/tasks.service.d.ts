@@ -1,11 +1,9 @@
 import { PrismaService } from "../../common/prisma/prisma.service";
-import { CacheService } from "../../common/cache/cache.service";
 import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
 import { AssignTaskDto, CreateTaskCommentDto, CreateTaskDto, TaskDetailDto, TaskListItemDto, UpdateTaskDto, UpsertTaskDto } from "../../dtos/tasks/task.dto";
 export declare class TasksService {
     private prisma;
-    private cache;
-    constructor(prisma: PrismaService, cache: CacheService);
+    constructor(prisma: PrismaService);
     findAll(query: PaginationQueryDto, filters?: {
         engagementId?: number;
         assigneeId?: number;

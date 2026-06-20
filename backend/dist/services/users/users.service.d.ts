@@ -1,11 +1,9 @@
 import { PrismaService } from "../../common/prisma/prisma.service";
-import { CacheService } from "../../common/cache/cache.service";
 import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
 import { CreateUserDto, UpdateUserDto, UpsertUserDto, UserDetailDto, UserListItemDto } from "../../dtos/users/user.dto";
 export declare class UsersService {
     private prisma;
-    private cache;
-    constructor(prisma: PrismaService, cache: CacheService);
+    constructor(prisma: PrismaService);
     create(dto: CreateUserDto): Promise<UserDetailDto>;
     upsert(dto: UpsertUserDto): Promise<UserDetailDto>;
     findAll(query: PaginationQueryDto): Promise<PaginatedResponseDto<UserListItemDto>>;

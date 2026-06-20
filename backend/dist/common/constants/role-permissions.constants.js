@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ROLE_PERMISSIONS = void 0;
-exports.getRolePermissions = getRolePermissions;
 const role_dto_1 = require("../../dtos/common/role.dto");
 exports.ROLE_PERMISSIONS = [
     {
@@ -43,11 +42,4 @@ exports.ROLE_PERMISSIONS = [
         ],
     },
 ];
-function getRolePermissions(role) {
-    const match = exports.ROLE_PERMISSIONS.find((entry) => entry.name === role);
-    if (!match) {
-        throw new Error(`Unknown role: ${role}`);
-    }
-    return match;
-}
 //# sourceMappingURL=role-permissions.constants.js.map

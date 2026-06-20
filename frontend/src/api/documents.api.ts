@@ -1,4 +1,4 @@
-import { api, getStoredToken } from './axios'
+import { api } from './axios'
 import type { ListQueryParams, PaginatedResponse } from '../types/api'
 import type {
   DocumentCategory,
@@ -66,12 +66,6 @@ export async function fetchDocumentLogs(documentId: number): Promise<DocumentLog
 
 export async function deleteDocument(documentId: number): Promise<void> {
   await api.delete(`/documents/${documentId}`)
-}
-
-export function getDocumentDownloadUrl(documentId: number): string {
-  const base = import.meta.env.VITE_API_URL || '/api'
-  const token = getStoredToken()
-  return `${base}/documents/${documentId}/download${token ? `?token=${token}` : ''}`
 }
 
 export async function downloadDocument(documentId: number, fileName: string): Promise<void> {

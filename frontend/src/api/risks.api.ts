@@ -31,10 +31,6 @@ export async function upsertRisk(
   return data
 }
 
-export async function deleteRisk(riskId: number): Promise<void> {
-  await api.delete(`/risks/${riskId}`)
-}
-
 export async function fetchChecklists(riskId: number): Promise<ChecklistItem[]> {
   const { data } = await api.get<ChecklistItem[]>(`/risks/${riskId}/checklists`)
   return data

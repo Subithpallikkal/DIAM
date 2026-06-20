@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
-import { CacheService } from "../../common/cache/cache.service";
 import {
   buildPaginatedResponse,
   resolvePagination,
@@ -25,7 +24,6 @@ import { Priority, RiskStatus } from "../../dtos/common/enums.dto";
 export class RisksService {
   constructor(
     private prisma: PrismaService,
-    private cache: CacheService,
   ) {}
 
   async findAll(

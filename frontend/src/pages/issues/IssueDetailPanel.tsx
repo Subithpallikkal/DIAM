@@ -228,7 +228,7 @@ export function IssueDetailPanel({ issueId, onLoaded, onError }: IssueDetailPane
           locale={{ emptyText: 'No status changes yet' }}
           renderItem={(item) => (
             <List.Item className={stackListItemClass}>
-              <Text className="min-w-0 wrap-break-words">
+              <Text className="min-w-0 wrap-break-word">
                 {item.oldStatus} → {item.newStatus} by {item.changedByName}
               </Text>
               <Text type="secondary" className="shrink-0 text-xs">

@@ -1,11 +1,9 @@
 import { PrismaService } from "../../common/prisma/prisma.service";
-import { CacheService } from "../../common/cache/cache.service";
 import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
 import { AssignChecklistDto, ChecklistItemDto, CreateChecklistItemDto, CreateRiskDto, RiskListItemDto, UpdateChecklistItemDto, UpdateRiskDto, UpsertChecklistItemDto, UpsertRiskDto } from "../../dtos/risks/risk.dto";
 export declare class RisksService {
     private prisma;
-    private cache;
-    constructor(prisma: PrismaService, cache: CacheService);
+    constructor(prisma: PrismaService);
     findAll(query: PaginationQueryDto, engagementId?: number): Promise<PaginatedResponseDto<RiskListItemDto>>;
     private buildOrderBy;
     findOne(id: number): Promise<RiskListItemDto>;

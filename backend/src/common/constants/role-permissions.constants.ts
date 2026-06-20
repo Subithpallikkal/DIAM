@@ -46,11 +46,3 @@ export const ROLE_PERMISSIONS: RolePermissionDefinition[] = [
     ],
   },
 ];
-
-export function getRolePermissions(role: RoleName): RolePermissionDefinition {
-  const match = ROLE_PERMISSIONS.find((entry) => entry.name === role);
-  if (!match) {
-    throw new Error(`Unknown role: ${role}`);
-  }
-  return match;
-}

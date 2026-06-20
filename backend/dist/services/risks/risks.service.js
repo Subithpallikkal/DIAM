@@ -12,13 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RisksService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../common/prisma/prisma.service");
-const cache_service_1 = require("../../common/cache/cache.service");
 const pagination_util_1 = require("../../common/prisma/pagination.util");
 const enums_dto_1 = require("../../dtos/common/enums.dto");
 let RisksService = class RisksService {
-    constructor(prisma, cache) {
+    constructor(prisma) {
         this.prisma = prisma;
-        this.cache = cache;
     }
     async findAll(query, engagementId) {
         const { page, limit, skip, take } = (0, pagination_util_1.resolvePagination)(query);
@@ -247,7 +245,6 @@ let RisksService = class RisksService {
 exports.RisksService = RisksService;
 exports.RisksService = RisksService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        cache_service_1.CacheService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], RisksService);
 //# sourceMappingURL=risks.service.js.map

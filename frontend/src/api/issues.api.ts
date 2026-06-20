@@ -47,10 +47,6 @@ export async function addFinding(
   return data
 }
 
-export async function deleteIssue(issueId: number): Promise<void> {
-  await api.delete(`/issues/${issueId}`)
-}
-
 export const ISSUE_STATUS_OPTIONS: IssueStatus[] = [
   'OPEN',
   'IN_PROGRESS',
