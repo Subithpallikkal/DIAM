@@ -22,10 +22,13 @@ import {
   AuditSummaryReportDto,
   DashboardStatsDto,
   FindingsReportDto,
+  MyDashboardStatsDto,
   RiskReportDto,
 } from "../../dtos/reports/report.dto";
 import { RequireRoles } from "../../common/decorators/roles.decorator";
 import { Roles } from "../../common/constants/roles.constants";
+import { CurrentUser } from "../../common/decorators/current-user.decorator";
+import { JwtPayload } from "../../common/interfaces/jwt-payload.interface";
 
 @ApiTags("Reports")
 @ApiBearerAuth("JWT")
@@ -42,6 +45,14 @@ export class ReportsController {
   @ApiOkResponse({ type: DashboardStatsDto })
   getDashboardStats() {
     return this.reportsService.getDashboardStats();
+  }
+
+  @RequireRoles(...Roles.ALL)
+  @Get("my-dashboard")
+  @ApiOperation({ summary: "Get personal dashboard for current user" })
+  @ApiOkResponse({ type: MyDashboardStatsDto })
+  getMyDashboardStats(@CurrentUser() user: JwtPayload) {
+    return this.reportsService.getMyDashboardStats(user.sub);
   }
 
   @RequireRoles(...Roles.ALL)

@@ -3,6 +3,7 @@ import type {
   AuditSummaryReport,
   DashboardStats,
   FindingsReport,
+  MyDashboardStats,
   ReportFormat,
   ReportType,
   RiskReport,
@@ -26,6 +27,19 @@ function normalizeDashboardStats(data: Partial<DashboardStats>): DashboardStats 
       tasksByAssignee: data.workload?.tasksByAssignee ?? [],
       openChecklistsByAssignee: data.workload?.openChecklistsByAssignee ?? [],
     },
+  }
+}
+
+export async function fetchMyDashboardStats(): Promise<MyDashboardStats> {
+  const { data } = await api.get<MyDashboardStats>('/reports/my-dashboard')
+  return {
+    pendingTasks: data.pendingTasks ?? 0,
+    inProgressTasks: data.inProgressTasks ?? 0,
+    openChecklists: data.openChecklists ?? 0,
+    openIssues: data.openIssues ?? 0,
+    myTasks: data.myTasks ?? [],
+    myChecklists: data.myChecklists ?? [],
+    myIssues: data.myIssues ?? [],
   }
 }
 

@@ -18,6 +18,9 @@ export declare class UpsertIssueDto extends UpdateIssueDto {
 export declare class AssignIssueDto {
     assignedToId: number;
 }
+export declare class AssignIssueClientDto {
+    clientId: number;
+}
 export declare class CreateFindingDto {
     title: string;
     description?: string;
@@ -31,6 +34,7 @@ export declare class IssueListItemDto {
     severity: string;
     status: string;
     responsiblePerson: string | null;
+    assignedClientName: string | null;
     findingsCount: number;
     createdAt: Date;
 }
@@ -52,6 +56,7 @@ export declare class IssueStatusLogDto {
 export declare class IssueDetailDto extends IssueListItemDto {
     description: string | null;
     assigneeName: string | null;
+    assignedClientId: number | null;
     findings: FindingDto[];
     statusLogs: IssueStatusLogDto[];
     updatedAt: Date;

@@ -38,6 +38,7 @@ let IssuesService = class IssuesService {
                 where,
                 include: {
                     engagement: true,
+                    assignedClient: true,
                     _count: { select: { findings: true } },
                 },
                 orderBy: this.buildOrderBy(query),
@@ -70,6 +71,7 @@ let IssuesService = class IssuesService {
             where: { uid: id },
             include: {
                 engagement: true,
+                assignedClient: true,
                 findings: { include: { createdBy: true } },
                 statusLogs: { include: { changedBy: true }, orderBy: { createdAt: "desc" } },
                 assignments: {
@@ -151,6 +153,15 @@ let IssuesService = class IssuesService {
         });
         return this.findOne(issueId);
     }
+    async assignClient(issueId, dto) {
+        await this.ensureExists(issueId);
+        await this.ensureClientExists(dto.clientId);
+        await this.prisma.issue.update({
+            where: { uid: issueId },
+            data: { assignedClientUid: dto.clientId },
+        });
+        return this.findOne(issueId);
+    }
     async addFinding(issueId, dto, createdByUid) {
         await this.ensureExists(issueId);
         const finding = await this.prisma.finding.create({
@@ -204,6 +215,12 @@ let IssuesService = class IssuesService {
             throw new common_1.NotFoundException(`User ${userId} not found`);
         }
     }
+    async ensureClientExists(clientId) {
+        const client = await this.prisma.client.findUnique({ where: { uid: clientId } });
+        if (!client) {
+            throw new common_1.NotFoundException(`Client ${clientId} not found`);
+        }
+    }
     toListItem(issue) {
         return {
             id: issue.uid,
@@ -213,6 +230,7 @@ let IssuesService = class IssuesService {
             severity: issue.severity,
             status: issue.status,
             responsiblePerson: issue.responsiblePerson,
+            assignedClientName: issue.assignedClient?.name ?? null,
             findingsCount: issue._count?.findings ?? issue.findings?.length ?? 0,
             createdAt: issue.createdAt,
         };
@@ -222,6 +240,7 @@ let IssuesService = class IssuesService {
             ...this.toListItem({ ...issue, findings: issue.findings }),
             description: issue.description,
             assigneeName: issue.assignments?.[0]?.assignedTo.name ?? null,
+            assignedClientId: issue.assignedClient?.uid ?? null,
             updatedAt: issue.updatedAt,
             findings: issue.findings.map((finding) => ({
                 id: finding.uid,

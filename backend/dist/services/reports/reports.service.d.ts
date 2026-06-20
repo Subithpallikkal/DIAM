@@ -1,6 +1,6 @@
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CacheService } from "../../common/cache/cache.service";
-import { AuditSummaryReportDto, DashboardStatsDto, FindingsReportDto, RiskReportDto } from "../../dtos/reports/report.dto";
+import { AuditSummaryReportDto, DashboardStatsDto, FindingsReportDto, MyDashboardStatsDto, RiskReportDto } from "../../dtos/reports/report.dto";
 export declare class ReportsService {
     private prisma;
     private cache;
@@ -8,6 +8,7 @@ export declare class ReportsService {
     private static readonly DASHBOARD_TTL_MS;
     constructor(prisma: PrismaService, cache: CacheService);
     getDashboardStats(): Promise<DashboardStatsDto>;
+    getMyDashboardStats(userId: number): Promise<MyDashboardStatsDto>;
     getWorkloadStats(): Promise<{
         tasksByAssignee: {
             userId: number;

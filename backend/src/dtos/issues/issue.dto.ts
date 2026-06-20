@@ -74,6 +74,13 @@ export class AssignIssueDto {
   assignedToId!: number;
 }
 
+export class AssignIssueClientDto {
+  @ApiProperty({ example: 2 })
+  @IsInt()
+  @Type(() => Number)
+  clientId!: number;
+}
+
 export class CreateFindingDto {
   @ApiProperty({ example: "Missing input tax credit reconciliation" })
   @IsString()
@@ -112,6 +119,9 @@ export class IssueListItemDto {
 
   @ApiProperty({ nullable: true })
   responsiblePerson!: string | null;
+
+  @ApiProperty({ example: "ABC Pvt Ltd", nullable: true })
+  assignedClientName!: string | null;
 
   @ApiProperty({ example: 2 })
   findingsCount!: number;
@@ -163,6 +173,9 @@ export class IssueDetailDto extends IssueListItemDto {
 
   @ApiProperty({ example: "Demo Auditor", nullable: true })
   assigneeName!: string | null;
+
+  @ApiProperty({ example: 2, nullable: true })
+  assignedClientId!: number | null;
 
   @ApiProperty({ type: [FindingDto] })
   findings!: FindingDto[];

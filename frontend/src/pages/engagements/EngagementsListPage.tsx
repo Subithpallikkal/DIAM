@@ -101,7 +101,7 @@ export function EngagementsListPage() {
       setCreateOpen(false)
       form.resetFields()
       invalidateEngagementOptionsCache()
-      reload()
+      await reload({ page: 1 })
       openDetail(engagement.id)
     } catch (err) {
       setCreateError(getApiErrorMessage(err, 'Failed to create engagement'))
@@ -294,6 +294,7 @@ export function EngagementsListPage() {
             }
             onError={closeDetail}
             onClientClick={(clientId) => navigate(`/clients/${clientId}`)}
+            onMutated={reload}
           />
         )}
       </DetailDrawer>

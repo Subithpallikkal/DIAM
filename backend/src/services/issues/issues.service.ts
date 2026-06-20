@@ -9,6 +9,7 @@ import {
 import { PaginationQueryDto, PaginatedResponseDto } from "../../dtos/common/pagination.dto";
 import {
   AssignIssueDto,
+  AssignIssueClientDto,
   CreateFindingDto,
   CreateIssueDto,
   FindingDto,
@@ -52,6 +53,7 @@ export class IssuesService {
         where,
         include: {
           engagement: true,
+          assignedClient: true,
           _count: { select: { findings: true } },
         },
         orderBy: this.buildOrderBy(query),
@@ -93,6 +95,7 @@ export class IssuesService {
       where: { uid: id },
       include: {
         engagement: true,
+        assignedClient: true,
         findings: { include: { createdBy: true } },
         statusLogs: { include: { changedBy: true }, orderBy: { createdAt: "desc" } },
         assignments: {
@@ -205,6 +208,21 @@ export class IssuesService {
     return this.findOne(issueId);
   }
 
+  async assignClient(
+    issueId: number,
+    dto: AssignIssueClientDto,
+  ): Promise<IssueDetailDto> {
+    await this.ensureExists(issueId);
+    await this.ensureClientExists(dto.clientId);
+
+    await this.prisma.issue.update({
+      where: { uid: issueId },
+      data: { assignedClientUid: dto.clientId },
+    });
+
+    return this.findOne(issueId);
+  }
+
   async addFinding(
     issueId: number,
     dto: CreateFindingDto,
@@ -272,6 +290,13 @@ export class IssuesService {
     }
   }
 
+  private async ensureClientExists(clientId: number) {
+    const client = await this.prisma.client.findUnique({ where: { uid: clientId } });
+    if (!client) {
+      throw new NotFoundException(`Client ${clientId} not found`);
+    }
+  }
+
   private toListItem(issue: {
     uid: number;
     engagementUid: number;
@@ -281,6 +306,7 @@ export class IssuesService {
     responsiblePerson: string | null;
     createdAt: Date;
     engagement: { title: string };
+    assignedClient?: { name: string } | null;
     findings?: unknown[];
     _count?: { findings: number };
   }): IssueListItemDto {
@@ -292,6 +318,7 @@ export class IssuesService {
       severity: issue.severity,
       status: issue.status,
       responsiblePerson: issue.responsiblePerson,
+      assignedClientName: issue.assignedClient?.name ?? null,
       findingsCount: issue._count?.findings ?? issue.findings?.length ?? 0,
       createdAt: issue.createdAt,
     };
@@ -308,6 +335,7 @@ export class IssuesService {
     createdAt: Date;
     updatedAt: Date;
     engagement: { title: string };
+    assignedClient?: { uid: number; name: string } | null;
     findings: {
       uid: number;
       title: string;
@@ -331,6 +359,7 @@ export class IssuesService {
       ...this.toListItem({ ...issue, findings: issue.findings }),
       description: issue.description,
       assigneeName: issue.assignments?.[0]?.assignedTo.name ?? null,
+      assignedClientId: issue.assignedClient?.uid ?? null,
       updatedAt: issue.updatedAt,
       findings: issue.findings.map((finding) => ({
         id: finding.uid,

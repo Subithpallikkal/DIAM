@@ -50,7 +50,7 @@ export function TasksPage() {
     [],
   )
 
-  const { data: tasks, loading, pagination, search, setSearch, tableSort, tableFilters, onTableChange } = usePaginatedList({
+  const { data: tasks, loading, reload, pagination, search, setSearch, tableSort, tableFilters, onTableChange } = usePaginatedList({
     fetcher,
     initialPageSize: 10,
   })
@@ -136,6 +136,7 @@ export function TasksPage() {
       message.success('Task created')
       setCreateOpen(false)
       form.resetFields()
+      await reload({ page: 1 })
       openDetail(task.id)
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return
@@ -255,6 +256,7 @@ export function TasksPage() {
               setDetailMeta({ title: task.title, subtitle: `Task for ${task.engagementTitle}` })
             }
             onError={closeDetail}
+            onMutated={reload}
           />
         )}
       </DetailDrawer>

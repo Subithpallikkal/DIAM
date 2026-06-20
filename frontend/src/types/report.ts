@@ -68,3 +68,36 @@ export interface FindingsReport {
 export type ReportFormat = 'pdf' | 'excel'
 
 export type ReportType = 'audit-summary' | 'risk-report' | 'findings-report'
+
+export interface MyTaskItem {
+  id: number
+  title: string
+  engagementTitle: string
+  status: string
+}
+
+export interface MyChecklistItem {
+  id: number
+  title: string
+  riskId: number
+  riskTitle: string
+  engagementTitle: string
+}
+
+export interface MyIssueItem {
+  id: number
+  title: string
+  engagementTitle: string
+  status: string
+  severity: string
+}
+
+export interface MyDashboardStats {
+  pendingTasks: number
+  inProgressTasks: number
+  openChecklists: number
+  openIssues: number
+  myTasks: MyTaskItem[]
+  myChecklists: MyChecklistItem[]
+  myIssues: MyIssueItem[]
+}

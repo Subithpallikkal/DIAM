@@ -10,6 +10,7 @@ export interface IssueListItem {
   severity: Priority
   status: IssueStatus
   responsiblePerson: string | null
+  assignedClientName: string | null
   findingsCount: number
   createdAt: string
 }
@@ -34,6 +35,7 @@ export interface IssueStatusLog {
 export interface IssueDetail extends IssueListItem {
   description: string | null
   assigneeName: string | null
+  assignedClientId: number | null
   findings: Finding[]
   statusLogs: IssueStatusLog[]
   updatedAt: string

@@ -5,6 +5,7 @@ import {
   AuditSummaryReportDto,
   DashboardStatsDto,
   FindingsReportDto,
+  MyDashboardStatsDto,
   RiskReportDto,
 } from "../../dtos/reports/report.dto";
 import { EngagementStatus } from "../../dtos/common/engagement.dto";
@@ -71,6 +72,95 @@ export class ReportsService {
       ReportsService.DASHBOARD_TTL_MS,
     );
 
+    return stats;
+  }
+
+  async getMyDashboardStats(userId: number): Promise<MyDashboardStatsDto> {
+    const cacheKey = `dashboard:my:${userId}`;
+    const cached = this.cache.get<MyDashboardStatsDto>(cacheKey);
+    if (cached) return cached;
+
+    const activeTaskStatuses = [TaskStatus.PENDING, TaskStatus.IN_PROGRESS];
+    const activeIssueStatuses = [IssueStatus.OPEN, IssueStatus.IN_PROGRESS];
+
+    const [tasks, checklists, issues] = await Promise.all([
+      this.prisma.task.findMany({
+        where: { status: { in: activeTaskStatuses } },
+        include: {
+          engagement: { select: { title: true } },
+          assignments: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+      }),
+      this.prisma.riskChecklist.findMany({
+        where: { isCompleted: false },
+        include: {
+          risk: {
+            include: { engagement: { select: { title: true } } },
+          },
+          assignments: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+      }),
+      this.prisma.issue.findMany({
+        where: { status: { in: activeIssueStatuses } },
+        include: {
+          engagement: { select: { title: true } },
+          assignments: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+      }),
+    ]);
+
+    const myTasks = tasks
+      .filter((task) => task.assignments[0]?.assignedToUid === userId)
+      .map((task) => ({
+        id: task.uid,
+        title: task.title,
+        engagementTitle: task.engagement.title,
+        status: task.status,
+      }));
+
+    const myChecklists = checklists
+      .filter((item) => item.assignments[0]?.assignedToUid === userId)
+      .map((item) => ({
+        id: item.uid,
+        title: item.title,
+        riskId: item.risk.uid,
+        riskTitle: item.risk.title,
+        engagementTitle: item.risk.engagement.title,
+      }));
+
+    const myIssues = issues
+      .filter((issue) => issue.assignments[0]?.assignedToUid === userId)
+      .map((issue) => ({
+        id: issue.uid,
+        title: issue.title,
+        engagementTitle: issue.engagement.title,
+        status: issue.status,
+        severity: issue.severity,
+      }));
+
+    const stats: MyDashboardStatsDto = {
+      pendingTasks: myTasks.filter((task) => task.status === TaskStatus.PENDING).length,
+      inProgressTasks: myTasks.filter((task) => task.status === TaskStatus.IN_PROGRESS).length,
+      openChecklists: myChecklists.length,
+      openIssues: myIssues.length,
+      myTasks,
+      myChecklists,
+      myIssues,
+    };
+
+    this.cache.set(cacheKey, stats, ReportsService.DASHBOARD_TTL_MS);
     return stats;
   }
 

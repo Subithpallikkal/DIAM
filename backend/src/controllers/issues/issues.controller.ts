@@ -20,6 +20,7 @@ import {
 import { IssuesService } from "../../services/issues/issues.service";
 import {
   AssignIssueDto,
+  AssignIssueClientDto,
   CreateFindingDto,
   FindingDto,
   IssueDetailDto,
@@ -86,6 +87,16 @@ export class IssuesController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.issuesService.assign(id, dto, user.sub);
+  }
+
+  @RequireRoles(...Roles.ADMIN_MANAGER)
+  @Post("issues/:id/assign-client")
+  @ApiOperation({ summary: "Assign issue to client" })
+  assignClient(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: AssignIssueClientDto,
+  ) {
+    return this.issuesService.assignClient(id, dto);
   }
 
   @RequireRoles(...Roles.ALL)

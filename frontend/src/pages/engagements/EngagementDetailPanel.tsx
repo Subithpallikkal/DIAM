@@ -60,6 +60,7 @@ export interface EngagementDetailPanelProps {
   onLoaded?: (engagement: EngagementDetail) => void
   onError?: () => void
   onClientClick?: (clientId: number) => void
+  onMutated?: () => void
 }
 
 export function EngagementDetailPanel({
@@ -67,6 +68,7 @@ export function EngagementDetailPanel({
   onLoaded,
   onError,
   onClientClick,
+  onMutated,
 }: EngagementDetailPanelProps) {
   const { user } = useAuth()
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER'
@@ -87,11 +89,17 @@ export function EngagementDetailPanel({
   const modalWidth = useResponsiveModalWidth(440)
   const onLoadedRef = useRef(onLoaded)
   const onErrorRef = useRef(onError)
+  const onMutatedRef = useRef(onMutated)
 
   useEffect(() => {
     onLoadedRef.current = onLoaded
     onErrorRef.current = onError
+    onMutatedRef.current = onMutated
   })
+
+  const notifyMutated = useCallback(() => {
+    onMutatedRef.current?.()
+  }, [])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -220,6 +228,7 @@ export function EngagementDetailPanel({
       message.success('Engagement updated')
       setEditOpen(false)
       editForm.resetFields()
+      notifyMutated()
     } catch (err) {
       message.error(getApiErrorMessage(err, 'Failed to update engagement'))
     } finally {

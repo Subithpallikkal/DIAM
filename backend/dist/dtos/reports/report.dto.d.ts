@@ -56,3 +56,32 @@ export declare class FindingsReportDto {
     engagementTitle: string;
     items: FindingsReportItemDto[];
 }
+export declare class MyTaskItemDto {
+    id: number;
+    title: string;
+    engagementTitle: string;
+    status: string;
+}
+export declare class MyChecklistItemDto {
+    id: number;
+    title: string;
+    riskId: number;
+    riskTitle: string;
+    engagementTitle: string;
+}
+export declare class MyIssueItemDto {
+    id: number;
+    title: string;
+    engagementTitle: string;
+    status: string;
+    severity: string;
+}
+export declare class MyDashboardStatsDto {
+    pendingTasks: number;
+    inProgressTasks: number;
+    openChecklists: number;
+    openIssues: number;
+    myTasks: MyTaskItemDto[];
+    myChecklists: MyChecklistItemDto[];
+    myIssues: MyIssueItemDto[];
+}

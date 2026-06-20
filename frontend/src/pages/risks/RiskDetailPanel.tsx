@@ -36,9 +36,10 @@ export interface RiskDetailPanelProps {
   riskId: number
   onLoaded?: (risk: RiskListItem) => void
   onError?: () => void
+  onMutated?: () => void
 }
 
-export function RiskDetailPanel({ riskId, onLoaded, onError }: RiskDetailPanelProps) {
+export function RiskDetailPanel({ riskId, onLoaded, onError, onMutated }: RiskDetailPanelProps) {
   const { user } = useAuth()
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER'
 
@@ -54,11 +55,17 @@ export function RiskDetailPanel({ riskId, onLoaded, onError }: RiskDetailPanelPr
   const modalWidth = useResponsiveModalWidth(440)
   const onLoadedRef = useRef(onLoaded)
   const onErrorRef = useRef(onError)
+  const onMutatedRef = useRef(onMutated)
 
   useEffect(() => {
     onLoadedRef.current = onLoaded
     onErrorRef.current = onError
+    onMutatedRef.current = onMutated
   })
+
+  const notifyMutated = useCallback(() => {
+    onMutatedRef.current?.()
+  }, [])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -96,6 +103,7 @@ export function RiskDetailPanel({ riskId, onLoaded, onError }: RiskDetailPanelPr
       form.resetFields()
       setChecklists(await fetchChecklists(riskId))
       setRisk(await fetchRisk(riskId))
+      notifyMutated()
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return
       message.error(getApiErrorMessage(err, 'Failed to add checklist item'))
@@ -107,6 +115,7 @@ export function RiskDetailPanel({ riskId, onLoaded, onError }: RiskDetailPanelPr
       await upsertChecklistItem(riskId, { id: item.id, isCompleted: checked })
       setChecklists(await fetchChecklists(riskId))
       setRisk(await fetchRisk(riskId))
+      notifyMutated()
     } catch (err) {
       message.error(getApiErrorMessage(err, 'Failed to update checklist'))
     }
@@ -121,6 +130,7 @@ export function RiskDetailPanel({ riskId, onLoaded, onError }: RiskDetailPanelPr
       setAssigningItem(null)
       setAssigneeId(undefined)
       setChecklists(await fetchChecklists(riskId))
+      notifyMutated()
     } catch (err) {
       message.error(getApiErrorMessage(err, 'Failed to assign checklist item'))
     }
@@ -136,6 +146,7 @@ export function RiskDetailPanel({ riskId, onLoaded, onError }: RiskDetailPanelPr
       setRisk(updated)
       onLoadedRef.current?.(updated)
       message.success('Risk status updated')
+      notifyMutated()
     } catch (err) {
       message.error(getApiErrorMessage(err, 'Failed to update status'))
     }

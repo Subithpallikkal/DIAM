@@ -21,6 +21,7 @@ const report_export_service_1 = require("../../services/reports/report-export.se
 const report_dto_1 = require("../../dtos/reports/report.dto");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const roles_constants_1 = require("../../common/constants/roles.constants");
+const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 let ReportsController = class ReportsController {
     constructor(reportsService, exportService) {
         this.reportsService = reportsService;
@@ -28,6 +29,9 @@ let ReportsController = class ReportsController {
     }
     getDashboardStats() {
         return this.reportsService.getDashboardStats();
+    }
+    getMyDashboardStats(user) {
+        return this.reportsService.getMyDashboardStats(user.sub);
     }
     getAuditSummary(engagementId) {
         return this.reportsService.getAuditSummary(Number(engagementId));
@@ -94,6 +98,16 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ReportsController.prototype, "getDashboardStats", null);
+__decorate([
+    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
+    (0, common_1.Get)("my-dashboard"),
+    (0, swagger_1.ApiOperation)({ summary: "Get personal dashboard for current user" }),
+    (0, swagger_1.ApiOkResponse)({ type: report_dto_1.MyDashboardStatsDto }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], ReportsController.prototype, "getMyDashboardStats", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Get)("audit-summary"),

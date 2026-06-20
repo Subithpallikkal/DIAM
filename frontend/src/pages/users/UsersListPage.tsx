@@ -137,7 +137,11 @@ export function UsersListPage() {
       message.success(editingUserId ? 'User updated' : 'User created')
 
       closeModal()
-      reload()
+      if (editingUserId) {
+        await reload()
+      } else {
+        await reload({ page: 1 })
+      }
     } catch (err) {
       setModalError(
         getApiErrorMessage(

@@ -30,9 +30,10 @@ export interface TaskDetailPanelProps {
   taskId: number
   onLoaded?: (task: TaskDetail) => void
   onError?: () => void
+  onMutated?: () => void
 }
 
-export function TaskDetailPanel({ taskId, onLoaded, onError }: TaskDetailPanelProps) {
+export function TaskDetailPanel({ taskId, onLoaded, onError, onMutated }: TaskDetailPanelProps) {
   const { user } = useAuth()
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER'
 
@@ -43,11 +44,17 @@ export function TaskDetailPanel({ taskId, onLoaded, onError }: TaskDetailPanelPr
   const [assigneeId, setAssigneeId] = useState<number | undefined>()
   const onLoadedRef = useRef(onLoaded)
   const onErrorRef = useRef(onError)
+  const onMutatedRef = useRef(onMutated)
 
   useEffect(() => {
     onLoadedRef.current = onLoaded
     onErrorRef.current = onError
+    onMutatedRef.current = onMutated
   })
+
+  const notifyMutated = useCallback(() => {
+    onMutatedRef.current?.()
+  }, [])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -80,7 +87,8 @@ export function TaskDetailPanel({ taskId, onLoaded, onError }: TaskDetailPanelPr
         status: status as TaskDetail['status'],
       })
       message.success('Status updated')
-      loadData()
+      await loadData()
+      notifyMutated()
     } catch (err) {
       message.error(getApiErrorMessage(err, 'Failed to update status'))
     }
@@ -91,7 +99,8 @@ export function TaskDetailPanel({ taskId, onLoaded, onError }: TaskDetailPanelPr
     try {
       await assignTask(taskId, assigneeId)
       message.success('Task assigned')
-      loadData()
+      await loadData()
+      notifyMutated()
     } catch (err) {
       message.error(getApiErrorMessage(err, 'Failed to assign task'))
     }

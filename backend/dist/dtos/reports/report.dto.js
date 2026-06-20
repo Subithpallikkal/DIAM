@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FindingsReportDto = exports.FindingsReportItemDto = exports.RiskReportDto = exports.RiskReportItemDto = exports.AuditSummaryReportDto = exports.DashboardStatsDto = exports.WorkloadStatsDto = exports.ChecklistWorkloadItemDto = exports.TaskWorkloadItemDto = void 0;
+exports.MyDashboardStatsDto = exports.MyIssueItemDto = exports.MyChecklistItemDto = exports.MyTaskItemDto = exports.FindingsReportDto = exports.FindingsReportItemDto = exports.RiskReportDto = exports.RiskReportItemDto = exports.AuditSummaryReportDto = exports.DashboardStatsDto = exports.WorkloadStatsDto = exports.ChecklistWorkloadItemDto = exports.TaskWorkloadItemDto = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 class TaskWorkloadItemDto {
@@ -226,4 +226,112 @@ __decorate([
     (0, swagger_1.ApiProperty)({ type: [FindingsReportItemDto] }),
     __metadata("design:type", Array)
 ], FindingsReportDto.prototype, "items", void 0);
+class MyTaskItemDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: true, type: () => Number }, title: { required: true, type: () => String }, engagementTitle: { required: true, type: () => String }, status: { required: true, type: () => String } };
+    }
+}
+exports.MyTaskItemDto = MyTaskItemDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    __metadata("design:type", Number)
+], MyTaskItemDto.prototype, "id", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "Review bank statements" }),
+    __metadata("design:type", String)
+], MyTaskItemDto.prototype, "title", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "Financial Audit 2026" }),
+    __metadata("design:type", String)
+], MyTaskItemDto.prototype, "engagementTitle", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "PENDING" }),
+    __metadata("design:type", String)
+], MyTaskItemDto.prototype, "status", void 0);
+class MyChecklistItemDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: true, type: () => Number }, title: { required: true, type: () => String }, riskId: { required: true, type: () => Number }, riskTitle: { required: true, type: () => String }, engagementTitle: { required: true, type: () => String } };
+    }
+}
+exports.MyChecklistItemDto = MyChecklistItemDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    __metadata("design:type", Number)
+], MyChecklistItemDto.prototype, "id", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "Verify GST returns" }),
+    __metadata("design:type", String)
+], MyChecklistItemDto.prototype, "title", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 3 }),
+    __metadata("design:type", Number)
+], MyChecklistItemDto.prototype, "riskId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "Tax compliance risk" }),
+    __metadata("design:type", String)
+], MyChecklistItemDto.prototype, "riskTitle", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "Financial Audit 2026" }),
+    __metadata("design:type", String)
+], MyChecklistItemDto.prototype, "engagementTitle", void 0);
+class MyIssueItemDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: true, type: () => Number }, title: { required: true, type: () => String }, engagementTitle: { required: true, type: () => String }, status: { required: true, type: () => String }, severity: { required: true, type: () => String } };
+    }
+}
+exports.MyIssueItemDto = MyIssueItemDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    __metadata("design:type", Number)
+], MyIssueItemDto.prototype, "id", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "GST filing delayed" }),
+    __metadata("design:type", String)
+], MyIssueItemDto.prototype, "title", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "Financial Audit 2026" }),
+    __metadata("design:type", String)
+], MyIssueItemDto.prototype, "engagementTitle", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "OPEN" }),
+    __metadata("design:type", String)
+], MyIssueItemDto.prototype, "status", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "HIGH" }),
+    __metadata("design:type", String)
+], MyIssueItemDto.prototype, "severity", void 0);
+class MyDashboardStatsDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { pendingTasks: { required: true, type: () => Number }, inProgressTasks: { required: true, type: () => Number }, openChecklists: { required: true, type: () => Number }, openIssues: { required: true, type: () => Number }, myTasks: { required: true, type: () => [require("./report.dto").MyTaskItemDto] }, myChecklists: { required: true, type: () => [require("./report.dto").MyChecklistItemDto] }, myIssues: { required: true, type: () => [require("./report.dto").MyIssueItemDto] } };
+    }
+}
+exports.MyDashboardStatsDto = MyDashboardStatsDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 2 }),
+    __metadata("design:type", Number)
+], MyDashboardStatsDto.prototype, "pendingTasks", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    __metadata("design:type", Number)
+], MyDashboardStatsDto.prototype, "inProgressTasks", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 3 }),
+    __metadata("design:type", Number)
+], MyDashboardStatsDto.prototype, "openChecklists", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 2 }),
+    __metadata("design:type", Number)
+], MyDashboardStatsDto.prototype, "openIssues", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [MyTaskItemDto] }),
+    __metadata("design:type", Array)
+], MyDashboardStatsDto.prototype, "myTasks", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [MyChecklistItemDto] }),
+    __metadata("design:type", Array)
+], MyDashboardStatsDto.prototype, "myChecklists", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [MyIssueItemDto] }),
+    __metadata("design:type", Array)
+], MyDashboardStatsDto.prototype, "myIssues", void 0);
 //# sourceMappingURL=report.dto.js.map

@@ -42,6 +42,9 @@ let IssuesController = class IssuesController {
     assign(id, dto, user) {
         return this.issuesService.assign(id, dto, user.sub);
     }
+    assignClient(id, dto) {
+        return this.issuesService.assignClient(id, dto);
+    }
     addFinding(id, dto, user) {
         return this.issuesService.addFinding(id, dto, user.sub);
     }
@@ -99,6 +102,17 @@ __decorate([
     __metadata("design:paramtypes", [Number, issue_dto_1.AssignIssueDto, Object]),
     __metadata("design:returntype", void 0)
 ], IssuesController.prototype, "assign", null);
+__decorate([
+    (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ADMIN_MANAGER),
+    (0, common_1.Post)("issues/:id/assign-client"),
+    (0, swagger_1.ApiOperation)({ summary: "Assign issue to client" }),
+    openapi.ApiResponse({ status: 201, type: require("../../dtos/issues/issue.dto").IssueDetailDto }),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, issue_dto_1.AssignIssueClientDto]),
+    __metadata("design:returntype", void 0)
+], IssuesController.prototype, "assignClient", null);
 __decorate([
     (0, roles_decorator_1.RequireRoles)(...roles_constants_1.Roles.ALL),
     (0, common_1.Post)("issues/:id/findings"),

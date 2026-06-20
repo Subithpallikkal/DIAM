@@ -144,7 +144,11 @@ export function ClientsListPage() {
       message.success(editingClientId ? 'Client updated' : 'Client created')
 
       closeModal()
-      reload()
+      if (editingClientId) {
+        await reload()
+      } else {
+        await reload({ page: 1 })
+      }
     } catch (err) {
       setModalError(
         getApiErrorMessage(

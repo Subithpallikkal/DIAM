@@ -48,7 +48,7 @@ export function IssuesPage() {
     [],
   )
 
-  const { data: issues, loading, pagination, search, setSearch, tableSort, tableFilters, onTableChange } = usePaginatedList({
+  const { data: issues, loading, reload, pagination, search, setSearch, tableSort, tableFilters, onTableChange } = usePaginatedList({
     fetcher,
     initialPageSize: 10,
   })
@@ -82,6 +82,13 @@ export function IssuesPage() {
         responsive: ['md'],
         sorter: true,
         showSorterTooltip: true,
+      },
+      {
+        title: 'Client',
+        dataIndex: 'assignedClientName',
+        key: 'assignedClientName',
+        responsive: ['lg'],
+        render: (value: string | null) => value || '—',
       },
       {
         title: 'Severity',
@@ -139,6 +146,7 @@ export function IssuesPage() {
       message.success('Issue created')
       setCreateOpen(false)
       form.resetFields()
+      await reload({ page: 1 })
       openDetail(issue.id)
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return
@@ -197,6 +205,11 @@ export function IssuesPage() {
               }
             >
               <MobileListRow icon={<AuditOutlined />}>{issue.engagementTitle}</MobileListRow>
+              {issue.assignedClientName && (
+                <MobileListRow icon={<AuditOutlined />}>
+                  Client: {issue.assignedClientName}
+                </MobileListRow>
+              )}
               <MobileListRow icon={<FileSearchOutlined />}>
                 {issue.status.replace('_', ' ')} · {issue.findingsCount} finding
                 {issue.findingsCount === 1 ? '' : 's'}
@@ -272,6 +285,7 @@ export function IssuesPage() {
               setDetailMeta({ title: issue.title, subtitle: `Issue for ${issue.engagementTitle}` })
             }
             onError={closeDetail}
+            onMutated={reload}
           />
         )}
       </DetailDrawer>

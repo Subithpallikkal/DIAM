@@ -6,9 +6,11 @@ import {
   SEVERITY_OPTIONS,
   addFinding,
   assignIssue,
+  assignIssueClient,
   fetchIssue,
   upsertIssue,
 } from '../../api/issues.api'
+import { fetchClients } from '../../api/clients.api'
 import { fetchUsers } from '../../api/users.api'
 import {
   Button,
@@ -24,6 +26,7 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { cn } from '../../utils/cn'
 import type { IssueDetail } from '../../types/issue'
+import type { ClientListItem } from '../../types/client'
 import type { UserListItem } from '../../types/user'
 import { getApiErrorMessage } from '../../utils/errors'
 
@@ -33,25 +36,34 @@ export interface IssueDetailPanelProps {
   issueId: number
   onLoaded?: (issue: IssueDetail) => void
   onError?: () => void
+  onMutated?: () => void
 }
 
-export function IssueDetailPanel({ issueId, onLoaded, onError }: IssueDetailPanelProps) {
+export function IssueDetailPanel({ issueId, onLoaded, onError, onMutated }: IssueDetailPanelProps) {
   const { user } = useAuth()
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER'
 
   const [issue, setIssue] = useState<IssueDetail | null>(null)
   const [users, setUsers] = useState<UserListItem[]>([])
+  const [clients, setClients] = useState<ClientListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [findingTitle, setFindingTitle] = useState('')
   const [findingSeverity, setFindingSeverity] = useState<string>('MEDIUM')
   const [assigneeId, setAssigneeId] = useState<number | undefined>()
+  const [clientId, setClientId] = useState<number | undefined>()
   const onLoadedRef = useRef(onLoaded)
   const onErrorRef = useRef(onError)
+  const onMutatedRef = useRef(onMutated)
 
   useEffect(() => {
     onLoadedRef.current = onLoaded
     onErrorRef.current = onError
+    onMutatedRef.current = onMutated
   })
+
+  const notifyMutated = useCallback(() => {
+    onMutatedRef.current?.()
+  }, [])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -60,9 +72,18 @@ export function IssueDetailPanel({ issueId, onLoaded, onError }: IssueDetailPane
       setIssue(data)
       onLoadedRef.current?.(data)
       if (canManage) {
-        fetchUsers({ page: 1, limit: 100 })
-          .then((response) => setUsers(response.data))
-          .catch(() => setUsers([]))
+        Promise.all([
+          fetchUsers({ page: 1, limit: 100 }),
+          fetchClients({ page: 1, limit: 100 }),
+        ])
+          .then(([usersResponse, clientsResponse]) => {
+            setUsers(usersResponse.data)
+            setClients(clientsResponse.data)
+          })
+          .catch(() => {
+            setUsers([])
+            setClients([])
+          })
       }
     } catch (err) {
       message.error(getApiErrorMessage(err, 'Failed to load issue'))
@@ -84,7 +105,8 @@ export function IssueDetailPanel({ issueId, onLoaded, onError }: IssueDetailPane
         status: status as IssueDetail['status'],
       })
       message.success('Status updated')
-      loadData()
+      await loadData()
+      notifyMutated()
     } catch (err) {
       message.error(getApiErrorMessage(err, 'Failed to update status'))
     }
@@ -95,9 +117,22 @@ export function IssueDetailPanel({ issueId, onLoaded, onError }: IssueDetailPane
     try {
       await assignIssue(issueId, assigneeId)
       message.success('Issue assigned')
-      loadData()
+      await loadData()
+      notifyMutated()
     } catch (err) {
       message.error(getApiErrorMessage(err, 'Failed to assign issue'))
+    }
+  }
+
+  const handleAssignClient = async () => {
+    if (!clientId) return
+    try {
+      await assignIssueClient(issueId, clientId)
+      message.success('Issue assigned to client')
+      await loadData()
+      notifyMutated()
+    } catch (err) {
+      message.error(getApiErrorMessage(err, 'Failed to assign client'))
     }
   }
 
@@ -110,7 +145,8 @@ export function IssueDetailPanel({ issueId, onLoaded, onError }: IssueDetailPane
       })
       setFindingTitle('')
       message.success('Finding added')
-      loadData()
+      await loadData()
+      notifyMutated()
     } catch (err) {
       message.error(getApiErrorMessage(err, 'Failed to add finding'))
     }
@@ -151,8 +187,15 @@ export function IssueDetailPanel({ issueId, onLoaded, onError }: IssueDetailPane
               <Text type="secondary">Unassigned</Text>
             )}
           </DetailFieldRow>
+          <DetailFieldRow label="Assigned Client">
+            {issue.assignedClientName ? (
+              <Text>{issue.assignedClientName}</Text>
+            ) : (
+              <Text type="secondary">Unassigned</Text>
+            )}
+          </DetailFieldRow>
           {canManage && (
-            <DetailFieldRow label="Assign to">
+            <DetailFieldRow label="Assign to user">
               <div className="flex flex-col gap-2">
                 <Select
                   placeholder="Select user"
@@ -162,7 +205,23 @@ export function IssueDetailPanel({ issueId, onLoaded, onError }: IssueDetailPane
                   options={users.map((item) => ({ label: item.name, value: item.id }))}
                 />
                 <Button type="primary" onClick={handleAssign} className="w-full sm:w-auto">
-                  Assign
+                  Assign user
+                </Button>
+              </div>
+            </DetailFieldRow>
+          )}
+          {canManage && (
+            <DetailFieldRow label="Assign to client">
+              <div className="flex flex-col gap-2">
+                <Select
+                  placeholder="Select client"
+                  className={cn('w-full', selectFieldClass)}
+                  value={clientId}
+                  onChange={setClientId}
+                  options={clients.map((item) => ({ label: item.name, value: item.id }))}
+                />
+                <Button type="primary" onClick={handleAssignClient} className="w-full sm:w-auto">
+                  Assign client
                 </Button>
               </div>
             </DetailFieldRow>

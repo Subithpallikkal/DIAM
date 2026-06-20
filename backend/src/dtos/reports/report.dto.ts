@@ -137,3 +137,74 @@ export class FindingsReportDto {
   @ApiProperty({ type: [FindingsReportItemDto] })
   items!: FindingsReportItemDto[];
 }
+
+export class MyTaskItemDto {
+  @ApiProperty({ example: 1 })
+  id!: number;
+
+  @ApiProperty({ example: "Review bank statements" })
+  title!: string;
+
+  @ApiProperty({ example: "Financial Audit 2026" })
+  engagementTitle!: string;
+
+  @ApiProperty({ example: "PENDING" })
+  status!: string;
+}
+
+export class MyChecklistItemDto {
+  @ApiProperty({ example: 1 })
+  id!: number;
+
+  @ApiProperty({ example: "Verify GST returns" })
+  title!: string;
+
+  @ApiProperty({ example: 3 })
+  riskId!: number;
+
+  @ApiProperty({ example: "Tax compliance risk" })
+  riskTitle!: string;
+
+  @ApiProperty({ example: "Financial Audit 2026" })
+  engagementTitle!: string;
+}
+
+export class MyIssueItemDto {
+  @ApiProperty({ example: 1 })
+  id!: number;
+
+  @ApiProperty({ example: "GST filing delayed" })
+  title!: string;
+
+  @ApiProperty({ example: "Financial Audit 2026" })
+  engagementTitle!: string;
+
+  @ApiProperty({ example: "OPEN" })
+  status!: string;
+
+  @ApiProperty({ example: "HIGH" })
+  severity!: string;
+}
+
+export class MyDashboardStatsDto {
+  @ApiProperty({ example: 2 })
+  pendingTasks!: number;
+
+  @ApiProperty({ example: 1 })
+  inProgressTasks!: number;
+
+  @ApiProperty({ example: 3 })
+  openChecklists!: number;
+
+  @ApiProperty({ example: 2 })
+  openIssues!: number;
+
+  @ApiProperty({ type: [MyTaskItemDto] })
+  myTasks!: MyTaskItemDto[];
+
+  @ApiProperty({ type: [MyChecklistItemDto] })
+  myChecklists!: MyChecklistItemDto[];
+
+  @ApiProperty({ type: [MyIssueItemDto] })
+  myIssues!: MyIssueItemDto[];
+}

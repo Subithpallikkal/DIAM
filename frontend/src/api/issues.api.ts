@@ -39,6 +39,11 @@ export async function assignIssue(issueId: number, assignedToId: number): Promis
   return data
 }
 
+export async function assignIssueClient(issueId: number, clientId: number): Promise<IssueDetail> {
+  const { data } = await api.post<IssueDetail>(`/issues/${issueId}/assign-client`, { clientId })
+  return data
+}
+
 export async function addFinding(
   issueId: number,
   payload: CreateFindingPayload,

@@ -50,7 +50,7 @@ export function RisksPage() {
     [],
   )
 
-  const { data: risks, loading, pagination, search, setSearch, tableSort, tableFilters, onTableChange } = usePaginatedList({
+  const { data: risks, loading, reload, pagination, search, setSearch, tableSort, tableFilters, onTableChange } = usePaginatedList({
     fetcher,
     initialPageSize: 10,
   })
@@ -136,6 +136,7 @@ export function RisksPage() {
       message.success('Risk created')
       setCreateOpen(false)
       form.resetFields()
+      await reload({ page: 1 })
       openDetail(risk.id)
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return
@@ -265,6 +266,7 @@ export function RisksPage() {
             riskId={viewId}
             onLoaded={(risk) => setDetailMeta({ title: risk.title, subtitle: 'Risk details and checklist' })}
             onError={closeDetail}
+            onMutated={reload}
           />
         )}
       </DetailDrawer>

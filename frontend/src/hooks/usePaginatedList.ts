@@ -119,12 +119,17 @@ export function usePaginatedList<T>({
     }
   }, [enabled, buildQueryParams])
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (options?: { page?: number }) => {
     if (!enabled) return
 
     setLoading(true)
     try {
-      const response = await fetcherRef.current(buildQueryParams())
+      const params = buildQueryParams()
+      if (options?.page !== undefined) {
+        params.page = options.page
+        setPage(options.page)
+      }
+      const response = await fetcherRef.current(params)
       setData(response.data)
       setMeta(response.meta)
     } finally {

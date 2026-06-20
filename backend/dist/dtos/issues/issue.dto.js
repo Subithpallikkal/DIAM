@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IssueDetailDto = exports.IssueStatusLogDto = exports.FindingDto = exports.IssueListItemDto = exports.CreateFindingDto = exports.AssignIssueDto = exports.UpsertIssueDto = exports.UpdateIssueDto = exports.CreateIssueDto = void 0;
+exports.IssueDetailDto = exports.IssueStatusLogDto = exports.FindingDto = exports.IssueListItemDto = exports.CreateFindingDto = exports.AssignIssueClientDto = exports.AssignIssueDto = exports.UpsertIssueDto = exports.UpdateIssueDto = exports.CreateIssueDto = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
@@ -107,6 +107,18 @@ __decorate([
     (0, class_transformer_1.Type)(() => Number),
     __metadata("design:type", Number)
 ], AssignIssueDto.prototype, "assignedToId", void 0);
+class AssignIssueClientDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { clientId: { required: true, type: () => Number } };
+    }
+}
+exports.AssignIssueClientDto = AssignIssueClientDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 2 }),
+    (0, class_validator_1.IsInt)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], AssignIssueClientDto.prototype, "clientId", void 0);
 class CreateFindingDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { title: { required: true, type: () => String, minLength: 1 }, description: { required: false, type: () => String }, severity: { required: false, enum: require("../common/enums.dto").Priority } };
@@ -133,7 +145,7 @@ __decorate([
 ], CreateFindingDto.prototype, "severity", void 0);
 class IssueListItemDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, engagementId: { required: true, type: () => Number }, engagementTitle: { required: true, type: () => String }, title: { required: true, type: () => String }, severity: { required: true, type: () => String }, status: { required: true, type: () => String }, responsiblePerson: { required: true, type: () => String, nullable: true }, findingsCount: { required: true, type: () => Number }, createdAt: { required: true, type: () => Date } };
+        return { id: { required: true, type: () => Number }, engagementId: { required: true, type: () => Number }, engagementTitle: { required: true, type: () => String }, title: { required: true, type: () => String }, severity: { required: true, type: () => String }, status: { required: true, type: () => String }, responsiblePerson: { required: true, type: () => String, nullable: true }, assignedClientName: { required: true, type: () => String, nullable: true }, findingsCount: { required: true, type: () => Number }, createdAt: { required: true, type: () => Date } };
     }
 }
 exports.IssueListItemDto = IssueListItemDto;
@@ -165,6 +177,10 @@ __decorate([
     (0, swagger_1.ApiProperty)({ nullable: true }),
     __metadata("design:type", Object)
 ], IssueListItemDto.prototype, "responsiblePerson", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: "ABC Pvt Ltd", nullable: true }),
+    __metadata("design:type", Object)
+], IssueListItemDto.prototype, "assignedClientName", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 2 }),
     __metadata("design:type", Number)
@@ -231,7 +247,7 @@ __decorate([
 ], IssueStatusLogDto.prototype, "createdAt", void 0);
 class IssueDetailDto extends IssueListItemDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { description: { required: true, type: () => String, nullable: true }, assigneeName: { required: true, type: () => String, nullable: true }, findings: { required: true, type: () => [require("./issue.dto").FindingDto] }, statusLogs: { required: true, type: () => [require("./issue.dto").IssueStatusLogDto] }, updatedAt: { required: true, type: () => Date } };
+        return { description: { required: true, type: () => String, nullable: true }, assigneeName: { required: true, type: () => String, nullable: true }, assignedClientId: { required: true, type: () => Number, nullable: true }, findings: { required: true, type: () => [require("./issue.dto").FindingDto] }, statusLogs: { required: true, type: () => [require("./issue.dto").IssueStatusLogDto] }, updatedAt: { required: true, type: () => Date } };
     }
 }
 exports.IssueDetailDto = IssueDetailDto;
@@ -243,6 +259,10 @@ __decorate([
     (0, swagger_1.ApiProperty)({ example: "Demo Auditor", nullable: true }),
     __metadata("design:type", Object)
 ], IssueDetailDto.prototype, "assigneeName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 2, nullable: true }),
+    __metadata("design:type", Object)
+], IssueDetailDto.prototype, "assignedClientId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: [FindingDto] }),
     __metadata("design:type", Array)
