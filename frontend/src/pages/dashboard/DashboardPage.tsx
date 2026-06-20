@@ -562,7 +562,7 @@ function DashCardToolbar({
           <p className="m-0 mt-0.5 truncate text-sm font-semibold text-brand-dark">{count}</p>
         </div>
       </div>
-      <div className={cn('flex w-full flex-col gap-2 sm:flex-row sm:items-center', action && 'sm:justify-between')}>
+      <div className={cn('flex w-full flex-col gap-2 sm:flex-row sm:items-center', action ? 'sm:justify-between' : undefined)}>
         <Input
           allowClear
           prefix={<span className="text-slate-400">⌕</span>}

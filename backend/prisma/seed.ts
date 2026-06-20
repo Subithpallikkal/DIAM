@@ -2,7 +2,7 @@ import "dotenv/config";
 import bcrypt from "bcrypt";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
-import { RoleName } from "../src/dtos";
+import { RoleName } from "../src/dtos/common/role.dto";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
