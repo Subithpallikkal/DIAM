@@ -6,7 +6,11 @@ declare const JwtStrategy_base: new (...args: [opt: import("passport-jwt").Strat
 };
 export declare class JwtStrategy extends JwtStrategy_base {
     private prisma;
+    private static readonly USER_CACHE_TTL_MS;
     constructor(prisma: PrismaService);
     validate(payload: JwtPayload): Promise<JwtPayload>;
+    private readonly prismaCache;
+    private get;
+    private set;
 }
 export {};

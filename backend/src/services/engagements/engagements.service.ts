@@ -19,6 +19,9 @@ import { EngagementStatus } from "../../dtos/common/engagement.dto";
 
 @Injectable()
 export class EngagementsService {
+  private static readonly LIST_CACHE_TTL_MS = 30 * 1000;
+  private static readonly DETAIL_CACHE_TTL_MS = 60 * 1000;
+
   constructor(
     private prisma: PrismaService,
     private cache: CacheService,
@@ -45,6 +48,7 @@ export class EngagementsService {
       include: { client: true },
     });
 
+    this.cache.invalidatePrefix("engagements:");
     return this.toDetail(engagement);
   }
 
@@ -65,13 +69,30 @@ export class EngagementsService {
   async findAll(
     query: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<EngagementListItemDto>> {
+    const cacheKey = this.buildListCacheKey(query);
+    const cached = this.cache.get<PaginatedResponseDto<EngagementListItemDto>>(cacheKey);
+    if (cached) return cached;
+
     const { page, limit, skip, take } = resolvePagination(query);
     const where = this.buildWhere(query);
 
     const [engagements, total] = await Promise.all([
       this.prisma.auditEngagement.findMany({
         where,
-        include: { client: true },
+        select: {
+          uid: true,
+          clientUid: true,
+          title: true,
+          auditType: true,
+          financialYear: true,
+          status: true,
+          startDate: true,
+          endDate: true,
+          createdAt: true,
+          client: {
+            select: { name: true },
+          },
+        },
         orderBy: this.buildOrderBy(query),
         skip,
         take,
@@ -79,15 +100,22 @@ export class EngagementsService {
       this.prisma.auditEngagement.count({ where }),
     ]);
 
-    return buildPaginatedResponse(
+    const result = buildPaginatedResponse(
       engagements.map((engagement) => this.toListItem(engagement)),
       total,
       page,
       limit,
     );
+
+    this.cache.set(cacheKey, result, EngagementsService.LIST_CACHE_TTL_MS);
+    return result;
   }
 
   async findOne(id: number): Promise<EngagementDetailDto> {
+    const cacheKey = `engagements:detail:${id}`;
+    const cached = this.cache.get<EngagementDetailDto>(cacheKey);
+    if (cached) return cached;
+
     const engagement = await this.prisma.auditEngagement.findUnique({
       where: { uid: id },
       include: { client: true },
@@ -97,7 +125,9 @@ export class EngagementsService {
       throw new NotFoundException(`Engagement ${id} not found`);
     }
 
-    return this.toDetail(engagement);
+    const detail = this.toDetail(engagement);
+    this.cache.set(cacheKey, detail, EngagementsService.DETAIL_CACHE_TTL_MS);
+    return detail;
   }
 
   async update(
@@ -125,13 +155,27 @@ export class EngagementsService {
       include: { client: true },
     });
 
+    this.cache.invalidatePrefix("engagements:");
     return this.toDetail(engagement);
   }
 
   async remove(id: number): Promise<void> {
     await this.ensureExists(id);
     await this.prisma.auditEngagement.delete({ where: { uid: id } });
+    this.cache.invalidatePrefix("engagements:");
     this.cache.invalidatePrefix("dashboard:");
+  }
+
+  private buildListCacheKey(query: PaginationQueryDto): string {
+    const parts = [
+      query.page ?? 1,
+      query.limit ?? 20,
+      query.search?.trim() ?? "",
+      query.sortBy ?? "",
+      query.sortOrder ?? "",
+      query.status ?? "",
+    ];
+    return `engagements:list:${parts.join("|")}`;
   }
 
   private buildWhere(query: PaginationQueryDto): Prisma.AuditEngagementWhereInput {

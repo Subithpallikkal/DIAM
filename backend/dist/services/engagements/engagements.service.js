@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var EngagementsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EngagementsService = void 0;
 const common_1 = require("@nestjs/common");
@@ -15,7 +16,7 @@ const prisma_service_1 = require("../../common/prisma/prisma.service");
 const cache_service_1 = require("../../common/cache/cache.service");
 const pagination_util_1 = require("../../common/prisma/pagination.util");
 const engagement_dto_1 = require("../../dtos/common/engagement.dto");
-let EngagementsService = class EngagementsService {
+let EngagementsService = EngagementsService_1 = class EngagementsService {
     constructor(prisma, cache) {
         this.prisma = prisma;
         this.cache = cache;
@@ -36,6 +37,7 @@ let EngagementsService = class EngagementsService {
             },
             include: { client: true },
         });
+        this.cache.invalidatePrefix("engagements:");
         return this.toDetail(engagement);
     }
     async upsert(dto, createdByUid) {
@@ -49,21 +51,44 @@ let EngagementsService = class EngagementsService {
         return this.create(data, createdByUid);
     }
     async findAll(query) {
+        const cacheKey = this.buildListCacheKey(query);
+        const cached = this.cache.get(cacheKey);
+        if (cached)
+            return cached;
         const { page, limit, skip, take } = (0, pagination_util_1.resolvePagination)(query);
         const where = this.buildWhere(query);
         const [engagements, total] = await Promise.all([
             this.prisma.auditEngagement.findMany({
                 where,
-                include: { client: true },
+                select: {
+                    uid: true,
+                    clientUid: true,
+                    title: true,
+                    auditType: true,
+                    financialYear: true,
+                    status: true,
+                    startDate: true,
+                    endDate: true,
+                    createdAt: true,
+                    client: {
+                        select: { name: true },
+                    },
+                },
                 orderBy: this.buildOrderBy(query),
                 skip,
                 take,
             }),
             this.prisma.auditEngagement.count({ where }),
         ]);
-        return (0, pagination_util_1.buildPaginatedResponse)(engagements.map((engagement) => this.toListItem(engagement)), total, page, limit);
+        const result = (0, pagination_util_1.buildPaginatedResponse)(engagements.map((engagement) => this.toListItem(engagement)), total, page, limit);
+        this.cache.set(cacheKey, result, EngagementsService_1.LIST_CACHE_TTL_MS);
+        return result;
     }
     async findOne(id) {
+        const cacheKey = `engagements:detail:${id}`;
+        const cached = this.cache.get(cacheKey);
+        if (cached)
+            return cached;
         const engagement = await this.prisma.auditEngagement.findUnique({
             where: { uid: id },
             include: { client: true },
@@ -71,7 +96,9 @@ let EngagementsService = class EngagementsService {
         if (!engagement) {
             throw new common_1.NotFoundException(`Engagement ${id} not found`);
         }
-        return this.toDetail(engagement);
+        const detail = this.toDetail(engagement);
+        this.cache.set(cacheKey, detail, EngagementsService_1.DETAIL_CACHE_TTL_MS);
+        return detail;
     }
     async update(id, dto) {
         await this.ensureExists(id);
@@ -92,12 +119,25 @@ let EngagementsService = class EngagementsService {
             },
             include: { client: true },
         });
+        this.cache.invalidatePrefix("engagements:");
         return this.toDetail(engagement);
     }
     async remove(id) {
         await this.ensureExists(id);
         await this.prisma.auditEngagement.delete({ where: { uid: id } });
+        this.cache.invalidatePrefix("engagements:");
         this.cache.invalidatePrefix("dashboard:");
+    }
+    buildListCacheKey(query) {
+        const parts = [
+            query.page ?? 1,
+            query.limit ?? 20,
+            query.search?.trim() ?? "",
+            query.sortBy ?? "",
+            query.sortOrder ?? "",
+            query.status ?? "",
+        ];
+        return `engagements:list:${parts.join("|")}`;
     }
     buildWhere(query) {
         const where = {};
@@ -172,7 +212,9 @@ let EngagementsService = class EngagementsService {
     }
 };
 exports.EngagementsService = EngagementsService;
-exports.EngagementsService = EngagementsService = __decorate([
+EngagementsService.LIST_CACHE_TTL_MS = 30 * 1000;
+EngagementsService.DETAIL_CACHE_TTL_MS = 60 * 1000;
+exports.EngagementsService = EngagementsService = EngagementsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         cache_service_1.CacheService])

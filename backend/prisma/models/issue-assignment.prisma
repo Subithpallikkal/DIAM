@@ -9,5 +9,8 @@ model IssueAssignment {
   assignedTo User  @relation("IssueAssignee", fields: [assignedToUid], references: [uid])
   assignedBy User  @relation("IssueAssigner", fields: [assignedByUid], references: [uid])
 
+  @@index([assignedToUid])
+  @@index([issueUid, createdAt(sort: Desc)])
+  @@index([assignedToUid, createdAt(sort: Desc)])
   @@map("issue_assignments")
 }

@@ -1,6 +1,8 @@
 import axios from 'axios'
+import type { AuthUser } from '../types/auth'
 
 const TOKEN_KEY = 'diam_token'
+const USER_KEY = 'diam_user'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -21,6 +23,26 @@ export function clearStoredToken(): void {
   localStorage.removeItem(TOKEN_KEY)
 }
 
+export function getStoredUser(): AuthUser | null {
+  const raw = localStorage.getItem(USER_KEY)
+  if (!raw) return null
+
+  try {
+    return JSON.parse(raw) as AuthUser
+  } catch {
+    localStorage.removeItem(USER_KEY)
+    return null
+  }
+}
+
+export function setStoredUser(user: AuthUser): void {
+  localStorage.setItem(USER_KEY, JSON.stringify(user))
+}
+
+export function clearStoredUser(): void {
+  localStorage.removeItem(USER_KEY)
+}
+
 api.interceptors.request.use((config) => {
   const token = getStoredToken()
   if (token) {
@@ -34,6 +56,7 @@ api.interceptors.response.use(
   (error) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
       clearStoredToken()
+      clearStoredUser()
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }

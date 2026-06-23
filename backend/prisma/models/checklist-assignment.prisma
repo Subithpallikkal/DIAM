@@ -9,5 +9,8 @@ model ChecklistAssignment {
   assignedTo User          @relation("ChecklistAssignee", fields: [assignedToUid], references: [uid])
   assignedBy User          @relation("ChecklistAssigner", fields: [assignedByUid], references: [uid])
 
+  @@index([assignedToUid])
+  @@index([checklistUid, createdAt(sort: Desc)])
+  @@index([assignedToUid, createdAt(sort: Desc)])
   @@map("checklist_assignments")
 }

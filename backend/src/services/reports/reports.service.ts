@@ -85,54 +85,60 @@ export class ReportsService {
 
     const [tasks, checklists, issues] = await Promise.all([
       this.prisma.task.findMany({
-        where: { status: { in: activeTaskStatuses } },
-        include: {
+        where: {
+          status: { in: activeTaskStatuses },
+          assignments: { some: { assignedToUid: userId } },
+        },
+        select: {
+          uid: true,
+          title: true,
+          status: true,
           engagement: { select: { title: true } },
-          assignments: {
-            orderBy: { createdAt: "desc" },
-            take: 1,
-          },
         },
         orderBy: { updatedAt: "desc" },
       }),
       this.prisma.riskChecklist.findMany({
-        where: { isCompleted: false },
-        include: {
+        where: {
+          isCompleted: false,
+          assignments: { some: { assignedToUid: userId } },
+        },
+        select: {
+          uid: true,
+          title: true,
           risk: {
-            include: { engagement: { select: { title: true } } },
-          },
-          assignments: {
-            orderBy: { createdAt: "desc" },
-            take: 1,
+            select: {
+              uid: true,
+              title: true,
+              engagement: { select: { title: true } },
+            },
           },
         },
         orderBy: { updatedAt: "desc" },
       }),
       this.prisma.issue.findMany({
-        where: { status: { in: activeIssueStatuses } },
-        include: {
+        where: {
+          status: { in: activeIssueStatuses },
+          assignments: { some: { assignedToUid: userId } },
+        },
+        select: {
+          uid: true,
+          title: true,
+          status: true,
+          severity: true,
           engagement: { select: { title: true } },
-          assignments: {
-            orderBy: { createdAt: "desc" },
-            take: 1,
-          },
         },
         orderBy: { updatedAt: "desc" },
       }),
     ]);
 
-    const myTasks = tasks
-      .filter((task) => task.assignments[0]?.assignedToUid === userId)
-      .map((task) => ({
+    const myTasks = tasks.map((task) => ({
         id: task.uid,
         title: task.title,
         engagementTitle: task.engagement.title,
         status: task.status,
       }));
 
-    const myChecklists = checklists
-      .filter((item) => item.assignments[0]?.assignedToUid === userId)
-      .map((item) => ({
+    const myChecklists = checklists.map((item) => ({
         id: item.uid,
         title: item.title,
         riskId: item.risk.uid,
@@ -140,9 +146,7 @@ export class ReportsService {
         engagementTitle: item.risk.engagement.title,
       }));
 
-    const myIssues = issues
-      .filter((issue) => issue.assignments[0]?.assignedToUid === userId)
-      .map((issue) => ({
+    const myIssues = issues.map((issue) => ({
         id: issue.uid,
         title: issue.title,
         engagementTitle: issue.engagement.title,
@@ -172,7 +176,14 @@ export class ReportsService {
         },
         include: {
           assignments: {
-            include: { assignedTo: true },
+            select: {
+              assignedTo: {
+                select: {
+                  uid: true,
+                  name: true,
+                },
+              },
+            },
             orderBy: { createdAt: "desc" },
             take: 1,
           },
@@ -182,7 +193,14 @@ export class ReportsService {
         where: { isCompleted: false },
         include: {
           assignments: {
-            include: { assignedTo: true },
+            select: {
+              assignedTo: {
+                select: {
+                  uid: true,
+                  name: true,
+                },
+              },
+            },
             orderBy: { createdAt: "desc" },
             take: 1,
           },

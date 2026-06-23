@@ -5,6 +5,8 @@ import { CreateEngagementDto, EngagementDetailDto, EngagementListItemDto, Update
 export declare class EngagementsService {
     private prisma;
     private cache;
+    private static readonly LIST_CACHE_TTL_MS;
+    private static readonly DETAIL_CACHE_TTL_MS;
     constructor(prisma: PrismaService, cache: CacheService);
     create(dto: CreateEngagementDto, createdByUid: number): Promise<EngagementDetailDto>;
     upsert(dto: UpsertEngagementDto, createdByUid: number): Promise<EngagementDetailDto>;
@@ -12,6 +14,7 @@ export declare class EngagementsService {
     findOne(id: number): Promise<EngagementDetailDto>;
     update(id: number, dto: UpdateEngagementDto): Promise<EngagementDetailDto>;
     remove(id: number): Promise<void>;
+    private buildListCacheKey;
     private buildWhere;
     private buildOrderBy;
     ensureExists(id: number): Promise<void>;

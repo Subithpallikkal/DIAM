@@ -9,5 +9,8 @@ model TaskAssignment {
   assignedTo User @relation("TaskAssignee", fields: [assignedToUid], references: [uid])
   assignedBy User @relation("TaskAssigner", fields: [assignedByUid], references: [uid])
 
+  @@index([assignedToUid])
+  @@index([taskUid, createdAt(sort: Desc)])
+  @@index([assignedToUid, createdAt(sort: Desc)])
   @@map("task_assignments")
 }

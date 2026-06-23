@@ -10,5 +10,7 @@ model RiskChecklist {
   risk        Risk                  @relation(fields: [riskUid], references: [uid], onDelete: Cascade)
   assignments ChecklistAssignment[]
 
+  @@index([isCompleted])
+  @@index([riskUid, isCompleted])
   @@map("risk_checklists")
 }
